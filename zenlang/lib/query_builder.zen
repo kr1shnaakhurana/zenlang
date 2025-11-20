@@ -1,0 +1,341 @@
+** ZenLang Query Builder Library
+** SQL-like query building for data manipulation
+** Import with: .include <zenlang/lib/query_builder>
+
+.include <zenout>
+
+** Query Builder for arrays and collections
+class Query {
+    private data;
+    private filters;
+    private sortField;
+    private sortAsc;
+    private limitCount;
+    private offsetCount;
+    private selectFields;
+    
+    funct Query(dataArray) {
+        this.data = dataArray;
+        this.filters = [];
+        this.sortField = null;
+        this.sortAsc = true;
+        this.limitCount = -1;
+        this.offsetCount = 0;
+        this.selectFields = [];
+    }
+    
+    public funct where(field, operator, value) {
+        filter = {
+            field = field,
+            operator = operator,
+            value = value
+        };
+        push(this.filters, filter);
+        return this;
+    }
+    
+    public funct whereEquals(field, value) {
+        return this.where(field, "==", value);
+    }
+    
+    public funct whereGreaterThan(field, value) {
+        return this.where(field, ">", value);
+    }
+    
+    public funct whereLessThan(field, value) {
+        return this.where(field, "<", value);
+    }
+    
+    public funct whereContains(field, value) {
+        return this.where(field, "contains", value);
+    }
+    
+    public funct orderBy(field) {
+        this.sortField = field;
+        this.sortAsc = true;
+        return this;
+    }
+    
+    public funct orderByDesc(field) {
+        this.sortField = field;
+        this.sortAsc = false;
+        return this;
+    }
+    
+    public funct limit(count) {
+        this.limitCount = count;
+        return this;
+    }
+    
+    public funct offset(count) {
+        this.offsetCount = count;
+        return this;
+    }
+    
+    public funct select(fields) {
+        this.selectFields = fields;
+        return this;
+    }
+    
+    public funct get() {
+        result = this.data;
+        
+        ** Apply filters
+        result = this.applyFilters(result);
+        
+        ** Apply sorting
+        if (this.sortField != null) {
+            result = this.applySort(result);
+        }
+        
+        ** Apply offset
+        if (this.offsetCount > 0) {
+            result = this.applyOffset(result);
+        }
+        
+        ** Apply limit
+        if (this.limitCount > 0) {
+            result = this.applyLimit(result);
+        }
+        
+        ** Apply select
+        if (length(this.selectFields) > 0) {
+            result = this.applySelect(result);
+        }
+        
+        return result;
+    }
+    
+    public funct first() {
+        results = this.limit(1).get();
+        if (length(results) > 0) {
+            return results[0];
+        }
+        return null;
+    }
+    
+    public funct count() {
+        filtered = this.applyFilters(this.data);
+        return length(filtered);
+    }
+    
+    private funct applyFilters(data) {
+        result = [];
+        
+        for (i = 0; i < length(data); i = i + 1) {
+            item = data[i];
+            matches = true;
+            
+            for (j = 0; j < length(this.filters); j = j + 1) {
+                filter = this.filters[j];
+                
+                if (!this.matchesFilter(item, filter)) {
+                    matches = false;
+                }
+            }
+            
+            if (matches) {
+                push(result, item);
+            }
+        }
+        
+        return result;
+    }
+    
+    private funct matchesFilter(item, filter) {
+        field = filter["field"];
+        operator = filter["operator"];
+        value = filter["value"];
+        
+        if (!hasKey(item, field)) {
+            return false;
+        }
+        
+        itemValue = item[field];
+        
+        if (operator == "==") {
+            return itemValue == value;
+        }
+        if (operator == ">") {
+            return itemValue > value;
+        }
+        if (operator == "<") {
+            return itemValue < value;
+        }
+        if (operator == ">=") {
+            return itemValue >= value;
+        }
+        if (operator == "<=") {
+            return itemValue <= value;
+        }
+        if (operator == "!=") {
+            return itemValue != value;
+        }
+        if (operator == "contains") {
+            return includes(itemValue, value);
+        }
+        
+        return false;
+    }
+    
+    private funct applySort(data) {
+        ** Simple bubble sort
+        result = data;
+        n = length(result);
+        
+        for (i = 0; i < n - 1; i = i + 1) {
+            for (j = 0; j < n - i - 1; j = j + 1) {
+                item1 = result[j];
+                item2 = result[j + 1];
+                
+                if (hasKey(item1, this.sortField) && hasKey(item2, this.sortField)) {
+                    val1 = item1[this.sortField];
+                    val2 = item2[this.sortField];
+                    
+                    shouldSwap = false;
+                    if (this.sortAsc) {
+                        shouldSwap = val1 > val2;
+                    } else {
+                        shouldSwap = val1 < val2;
+                    }
+                    
+                    if (shouldSwap) {
+                        result[j] = item2;
+                        result[j + 1] = item1;
+                    }
+                }
+            }
+        }
+        
+        return result;
+    }
+    
+    private funct applyOffset(data) {
+        result = [];
+        for (i = this.offsetCount; i < length(data); i = i + 1) {
+            push(result, data[i]);
+        }
+        return result;
+    }
+    
+    private funct applyLimit(data) {
+        result = [];
+        count = 0;
+        
+        for (i = 0; i < length(data); i = i + 1) {
+            if (count >= this.limitCount) {
+                return result;
+            }
+            push(result, data[i]);
+            count = count + 1;
+        }
+        
+        return result;
+    }
+    
+    private funct applySelect(data) {
+        result = [];
+        
+        for (i = 0; i < length(data); i = i + 1) {
+            item = data[i];
+            newItem = {};
+            
+            for (j = 0; j < length(this.selectFields); j = j + 1) {
+                field = this.selectFields[j];
+                if (hasKey(item, field)) {
+                    temp = newItem;
+                    temp[field] = item[field];
+                    newItem = temp;
+                }
+            }
+            
+            push(result, newItem);
+        }
+        
+        return result;
+    }
+}
+
+** Aggregation functions
+class Aggregator {
+    public static funct sum(data, field) {
+        total = 0;
+        for (i = 0; i < length(data); i = i + 1) {
+            if (hasKey(data[i], field)) {
+                total = total + data[i][field];
+            }
+        }
+        return total;
+    }
+    
+    public static funct avg(data, field) {
+        if (length(data) == 0) {
+            return 0;
+        }
+        total = Aggregator.sum(data, field);
+        return total / length(data);
+    }
+    
+    public static funct min(data, field) {
+        if (length(data) == 0) {
+            return null;
+        }
+        
+        minVal = null;
+        for (i = 0; i < length(data); i = i + 1) {
+            if (hasKey(data[i], field)) {
+                val = data[i][field];
+                if (minVal == null) {
+                    minVal = val;
+                } else if (val < minVal) {
+                    minVal = val;
+                }
+            }
+        }
+        return minVal;
+    }
+    
+    public static funct max(data, field) {
+        if (length(data) == 0) {
+            return null;
+        }
+        
+        maxVal = null;
+        for (i = 0; i < length(data); i = i + 1) {
+            if (hasKey(data[i], field)) {
+                val = data[i][field];
+                if (maxVal == null) {
+                    maxVal = val;
+                } else if (val > maxVal) {
+                    maxVal = val;
+                }
+            }
+        }
+        return maxVal;
+    }
+    
+    public static funct groupBy(data, field) {
+        groups = {};
+        
+        for (i = 0; i < length(data); i = i + 1) {
+            item = data[i];
+            if (hasKey(item, field)) {
+                key = "" + item[field];
+                
+                if (!hasKey(groups, key)) {
+                    temp = groups;
+                    temp[key] = [];
+                    groups = temp;
+                }
+                
+                group = groups[key];
+                push(group, item);
+                temp = groups;
+                temp[key] = group;
+                groups = temp;
+            }
+        }
+        
+        return groups;
+    }
+}

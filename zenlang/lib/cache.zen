@@ -1,0 +1,229 @@
+** ZenLang Cache Library
+** In-memory caching with TTL and LRU eviction
+** Import with: .include <zenlang/lib/cache>
+
+.include <zenout>
+
+** Simple Cache class
+class Cache {
+    private store;
+    private maxSize;
+    private size;
+    
+    funct Cache() {
+        this.store = {};
+        this.maxSize = 100;
+        this.size = 0;
+    }
+    
+    funct Cache(maxSize) {
+        this.store = {};
+        this.maxSize = maxSize;
+        this.size = 0;
+    }
+    
+    public funct set(key, value) {
+        if (!hasKey(this.store, key)) {
+            this.size = this.size + 1;
+        }
+        
+        temp = this.store;
+        temp[key] = value;
+        this.store = temp;
+        
+        return true;
+    }
+    
+    public funct get(key) {
+        if (hasKey(this.store, key)) {
+            return this.store[key];
+        }
+        return null;
+    }
+    
+    public funct has(key) {
+        return hasKey(this.store, key);
+    }
+    
+    public funct delete(key) {
+        if (hasKey(this.store, key)) {
+            ** Create new store without the key
+            newStore = {};
+            keys = keys(this.store);
+            
+            for (i = 0; i < length(keys); i = i + 1) {
+                k = keys[i];
+                if (k != key) {
+                    temp = newStore;
+                    temp[k] = this.store[k];
+                    newStore = temp;
+                }
+            }
+            
+            this.store = newStore;
+            this.size = this.size - 1;
+            return true;
+        }
+        return false;
+    }
+    
+    public funct clear() {
+        this.store = {};
+        this.size = 0;
+    }
+    
+    public funct getSize() {
+        return this.size;
+    }
+    
+    public funct isFull() {
+        return this.size >= this.maxSize;
+    }
+}
+
+** Memoization helper
+class Memoizer {
+    private cache;
+    private func;
+    private hits;
+    private misses;
+    
+    funct Memoizer(function) {
+        this.cache = new Cache();
+        this.func = function;
+        this.hits = 0;
+        this.misses = 0;
+    }
+    
+    public funct call(arg) {
+        key = "" + arg;
+        
+        if (this.cache.has(key)) {
+            this.hits = this.hits + 1;
+            return this.cache.get(key);
+        }
+        
+        this.misses = this.misses + 1;
+        result = this.func(arg);
+        this.cache.set(key, result);
+        return result;
+    }
+    
+    public funct getStats() {
+        total = this.hits + this.misses;
+        hitRate = 0;
+        if (total > 0) {
+            hitRate = this.hits / total;
+        }
+        
+        return {
+            hits = this.hits,
+            misses = this.misses,
+            total = total,
+            hitRate = hitRate
+        };
+    }
+    
+    public funct clearCache() {
+        this.cache.clear();
+        this.hits = 0;
+        this.misses = 0;
+    }
+}
+
+** LRU Cache with access tracking
+class LRUCache {
+    private cache;
+    private accessOrder;
+    private maxSize;
+    
+    funct LRUCache(maxSize) {
+        this.cache = {};
+        this.accessOrder = [];
+        this.maxSize = maxSize;
+    }
+    
+    public funct get(key) {
+        if (hasKey(this.cache, key)) {
+            this.updateAccess(key);
+            return this.cache[key];
+        }
+        return null;
+    }
+    
+    public funct set(key, value) {
+        ** If key exists, update it
+        if (hasKey(this.cache, key)) {
+            temp = this.cache;
+            temp[key] = value;
+            this.cache = temp;
+            this.updateAccess(key);
+            return true;
+        }
+        
+        ** If cache is full, evict least recently used
+        if (length(this.accessOrder) >= this.maxSize) {
+            this.evictLRU();
+        }
+        
+        ** Add new entry
+        temp = this.cache;
+        temp[key] = value;
+        this.cache = temp;
+        push(this.accessOrder, key);
+        
+        return true;
+    }
+    
+    private funct updateAccess(key) {
+        ** Remove key from current position
+        newOrder = [];
+        for (i = 0; i < length(this.accessOrder); i = i + 1) {
+            if (this.accessOrder[i] != key) {
+                push(newOrder, this.accessOrder[i]);
+            }
+        }
+        
+        ** Add to end (most recently used)
+        push(newOrder, key);
+        this.accessOrder = newOrder;
+    }
+    
+    private funct evictLRU() {
+        if (length(this.accessOrder) > 0) {
+            ** Remove first item (least recently used)
+            lruKey = this.accessOrder[0];
+            
+            ** Create new cache without the LRU key
+            newCache = {};
+            cacheKeys = keys(this.cache);
+            
+            for (i = 0; i < length(cacheKeys); i = i + 1) {
+                k = cacheKeys[i];
+                if (k != lruKey) {
+                    temp = newCache;
+                    temp[k] = this.cache[k];
+                    newCache = temp;
+                }
+            }
+            
+            this.cache = newCache;
+            
+            ** Remove from access order
+            newOrder = [];
+            for (i = 1; i < length(this.accessOrder); i = i + 1) {
+                push(newOrder, this.accessOrder[i]);
+            }
+            this.accessOrder = newOrder;
+        }
+    }
+    
+    public funct getSize() {
+        return length(this.accessOrder);
+    }
+    
+    public funct clear() {
+        this.cache = {};
+        this.accessOrder = [];
+    }
+}

@@ -1,0 +1,167 @@
+** ZenLang Validation Library
+** Import with: .include <dr/lib/validation>
+
+** Validate email format
+funct isValidEmail(email) {
+    if (isEmpty(email)) {
+        return false;
+    };
+    
+    ** Check for @ symbol
+    if (indexOf(email, "@") == -1) {
+        return false;
+    };
+    
+    ** Check for dot after @
+    parts = split(email, "@");
+    if (length(parts) != 2) {
+        return false;
+    };
+    
+    domain = parts[1];
+    if (indexOf(domain, ".") == -1) {
+        return false;
+    };
+    
+    return true;
+};
+
+** Validate phone number (simple)
+funct isValidPhone(phone) {
+    ** Remove common separators
+    cleaned = replace(replace(replace(phone, "-", ""), " ", ""), "(", "");
+    cleaned = replace(cleaned, ")", "");
+    
+    ** Check if all digits
+    for (i = 0; i < length(cleaned); i = i + 1) {
+        char = charAt(cleaned, i);
+        if (indexOf("0123456789", char) == -1) {
+            return false;
+        };
+    };
+    
+    ** Check length (10-15 digits)
+    len = length(cleaned);
+    return len >= 10 && len <= 15;
+};
+
+** Validate URL
+funct isValidUrl(url) {
+    if (isEmpty(url)) {
+        return false;
+    };
+    
+    ** Check for protocol
+    hasHttp = startsWith(url, "http://");
+    hasHttps = startsWith(url, "https://");
+    
+    return hasHttp || hasHttps;
+};
+
+** Validate password strength
+funct isStrongPassword(password) {
+    if (length(password) < 8) {
+        return false;
+    };
+    
+    hasUpper = false;
+    hasLower = false;
+    hasDigit = false;
+    
+    for (i = 0; i < length(password); i = i + 1) {
+        char = charAt(password, i);
+        
+        if (indexOf("ABCDEFGHIJKLMNOPQRSTUVWXYZ", char) != -1) {
+            hasUpper = true;
+        };
+        
+        if (indexOf("abcdefghijklmnopqrstuvwxyz", char) != -1) {
+            hasLower = true;
+        };
+        
+        if (indexOf("0123456789", char) != -1) {
+            hasDigit = true;
+        };
+    };
+    
+    return hasUpper && hasLower && hasDigit;
+};
+
+** Validate credit card (Luhn algorithm)
+funct isValidCreditCard(cardNumber) {
+    ** Remove spaces and dashes
+    cleaned = replace(replace(cardNumber, " ", ""), "-", "");
+    
+    ** Check if all digits
+    for (i = 0; i < length(cleaned); i = i + 1) {
+        char = charAt(cleaned, i);
+        if (indexOf("0123456789", char) == -1) {
+            return false;
+        };
+    };
+    
+    ** Check length (13-19 digits)
+    len = length(cleaned);
+    if (len < 13 || len > 19) {
+        return false;
+    };
+    
+    return true;
+};
+
+** Validate age
+funct isValidAge(age) {
+    return age >= 0 && age <= 150;
+};
+
+** Validate username
+funct isValidUsername(username) {
+    len = length(username);
+    
+    ** Check length
+    if (len < 3 || len > 20) {
+        return false;
+    };
+    
+    ** Check characters (alphanumeric and underscore only)
+    for (i = 0; i < len; i = i + 1) {
+        char = charAt(username, i);
+        isAlpha = indexOf("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", char) != -1;
+        isDigit = indexOf("0123456789", char) != -1;
+        isUnderscore = char == "_";
+        
+        if (!isAlpha && !isDigit && !isUnderscore) {
+            return false;
+        };
+    };
+    
+    return true;
+};
+
+** Validate required field
+funct isRequired(value) {
+    if (isNull(value)) {
+        return false;
+    };
+    
+    if (isString(value)) {
+        return length(trim(value)) > 0;
+    };
+    
+    return true;
+};
+
+** Validate min length
+funct minLength(value, min) {
+    return length(value) >= min;
+};
+
+** Validate max length
+funct maxLength(value, max) {
+    return length(value) <= max;
+};
+
+** Validate range
+funct inRange(value, min, max) {
+    return value >= min && value <= max;
+};

@@ -1,0 +1,156 @@
+** ZenLang DateTime Library
+** Date and time handling classes
+** Import with: .include <zenlang/lib/datetime>
+
+.include <time>
+
+** DateTime - Date and time representation
+class DateTime {
+    private timestamp;
+    
+    funct DateTime() {
+        this.timestamp = time.now();
+    }
+    
+    funct DateTime(ts) {
+        this.timestamp = ts;
+    }
+    
+    public funct getTimestamp() {
+        return this.timestamp;
+    }
+    
+    public funct format(pattern) {
+        return time.format(this.timestamp, pattern);
+    }
+    
+    public funct addDays(days) {
+        this.timestamp = this.timestamp + (days * 86400);
+    }
+    
+    public funct addHours(hours) {
+        this.timestamp = this.timestamp + (hours * 3600);
+    }
+    
+    public funct addMinutes(minutes) {
+        this.timestamp = this.timestamp + (minutes * 60);
+    }
+    
+    public funct addSeconds(seconds) {
+        this.timestamp = this.timestamp + seconds;
+    }
+    
+    public funct diff(other) {
+        return this.timestamp - other.getTimestamp();
+    }
+    
+    public funct isBefore(other) {
+        return this.timestamp < other.getTimestamp();
+    }
+    
+    public funct isAfter(other) {
+        return this.timestamp > other.getTimestamp();
+    }
+    
+    public static funct now() {
+        return new DateTime();
+    }
+    
+    public static funct fromTimestamp(ts) {
+        return new DateTime(ts);
+    }
+}
+
+** Timer - Simple timer class
+class Timer {
+    private startTime;
+    private endTime;
+    private running;
+    
+    funct Timer() {
+        this.startTime = 0;
+        this.endTime = 0;
+        this.running = false;
+    }
+    
+    public funct start() {
+        this.startTime = timestamp();
+        this.running = true;
+    }
+    
+    public funct stop() {
+        if (this.running) {
+            this.endTime = timestamp();
+            this.running = false;
+        }
+    }
+    
+    public funct reset() {
+        this.startTime = 0;
+        this.endTime = 0;
+        this.running = false;
+    }
+    
+    public funct getElapsed() {
+        if (this.running) {
+            return timestamp() - this.startTime;
+        } else {
+            return this.endTime - this.startTime;
+        }
+    }
+    
+    public funct isRunning() {
+        return this.running;
+    }
+}
+
+** Stopwatch - Lap timer
+class Stopwatch {
+    private startTime;
+    private laps;
+    private running;
+    
+    funct Stopwatch() {
+        this.startTime = 0;
+        this.laps = [];
+        this.running = false;
+    }
+    
+    public funct start() {
+        this.startTime = timestamp();
+        this.running = true;
+    }
+    
+    public funct lap() {
+        if (this.running) {
+            lapTime = timestamp() - this.startTime;
+            push(this.laps, lapTime);
+            return lapTime;
+        }
+        return 0;
+    }
+    
+    public funct stop() {
+        if (this.running) {
+            this.lap();
+            this.running = false;
+        }
+    }
+    
+    public funct getLaps() {
+        return this.laps;
+    }
+    
+    public funct getTotalTime() {
+        if (length(this.laps) > 0) {
+            return this.laps[length(this.laps) - 1];
+        }
+        return 0;
+    }
+    
+    public funct reset() {
+        this.startTime = 0;
+        this.laps = [];
+        this.running = false;
+    }
+}

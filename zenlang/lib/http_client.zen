@@ -1,0 +1,128 @@
+** ZenLang HTTP Client Library
+** HTTP request handling classes
+** Import with: .include <zenlang/lib/http_client>
+
+.include <net>
+
+** HttpRequest - HTTP request builder
+class HttpRequest {
+    private url;
+    private method;
+    private headers;
+    private body;
+    
+    funct HttpRequest(requestUrl) {
+        this.url = requestUrl;
+        this.method = "GET";
+        this.headers = {};
+        this.body = null;
+    }
+    
+    public funct setMethod(m) {
+        this.method = upper(m);
+    }
+    
+    public funct addHeader(key, value) {
+        this.headers[key] = value;
+    }
+    
+    public funct setBody(data) {
+        this.body = data;
+    }
+    
+    public funct send() {
+        if (this.method == "GET") {
+            return net.get(this.url);
+        } else if (this.method == "POST") {
+            return net.post(this.url, this.body);
+        } else if (this.method == "PUT") {
+            return net.put(this.url, this.body);
+        } else if (this.method == "DELETE") {
+            return net.delete(this.url);
+        }
+        return null;
+    }
+    
+    public funct sendJSON() {
+        if (this.method == "GET") {
+            return net.getJSON(this.url);
+        } else if (this.method == "POST") {
+            return net.postJSON(this.url, this.body);
+        }
+        return null;
+    }
+}
+
+** HttpResponse - HTTP response wrapper
+class HttpResponse {
+    private statusCode;
+    private body;
+    private headers;
+    
+    funct HttpResponse(status, responseBody) {
+        this.statusCode = status;
+        this.body = responseBody;
+        this.headers = {};
+    }
+    
+    funct HttpResponse(status, responseBody, responseHeaders) {
+        this.statusCode = status;
+        this.body = responseBody;
+        this.headers = responseHeaders;
+    }
+    
+    public funct getStatus() {
+        return this.statusCode;
+    }
+    
+    public funct getBody() {
+        return this.body;
+    }
+    
+    public funct getHeaders() {
+        return this.headers;
+    }
+    
+    public funct isSuccess() {
+        return this.statusCode >= 200 && this.statusCode < 300;
+    }
+    
+    public funct isError() {
+        return this.statusCode >= 400;
+    }
+}
+
+** RestClient - RESTful API client
+class RestClient {
+    private baseUrl;
+    private defaultHeaders;
+    
+    funct RestClient(base) {
+        this.baseUrl = base;
+        this.defaultHeaders = {};
+    }
+    
+    public funct setHeader(key, value) {
+        this.defaultHeaders[key] = value;
+    }
+    
+    public funct get(endpoint) {
+        url = this.baseUrl + endpoint;
+        return net.getJSON(url);
+    }
+    
+    public funct post(endpoint, data) {
+        url = this.baseUrl + endpoint;
+        return net.postJSON(url, data);
+    }
+    
+    public funct put(endpoint, data) {
+        url = this.baseUrl + endpoint;
+        return net.put(url, data);
+    }
+    
+    public funct delete(endpoint) {
+        url = this.baseUrl + endpoint;
+        return net.delete(url);
+    }
+}

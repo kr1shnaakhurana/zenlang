@@ -1,0 +1,538 @@
+** ZenLang Data Processing Library
+** Import with: .include <zenlang/lib/data_processing>
+
+** Transform object keys
+funct transformKeys(obj, transformer) {
+    result = {};
+    objKeys = keys(obj);
+    
+    for (i = 0; i < length(objKeys); i = i + 1) {
+        key = objKeys[i];
+        newKey = transformer(key);
+        result[newKey] = obj[key];
+    };
+    
+    return result;
+};
+
+** Transform object values
+funct transformValues(obj, transformer) {
+    result = {};
+    objKeys = keys(obj);
+    
+    for (i = 0; i < length(objKeys); i = i + 1) {
+        key = objKeys[i];
+        result[key] = transformer(obj[key]);
+    };
+    
+    return result;
+};
+
+** Filter object by predicate
+funct filterObject(obj, predicate) {
+    result = {};
+    objKeys = keys(obj);
+    
+    for (i = 0; i < length(objKeys); i = i + 1) {
+        key = objKeys[i];
+        value = obj[key];
+        
+        if (predicate(key, value)) {
+            result[key] = value;
+        };
+    };
+    
+    return result;
+};
+
+** Pivot table data
+funct pivot(data, rowKey, colKey, valueKey) {
+    result = {};
+    
+    for (i = 0; i < length(data); i = i + 1) {
+        row = data[i];
+        rowVal = row[rowKey];
+        colVal = row[colKey];
+        value = row[valueKey];
+        
+        if (!hasKey(result, rowVal)) {
+            result[rowVal] = {};
+        };
+        
+        result[rowVal][colVal] = value;
+    };
+    
+    return result;
+};
+
+** Aggregate data by key
+funct aggregate(data, groupKey, aggregations) {
+    groups = {};
+    
+    ** Group data
+    for (i = 0; i < length(data); i = i + 1) {
+        row = data[i];
+        key = row[groupKey];
+        
+        if (!hasKey(groups, key)) {
+            groups[key] = [];
+        };
+        
+        push(groups[key], row);
+    };
+    
+    ** Apply aggregations
+    result = [];
+    groupKeys = keys(groups);
+    
+    for (i = 0; i < length(groupKeys); i = i + 1) {
+        key = groupKeys[i];
+        group = groups[key];
+        
+        aggRow = {};
+        aggRow[groupKey] = key;
+        
+        aggKeys = keys(aggregations);
+        for (j = 0; j < length(aggKeys); j = j + 1) {
+            aggKey = aggKeys[j];
+            aggFunc = aggregations[aggKey];
+            aggRow[aggKey] = aggFunc(group);
+        };
+        
+        push(result, aggRow);
+    };
+    
+    return result;
+};
+
+** Join two datasets
+funct innerJoin(left, right, leftKey, rightKey) {
+    result = [];
+    
+    for (i = 0; i < length(left); i = i + 1) {
+        leftRow = left[i];
+        leftVal = leftRow[leftKey];
+        
+        for (j = 0; j < length(right); j = j + 1) {
+            rightRow = right[j];
+            rightVal = rightRow[rightKey];
+            
+            if (leftVal == rightVal) {
+                merged = {};
+                
+                ** Copy left row
+                leftKeys = keys(leftRow);
+                for (k = 0; k < length(leftKeys); k = k + 1) {
+                    key = leftKeys[k];
+                    merged[key] = leftRow[key];
+                };
+                
+                ** Copy right row
+                rightKeys = keys(rightRow);
+                for (k = 0; k < length(rightKeys); k = k + 1) {
+                    key = rightKeys[k];
+                    if (!hasKey(merged, key)) {
+                        merged[key] = rightRow[key];
+                    };
+                };
+                
+                push(result, merged);
+            };
+        };
+    };
+    
+    return result;
+};
+
+** Sort data by multiple keys
+funct multiSort(data, sortKeys) {
+    ** Simple bubble sort with multiple keys
+    result = data;
+    n = length(result);
+    
+    for (i = 0; i < n - 1; i = i + 1) {
+        for (j = 0; j < n - i - 1; j = j + 1) {
+            shouldSwap = false;
+            
+            for (k = 0; k < length(sortKeys); k = k + 1) {
+                key = sortKeys[k];
+                val1 = result[j][key];
+                val2 = result[j + 1][key];
+                
+                if (val1 > val2) {
+                    shouldSwap = true;
+                    k = length(sortKeys);
+                } else if (val1 < val2) {
+                    k = length(sortKeys);
+                };
+            };
+            
+            if (shouldSwap) {
+                temp = result[j];
+                result[j] = result[j + 1];
+                result[j + 1] = temp;
+            };
+        };
+    };
+    
+    return result;
+};
+
+** Calculate basic statistics
+funct statistics(numbers) {
+    if (length(numbers) == 0) {
+        return null;
+    };
+    
+    total = 0;
+    minVal = numbers[0];
+    maxVal = numbers[0];
+    
+    for (i = 0; i < length(numbers); i = i + 1) {
+        num = numbers[i];
+        total = total + num;
+        
+        if (num < minVal) { minVal = num; };
+        if (num > maxVal) { maxVal = num; };
+    };
+    
+    mean = total / length(numbers);
+    
+    ** Calculate median
+    sorted = sort(numbers);
+    mid = length(sorted) / 2;
+    median = sorted[int(mid)];
+    
+    if (length(sorted) % 2 == 0) {
+        median = (sorted[int(mid) - 1] + sorted[int(mid)]) / 2;
+    };
+    
+    ** Calculate variance
+    sumSquaredDiff = 0;
+    for (i = 0; i < length(numbers); i = i + 1) {
+        diff = numbers[i] - mean;
+        sumSquaredDiff = sumSquaredDiff + (diff * diff);
+    };
+    
+    variance = sumSquaredDiff / length(numbers);
+    
+    ** Approximate standard deviation using Newton's method
+    stdDev = 0;
+    if (variance > 0) {
+        x = variance;
+        for (iter = 0; iter < 10; iter = iter + 1) {
+            x = (x + variance / x) / 2;
+        };
+        stdDev = x;
+    };
+    
+    result = {};
+    result["count"] = length(numbers);
+    result["sum"] = total;
+    result["mean"] = mean;
+    result["median"] = median;
+    result["min"] = minVal;
+    result["max"] = maxVal;
+    result["range"] = maxVal - minVal;
+    result["variance"] = variance;
+    result["stdDev"] = stdDev;
+    
+    return result;
+};
+
+** Normalize data (0-1 scale)
+funct normalize(numbers) {
+    if (length(numbers) == 0) { return []; };
+    
+    minVal = numbers[0];
+    maxVal = numbers[0];
+    
+    for (i = 0; i < length(numbers); i = i + 1) {
+        if (numbers[i] < minVal) { minVal = numbers[i]; };
+        if (numbers[i] > maxVal) { maxVal = numbers[i]; };
+    };
+    
+    range = maxVal - minVal;
+    if (range == 0) { return numbers; };
+    
+    result = [];
+    for (i = 0; i < length(numbers); i = i + 1) {
+        normalized = (numbers[i] - minVal) / range;
+        push(result, normalized);
+    };
+    
+    return result;
+};
+
+** Standardize data (z-score)
+funct standardize(numbers) {
+    stats = statistics(numbers);
+    if (stats == null) { return []; };
+    
+    result = [];
+    for (i = 0; i < length(numbers); i = i + 1) {
+        zScore = (numbers[i] - stats["mean"]) / stats["stdDev"];
+        push(result, zScore);
+    };
+    
+    return result;
+};
+
+** Moving average
+funct movingAverage(numbers, windowSize) {
+    result = [];
+    
+    for (i = 0; i <= length(numbers) - windowSize; i = i + 1) {
+        sum = 0;
+        
+        for (j = 0; j < windowSize; j = j + 1) {
+            sum = sum + numbers[i + j];
+        };
+        
+        push(result, sum / windowSize);
+    };
+    
+    return result;
+};
+
+** Exponential moving average
+funct exponentialMovingAverage(numbers, alpha) {
+    if (length(numbers) == 0) { return []; };
+    
+    result = [];
+    ema = numbers[0];
+    push(result, ema);
+    
+    for (i = 1; i < length(numbers); i = i + 1) {
+        ema = alpha * numbers[i] + (1 - alpha) * ema;
+        push(result, ema);
+    };
+    
+    return result;
+};
+
+** Correlation coefficient (Pearson)
+funct correlation(x, y) {
+    if (length(x) != length(y) || length(x) == 0) {
+        return null;
+    };
+    
+    n = length(x);
+    sumX = 0;
+    sumY = 0;
+    sumXY = 0;
+    sumX2 = 0;
+    sumY2 = 0;
+    
+    for (i = 0; i < n; i = i + 1) {
+        sumX = sumX + x[i];
+        sumY = sumY + y[i];
+        sumXY = sumXY + (x[i] * y[i]);
+        sumX2 = sumX2 + (x[i] * x[i]);
+        sumY2 = sumY2 + (y[i] * y[i]);
+    };
+    
+    numerator = (n * sumXY) - (sumX * sumY);
+    denomX = (n * sumX2 - sumX * sumX);
+    denomY = (n * sumY2 - sumY * sumY);
+    
+    if (denomX <= 0 || denomY <= 0) { return 0; };
+    
+    ** Approximate square root
+    denom = denomX * denomY;
+    sqrtDenom = denom;
+    for (iter = 0; iter < 10; iter = iter + 1) {
+        sqrtDenom = (sqrtDenom + denom / sqrtDenom) / 2;
+    };
+    
+    if (sqrtDenom == 0) { return 0; };
+    
+    return numerator / sqrtDenom;
+};
+
+** Linear regression (returns slope and intercept)
+funct linearRegression(x, y) {
+    if (length(x) != length(y) || length(x) == 0) {
+        return null;
+    };
+    
+    n = length(x);
+    sumX = 0;
+    sumY = 0;
+    sumXY = 0;
+    sumX2 = 0;
+    
+    for (i = 0; i < n; i = i + 1) {
+        sumX = sumX + x[i];
+        sumY = sumY + y[i];
+        sumXY = sumXY + (x[i] * y[i]);
+        sumX2 = sumX2 + (x[i] * x[i]);
+    };
+    
+    slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    intercept = (sumY - slope * sumX) / n;
+    
+    result = {};
+    result["slope"] = slope;
+    result["intercept"] = intercept;
+    
+    return result;
+};
+
+** Percentile calculation
+funct percentile(numbers, p) {
+    if (length(numbers) == 0) { return null; };
+    
+    sorted = sort(numbers);
+    index = (p / 100) * (length(sorted) - 1);
+    lower = int(index);
+    upper = lower + 1;
+    
+    if (upper >= length(sorted)) {
+        return sorted[lower];
+    };
+    
+    weight = index - lower;
+    return sorted[lower] * (1 - weight) + sorted[upper] * weight;
+};
+
+** Quartiles
+funct quartiles(numbers) {
+    result = {};
+    result["q1"] = percentile(numbers, 25);
+    result["q2"] = percentile(numbers, 50);
+    result["q3"] = percentile(numbers, 75);
+    result["iqr"] = result["q3"] - result["q1"];
+    
+    return result;
+};
+
+** Outlier detection using IQR method
+funct detectOutliers(numbers) {
+    q = quartiles(numbers);
+    lowerBound = q["q1"] - 1.5 * q["iqr"];
+    upperBound = q["q3"] + 1.5 * q["iqr"];
+    
+    outliers = [];
+    for (i = 0; i < length(numbers); i = i + 1) {
+        if (numbers[i] < lowerBound || numbers[i] > upperBound) {
+            push(outliers, numbers[i]);
+        };
+    };
+    
+    return outliers;
+};
+
+** Cumulative sum
+funct cumulativeSum(numbers) {
+    result = [];
+    sum = 0;
+    
+    for (i = 0; i < length(numbers); i = i + 1) {
+        sum = sum + numbers[i];
+        push(result, sum);
+    };
+    
+    return result;
+};
+
+** Difference between consecutive elements
+funct diff(numbers) {
+    result = [];
+    
+    for (i = 1; i < length(numbers); i = i + 1) {
+        push(result, numbers[i] - numbers[i - 1]);
+    };
+    
+    return result;
+};
+
+** Percentage change
+funct percentageChange(numbers) {
+    result = [];
+    
+    for (i = 1; i < length(numbers); i = i + 1) {
+        if (numbers[i - 1] != 0) {
+            change = ((numbers[i] - numbers[i - 1]) / numbers[i - 1]) * 100;
+            push(result, change);
+        } else {
+            push(result, 0);
+        };
+    };
+    
+    return result;
+};
+
+** Binning/Bucketing data
+funct bin(numbers, numBins) {
+    if (length(numbers) == 0) { return []; };
+    
+    minVal = numbers[0];
+    maxVal = numbers[0];
+    
+    for (i = 0; i < length(numbers); i = i + 1) {
+        if (numbers[i] < minVal) { minVal = numbers[i]; };
+        if (numbers[i] > maxVal) { maxVal = numbers[i]; };
+    };
+    
+    binWidth = (maxVal - minVal) / numBins;
+    if (binWidth == 0) { binWidth = 1; };
+    
+    result = [];
+    for (i = 0; i < length(numbers); i = i + 1) {
+        binIndex = int((numbers[i] - minVal) / binWidth);
+        if (binIndex >= numBins) { binIndex = numBins - 1; };
+        push(result, binIndex);
+    };
+    
+    return result;
+};
+
+** Mode (most frequent value)
+funct mode(numbers) {
+    if (length(numbers) == 0) { return null; };
+    
+    freq = {};
+    
+    for (i = 0; i < length(numbers); i = i + 1) {
+        key = numbers[i] + "";
+        if (hasKey(freq, key)) {
+            freq[key] = freq[key] + 1;
+        } else {
+            freq[key] = 1;
+        };
+    };
+    
+    maxCount = 0;
+    modeValue = numbers[0];
+    
+    freqKeys = keys(freq);
+    for (i = 0; i < length(freqKeys); i = i + 1) {
+        key = freqKeys[i];
+        if (freq[key] > maxCount) {
+            maxCount = freq[key];
+            modeValue = float(key);
+        };
+    };
+    
+    return modeValue;
+};
+
+** Weighted average
+funct weightedAverage(values, weights) {
+    if (length(values) != length(weights) || length(values) == 0) {
+        return null;
+    };
+    
+    sumWeighted = 0;
+    sumWeights = 0;
+    
+    for (i = 0; i < length(values); i = i + 1) {
+        sumWeighted = sumWeighted + values[i] * weights[i];
+        sumWeights = sumWeights + weights[i];
+    };
+    
+    if (sumWeights == 0) { return 0; };
+    
+    return sumWeighted / sumWeights;
+};

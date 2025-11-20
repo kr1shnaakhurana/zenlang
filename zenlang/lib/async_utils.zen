@@ -1,0 +1,202 @@
+** ZenLang Async Utilities Library
+** Import with: .include <dr/lib/async_utils>
+
+** Delay execution
+funct delay(seconds, callback) {
+    sleep(seconds);
+    return callback();
+};
+
+** Retry operation with exponential backoff
+funct retry(operation, maxAttempts, baseDelay) {
+    attempt = 0;
+    
+    while (attempt < maxAttempts) {
+        result = operation();
+        
+        if (result != null && result != false) {
+            return result;
+        };
+        
+        if (attempt < maxAttempts - 1) {
+            delayTime = baseDelay * (2 ** attempt);
+            sleep(delayTime);
+        };
+        
+        attempt = attempt + 1;
+    };
+    
+    return null;
+};
+
+** Timeout wrapper
+funct timeout(operation, seconds, defaultValue) {
+    ** Note: True async timeout requires threading
+    ** This is a simplified version
+    startTime = timestamp();
+    result = operation();
+    endTime = timestamp();
+    
+    if (endTime - startTime > seconds) {
+        return defaultValue;
+    };
+    
+    return result;
+};
+
+** Batch process array
+funct batchProcess(arr, batchSize, processor) {
+    results = [];
+    
+    for (i = 0; i < length(arr); i = i + batchSize) {
+        batch = [];
+        
+        for (j = i; j < i + batchSize && j < length(arr); j = j + 1) {
+            push(batch, arr[j]);
+        };
+        
+        batchResult = processor(batch);
+        push(results, batchResult);
+    };
+    
+    return results;
+};
+
+** Rate limiter
+funct rateLimiter(operations, maxPerSecond) {
+    results = [];
+    delayBetween = 1.0 / maxPerSecond;
+    
+    for (i = 0; i < length(operations); i = i + 1) {
+        result = operations[i]();
+        push(results, result);
+        
+        if (i < length(operations) - 1) {
+            sleep(delayBetween);
+        };
+    };
+    
+    return results;
+};
+
+** Parallel map (simulated with sequential execution)
+funct parallelMap(arr, mapper) {
+    results = [];
+    
+    for (i = 0; i < length(arr); i = i + 1) {
+        push(results, mapper(arr[i]));
+    };
+    
+    return results;
+};
+
+** Sequential execution
+funct sequence(operations) {
+    results = [];
+    
+    for (i = 0; i < length(operations); i = i + 1) {
+        result = operations[i]();
+        push(results, result);
+    };
+    
+    return results;
+};
+
+** Waterfall execution (pass result to next)
+funct waterfall(operations, initialValue) {
+    result = initialValue;
+    
+    for (i = 0; i < length(operations); i = i + 1) {
+        result = operations[i](result);
+    };
+    
+    return result;
+};
+
+** Race (return first completed)
+funct race(operations) {
+    ** Simplified: returns first result
+    if (length(operations) > 0) {
+        return operations[0]();
+    };
+    return null;
+};
+
+** All (wait for all to complete)
+funct all(operations) {
+    results = [];
+    
+    for (i = 0; i < length(operations); i = i + 1) {
+        result = operations[i]();
+        push(results, result);
+    };
+    
+    return results;
+};
+
+** Debounce function calls
+funct createDebouncer(delaySeconds) {
+    lastCall = 0;
+    
+    return funct(operation) {
+        currentTime = timestamp();
+        
+        if (currentTime - lastCall >= delaySeconds) {
+            lastCall = currentTime;
+            return operation();
+        };
+        
+        return null;
+    };
+};
+
+** Throttle function calls
+funct createThrottler(limitSeconds) {
+    lastCall = 0;
+    
+    return funct(operation) {
+        currentTime = timestamp();
+        
+        if (currentTime - lastCall >= limitSeconds) {
+            lastCall = currentTime;
+            return operation();
+        };
+        
+        return null;
+    };
+};
+
+** Queue processor
+funct processQueue(queue, processor, delayBetween) {
+    results = [];
+    
+    while (length(queue) > 0) {
+        item = shift(queue);
+        result = processor(item);
+        push(results, result);
+        
+        if (length(queue) > 0) {
+            sleep(delayBetween);
+        };
+    };
+    
+    return results;
+};
+
+** Polling function
+funct poll(checker, interval, maxAttempts) {
+    attempts = 0;
+    
+    while (attempts < maxAttempts) {
+        result = checker();
+        
+        if (result) {
+            return result;
+        };
+        
+        sleep(interval);
+        attempts = attempts + 1;
+    };
+    
+    return null;
+};

@@ -1,0 +1,183 @@
+** ZenLang HTTP Server Library
+** Real HTTP server for web applications
+** Import with: .include <zenlang/lib/http_server>
+
+.include <zenout>
+.include <http>
+
+** HTTP Server class
+class HttpServer {
+    private host;
+    private port;
+    private router;
+    private started;
+    
+    funct HttpServer(serverHost, serverPort) {
+        this.host = serverHost;
+        this.port = serverPort;
+        this.router = null;
+        this.started = false;
+    }
+    
+    public funct setRouter(routerInstance) {
+        this.router = routerInstance;
+    }
+    
+    public funct start() {
+        if (this.started) {
+            zenout.console("Server already running");
+            return false;
+        }
+        
+        zenout.console("Starting HTTP server on " + this.host + ":" + this.port);
+        
+        ** Create router callback
+        if (this.router != null) {
+            http.setRouter(this.createRouterCallback());
+        }
+        
+        ** Start server
+        http.start(this.host, this.port);
+        this.started = true;
+        
+        return true;
+    }
+    
+    private funct createRouterCallback() {
+        router = this.router;
+        
+        return funct(request) {
+            ** Convert request to ZenLang format
+            method = request["method"];
+            path = request["path"];
+            
+            ** Create Request object
+            req = new Request(method, path);
+            req.body = request["body"];
+            
+            ** Handle with router
+            response = router.handle(method, path, req);
+            
+            ** Return response
+            return response.build();
+        };
+    }
+    
+    public funct isRunning() {
+        return this.started;
+    }
+}
+
+** Request class (compatible with router)
+class Request {
+    public method;
+    public path;
+    public params;
+    public query;
+    public body;
+    public headers;
+    
+    funct Request(reqMethod, reqPath) {
+        this.method = reqMethod;
+        this.path = reqPath;
+        this.params = {};
+        this.query = {};
+        this.body = null;
+        this.headers = {};
+    }
+    
+    public funct setParams(newParams) {
+        this.params = newParams;
+    }
+    
+    public funct getParam(name) {
+        if (hasKey(this.params, name)) {
+            return this.params[name];
+        }
+        return null;
+    }
+    
+    public funct getQuery(name) {
+        if (hasKey(this.query, name)) {
+            return this.query[name];
+        }
+        return null;
+    }
+    
+    public funct getHeader(name) {
+        if (hasKey(this.headers, name)) {
+            return this.headers[name];
+        }
+        return null;
+    }
+}
+
+** Response class
+class Response {
+    public status;
+    public headers;
+    public body;
+    
+    funct Response() {
+        this.status = 200;
+        this.headers = {};
+        this.body = "";
+    }
+    
+    public funct setStatus(code) {
+        this.status = code;
+        return this;
+    }
+    
+    public funct setHeader(name, value) {
+        temp = this.headers;
+        temp[name] = value;
+        this.headers = temp;
+        return this;
+    }
+    
+    public funct json(data) {
+        this.body = toJSON(data);
+        temp = this.headers;
+        temp["Content-Type"] = "application/json";
+        this.headers = temp;
+        return this;
+    }
+    
+    public funct html(content) {
+        this.body = content;
+        temp = this.headers;
+        temp["Content-Type"] = "text/html";
+        this.headers = temp;
+        return this;
+    }
+    
+    public funct text(content) {
+        this.body = content;
+        temp = this.headers;
+        temp["Content-Type"] = "text/plain";
+        this.headers = temp;
+        return this;
+    }
+    
+    public funct redirect(url) {
+        this.status = 302;
+        temp = this.headers;
+        temp["Location"] = url;
+        this.headers = temp;
+        return this;
+    }
+    
+    public funct build() {
+        return {
+            status = this.status,
+            headers = this.headers,
+            body = this.body
+        };
+    }
+}
+
+** Simple JSON conversion
+funct toJSON(data) {
+    return "" + data;
+};

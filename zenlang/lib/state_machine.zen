@@ -1,0 +1,141 @@
+** ZenLang State Machine Library
+** Finite state machine implementation
+** Import with: .include <zenlang/lib/state_machine>
+
+.include <zenout>
+
+** State Machine class
+class StateMachine {
+    private currentState;
+    private states;
+    private transitions;
+    private listeners;
+    
+    funct StateMachine(initialState) {
+        this.currentState = initialState;
+        this.states = [];
+        this.transitions = {};
+        this.listeners = {};
+        push(this.states, initialState);
+    }
+    
+    public funct addState(stateName) {
+        if (!includes(this.states, stateName)) {
+            push(this.states, stateName);
+        }
+    }
+    
+    public funct addTransition(fromState, toState, eventName) {
+        key = fromState + ":" + eventName;
+        temp = this.transitions;
+        temp[key] = toState;
+        this.transitions = temp;
+    }
+    
+    public funct onEnter(stateName, callback) {
+        key = "enter:" + stateName;
+        temp = this.listeners;
+        temp[key] = callback;
+        this.listeners = temp;
+    }
+    
+    public funct onExit(stateName, callback) {
+        key = "exit:" + stateName;
+        temp = this.listeners;
+        temp[key] = callback;
+        this.listeners = temp;
+    }
+    
+    public funct trigger(eventName) {
+        key = this.currentState + ":" + eventName;
+        
+        if (hasKey(this.transitions, key)) {
+            oldState = this.currentState;
+            newState = this.transitions[key];
+            
+            ** Call exit callback
+            exitKey = "exit:" + oldState;
+            if (hasKey(this.listeners, exitKey)) {
+                this.listeners[exitKey]();
+            }
+            
+            ** Change state
+            this.currentState = newState;
+            
+            ** Call enter callback
+            enterKey = "enter:" + newState;
+            if (hasKey(this.listeners, enterKey)) {
+                this.listeners[enterKey]();
+            }
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public funct getState() {
+        return this.currentState;
+    }
+    
+    public funct canTransition(eventName) {
+        key = this.currentState + ":" + eventName;
+        return hasKey(this.transitions, key);
+    }
+    
+    public funct getStates() {
+        return this.states;
+    }
+}
+
+** Workflow class - higher level state machine
+class Workflow {
+    private machine;
+    private data;
+    
+    funct Workflow(initialState) {
+        this.machine = new StateMachine(initialState);
+        this.data = {};
+    }
+    
+    public funct defineState(stateName) {
+        this.machine.addState(stateName);
+        return this;
+    }
+    
+    public funct defineTransition(from, to, event) {
+        this.machine.addTransition(from, to, event);
+        return this;
+    }
+    
+    public funct onStateEnter(stateName, callback) {
+        this.machine.onEnter(stateName, callback);
+        return this;
+    }
+    
+    public funct onStateExit(stateName, callback) {
+        this.machine.onExit(stateName, callback);
+        return this;
+    }
+    
+    public funct execute(event) {
+        return this.machine.trigger(event);
+    }
+    
+    public funct getCurrentState() {
+        return this.machine.getState();
+    }
+    
+    public funct setData(key, value) {
+        temp = this.data;
+        temp[key] = value;
+        this.data = temp;
+    }
+    
+    public funct getData(key) {
+        if (hasKey(this.data, key)) {
+            return this.data[key];
+        }
+        return null;
+    }
+}

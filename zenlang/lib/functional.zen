@@ -1,0 +1,171 @@
+** ZenLang Functional Programming Library
+** Import with: .include <zenlang/lib/functional>
+
+** Compose two functions
+funct compose(f, g) {
+    return funct(x) {
+        return f(g(x));
+    };
+};
+
+** Pipe functions (left to right)
+funct pipe(f, g) {
+    return funct(x) {
+        return g(f(x));
+    };
+};
+
+** Curry a two-argument function
+funct curry2(f) {
+    return funct(a) {
+        return funct(b) {
+            return f(a, b);
+        };
+    };
+};
+
+** Partial application
+funct partial(f, arg1) {
+    return funct(arg2) {
+        return f(arg1, arg2);
+    };
+};
+
+** Memoize a function (cache results)
+funct memoize(f) {
+    cache = {};
+    
+    return funct(x) {
+        key = x + "";
+        if (hasKey(cache, key)) {
+            return cache[key];
+        };
+        
+        result = f(x);
+        cache[key] = result;
+        return result;
+    };
+};
+
+** Reduce array to single value
+funct reduce(arr, f, initial) {
+    accumulator = initial;
+    
+    for (i = 0; i < length(arr); i = i + 1) {
+        accumulator = f(accumulator, arr[i]);
+    };
+    
+    return accumulator;
+};
+
+** Map with index
+funct mapWithIndex(arr, f) {
+    result = [];
+    
+    for (i = 0; i < length(arr); i = i + 1) {
+        push(result, f(arr[i], i));
+    };
+    
+    return result;
+};
+
+** Filter with index
+funct filterWithIndex(arr, f) {
+    result = [];
+    
+    for (i = 0; i < length(arr); i = i + 1) {
+        if (f(arr[i], i)) {
+            push(result, arr[i]);
+        };
+    };
+    
+    return result;
+};
+
+** Every - check if all elements satisfy condition
+funct every(arr, f) {
+    for (i = 0; i < length(arr); i = i + 1) {
+        if (!f(arr[i])) {
+            return false;
+        };
+    };
+    return true;
+};
+
+** Some - check if any element satisfies condition
+funct some(arr, f) {
+    for (i = 0; i < length(arr); i = i + 1) {
+        if (f(arr[i])) {
+            return true;
+        };
+    };
+    return false;
+};
+
+** None - check if no elements satisfy condition
+funct none(arr, f) {
+    return !some(arr, f);
+};
+
+** Pluck - extract property from array of objects
+funct pluck(arr, key) {
+    result = [];
+    
+    for (i = 0; i < length(arr); i = i + 1) {
+        obj = arr[i];
+        if (hasKey(obj, key)) {
+            push(result, obj[key]);
+        };
+    };
+    
+    return result;
+};
+
+** Group by property
+funct groupBy(arr, key) {
+    groups = {};
+    
+    for (i = 0; i < length(arr); i = i + 1) {
+        obj = arr[i];
+        groupKey = obj[key] + "";
+        
+        if (!hasKey(groups, groupKey)) {
+            groups[groupKey] = [];
+        };
+        
+        push(groups[groupKey], obj);
+    };
+    
+    return groups;
+};
+
+** Count by property
+funct countBy(arr, key) {
+    counts = {};
+    
+    for (i = 0; i < length(arr); i = i + 1) {
+        obj = arr[i];
+        countKey = obj[key] + "";
+        
+        if (!hasKey(counts, countKey)) {
+            counts[countKey] = 0;
+        };
+        
+        counts[countKey] = counts[countKey] + 1;
+    };
+    
+    return counts;
+};
+
+** Debounce (simplified - returns function that tracks calls)
+funct createDebouncer() {
+    return {lastCall=0, delay=1000};
+};
+
+funct shouldExecute(debouncer, currentTime) {
+    if (currentTime - debouncer["lastCall"] >= debouncer["delay"]) {
+        debouncer["lastCall"] = currentTime;
+        return true;
+    };
+    return false;
+};

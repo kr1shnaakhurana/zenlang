@@ -1,0 +1,292 @@
+** ZenLang Scheduler Library
+** Task scheduling and job queue management
+** Import with: .include <zenlang/lib/scheduler>
+
+.include <zenout>
+
+** Task class
+class Task {
+    private id;
+    private name;
+    private func;
+    private priority;
+    private status;
+    private result;
+    
+    funct Task(taskId, taskName, taskFunc) {
+        this.id = taskId;
+        this.name = taskName;
+        this.func = taskFunc;
+        this.priority = 0;
+        this.status = "pending";
+        this.result = null;
+    }
+    
+    public funct setPriority(p) {
+        this.priority = p;
+    }
+    
+    public funct getPriority() {
+        return this.priority;
+    }
+    
+    public funct execute() {
+        this.status = "running";
+        this.result = this.func();
+        this.status = "completed";
+        return this.result;
+    }
+    
+    public funct getStatus() {
+        return this.status;
+    }
+    
+    public funct getId() {
+        return this.id;
+    }
+    
+    public funct getName() {
+        return this.name;
+    }
+    
+    public funct getResult() {
+        return this.result;
+    }
+}
+
+** Task Queue
+class TaskQueue {
+    private tasks;
+    private nextId;
+    
+    funct TaskQueue() {
+        this.tasks = [];
+        this.nextId = 1;
+    }
+    
+    public funct enqueue(name, func) {
+        task = new Task(this.nextId, name, func);
+        this.nextId = this.nextId + 1;
+        push(this.tasks, task);
+        return task.getId();
+    }
+    
+    public funct enqueuePriority(name, func, priority) {
+        task = new Task(this.nextId, name, func);
+        task.setPriority(priority);
+        this.nextId = this.nextId + 1;
+        
+        ** Insert in priority order
+        inserted = false;
+        newTasks = [];
+        
+        for (i = 0; i < length(this.tasks); i = i + 1) {
+            existingTask = this.tasks[i];
+            
+            if (!inserted && priority > existingTask.getPriority()) {
+                push(newTasks, task);
+                inserted = true;
+            }
+            
+            push(newTasks, existingTask);
+        }
+        
+        if (!inserted) {
+            push(newTasks, task);
+        }
+        
+        this.tasks = newTasks;
+        return task.getId();
+    }
+    
+    public funct dequeue() {
+        if (length(this.tasks) == 0) {
+            return null;
+        }
+        
+        task = this.tasks[0];
+        
+        ** Remove first task
+        newTasks = [];
+        for (i = 1; i < length(this.tasks); i = i + 1) {
+            push(newTasks, this.tasks[i]);
+        }
+        this.tasks = newTasks;
+        
+        return task;
+    }
+    
+    public funct size() {
+        return length(this.tasks);
+    }
+    
+    public funct isEmpty() {
+        return length(this.tasks) == 0;
+    }
+    
+    public funct peek() {
+        if (length(this.tasks) > 0) {
+            return this.tasks[0];
+        }
+        return null;
+    }
+}
+
+** Scheduler
+class Scheduler {
+    private queue;
+    private completed;
+    private failed;
+    
+    funct Scheduler() {
+        this.queue = new TaskQueue();
+        this.completed = [];
+        this.failed = [];
+    }
+    
+    public funct schedule(name, func) {
+        return this.queue.enqueue(name, func);
+    }
+    
+    public funct schedulePriority(name, func, priority) {
+        return this.queue.enqueuePriority(name, func, priority);
+    }
+    
+    public funct runNext() {
+        task = this.queue.dequeue();
+        
+        if (task == null) {
+            return null;
+        }
+        
+        result = task.execute();
+        
+        if (task.getStatus() == "completed") {
+            push(this.completed, task);
+        } else {
+            push(this.failed, task);
+        }
+        
+        return result;
+    }
+    
+    public funct runAll() {
+        results = [];
+        
+        while (!this.queue.isEmpty()) {
+            result = this.runNext();
+            push(results, result);
+        }
+        
+        return results;
+    }
+    
+    public funct getPendingCount() {
+        return this.queue.size();
+    }
+    
+    public funct getCompletedCount() {
+        return length(this.completed);
+    }
+    
+    public funct getFailedCount() {
+        return length(this.failed);
+    }
+    
+    public funct getStats() {
+        return {
+            pending = this.getPendingCount(),
+            completed = this.getCompletedCount(),
+            failed = this.getFailedCount()
+        };
+    }
+}
+
+** Job runner with retry logic
+class JobRunner {
+    private maxRetries;
+    private retryDelay;
+    
+    funct JobRunner() {
+        this.maxRetries = 3;
+        this.retryDelay = 1000;
+    }
+    
+    funct JobRunner(maxRetries) {
+        this.maxRetries = maxRetries;
+        this.retryDelay = 1000;
+    }
+    
+    public funct run(job) {
+        attempts = 0;
+        lastError = null;
+        
+        while (attempts < this.maxRetries) {
+            attempts = attempts + 1;
+            
+            result = job();
+            
+            ** If result is not null, consider it success
+            if (result != null) {
+                return {
+                    success = true,
+                    result = result,
+                    attempts = attempts
+                };
+            }
+        }
+        
+        return {
+            success = false,
+            result = null,
+            attempts = attempts
+        };
+    }
+}
+
+** Cron-like scheduler (simplified)
+class CronScheduler {
+    private jobs;
+    private lastRun;
+    
+    funct CronScheduler() {
+        this.jobs = [];
+        this.lastRun = {};
+    }
+    
+    public funct addJob(name, func, intervalSeconds) {
+        job = {
+            name = name,
+            func = func,
+            interval = intervalSeconds,
+            lastRun = 0
+        };
+        push(this.jobs, job);
+    }
+    
+    public funct tick(currentTime) {
+        executed = [];
+        
+        for (i = 0; i < length(this.jobs); i = i + 1) {
+            job = this.jobs[i];
+            timeSinceLastRun = currentTime - job["lastRun"];
+            
+            if (timeSinceLastRun >= job["interval"]) {
+                ** Execute job
+                job["func"]();
+                job["lastRun"] = currentTime;
+                
+                ** Update job in array
+                this.jobs[i] = job;
+                
+                push(executed, job["name"]);
+            }
+        }
+        
+        return executed;
+    }
+    
+    public funct getJobCount() {
+        return length(this.jobs);
+    }
+}

@@ -1,0 +1,390 @@
+** ZenLang Form Handler Library
+** Form building, validation, and processing
+** Import with: .include <zenlang/lib/form_handler>
+
+.include <zenout>
+.include <zenlang/lib/html_builder>
+
+** Form Builder class
+class FormBuilder {
+    private action;
+    private method;
+    private fields;
+    private errors;
+    
+    funct FormBuilder(formAction, formMethod) {
+        this.action = formAction;
+        this.method = formMethod;
+        this.fields = [];
+        this.errors = {};
+    }
+    
+    public funct text(name, label, value) {
+        field = {
+            type = "text",
+            name = name,
+            label = label,
+            value = value
+        };
+        push(this.fields, field);
+        return this;
+    }
+    
+    public funct email(name, label, value) {
+        field = {
+            type = "email",
+            name = name,
+            label = label,
+            value = value
+        };
+        push(this.fields, field);
+        return this;
+    }
+    
+    public funct password(name, label) {
+        field = {
+            type = "password",
+            name = name,
+            label = label,
+            value = ""
+        };
+        push(this.fields, field);
+        return this;
+    }
+    
+    public funct textarea(name, label, value) {
+        field = {
+            type = "textarea",
+            name = name,
+            label = label,
+            value = value
+        };
+        push(this.fields, field);
+        return this;
+    }
+    
+    public funct select(name, label, options) {
+        field = {
+            type = "select",
+            name = name,
+            label = label,
+            options = options,
+            value = ""
+        };
+        push(this.fields, field);
+        return this;
+    }
+    
+    public funct checkbox(name, label, checked) {
+        field = {
+            type = "checkbox",
+            name = name,
+            label = label,
+            checked = checked
+        };
+        push(this.fields, field);
+        return this;
+    }
+    
+    public funct radio(name, label, value) {
+        field = {
+            type = "radio",
+            name = name,
+            label = label,
+            value = value
+        };
+        push(this.fields, field);
+        return this;
+    }
+    
+    public funct hidden(name, value) {
+        field = {
+            type = "hidden",
+            name = name,
+            value = value
+        };
+        push(this.fields, field);
+        return this;
+    }
+    
+    public funct submit(label) {
+        field = {
+            type = "submit",
+            label = label
+        };
+        push(this.fields, field);
+        return this;
+    }
+    
+    public funct render() {
+        html = "<form action=\"" + this.action + "\" method=\"" + this.method + "\">\n";
+        
+        for (i = 0; i < length(this.fields); i = i + 1) {
+            field = this.fields[i];
+            html = html + this.renderField(field);
+        }
+        
+        html = html + "</form>";
+        return html;
+    }
+    
+    private funct renderField(field) {
+        fieldType = field["type"];
+        
+        if (fieldType == "text" || fieldType == "email" || fieldType == "password") {
+            return this.renderInput(field);
+        }
+        
+        if (fieldType == "textarea") {
+            return this.renderTextarea(field);
+        }
+        
+        if (fieldType == "select") {
+            return this.renderSelect(field);
+        }
+        
+        if (fieldType == "checkbox") {
+            return this.renderCheckbox(field);
+        }
+        
+        if (fieldType == "radio") {
+            return this.renderRadio(field);
+        }
+        
+        if (fieldType == "hidden") {
+            return this.renderHidden(field);
+        }
+        
+        if (fieldType == "submit") {
+            return this.renderSubmit(field);
+        }
+        
+        return "";
+    }
+    
+    private funct renderInput(field) {
+        html = "<div class=\"form-group\">\n";
+        html = html + "  <label>" + field["label"] + "</label>\n";
+        html = html + "  <input type=\"" + field["type"] + "\" name=\"" + field["name"] + "\"";
+        
+        if (hasKey(field, "value") && field["value"] != "") {
+            html = html + " value=\"" + field["value"] + "\"";
+        }
+        
+        html = html + " />\n";
+        html = html + "</div>\n";
+        return html;
+    }
+    
+    private funct renderTextarea(field) {
+        html = "<div class=\"form-group\">\n";
+        html = html + "  <label>" + field["label"] + "</label>\n";
+        html = html + "  <textarea name=\"" + field["name"] + "\">";
+        
+        if (hasKey(field, "value")) {
+            html = html + field["value"];
+        }
+        
+        html = html + "</textarea>\n";
+        html = html + "</div>\n";
+        return html;
+    }
+    
+    private funct renderSelect(field) {
+        html = "<div class=\"form-group\">\n";
+        html = html + "  <label>" + field["label"] + "</label>\n";
+        html = html + "  <select name=\"" + field["name"] + "\">\n";
+        
+        options = field["options"];
+        for (i = 0; i < length(options); i = i + 1) {
+            option = options[i];
+            html = html + "    <option value=\"" + option + "\">" + option + "</option>\n";
+        }
+        
+        html = html + "  </select>\n";
+        html = html + "</div>\n";
+        return html;
+    }
+    
+    private funct renderCheckbox(field) {
+        html = "<div class=\"form-group\">\n";
+        html = html + "  <label>\n";
+        html = html + "    <input type=\"checkbox\" name=\"" + field["name"] + "\"";
+        
+        if (hasKey(field, "checked") && field["checked"]) {
+            html = html + " checked";
+        }
+        
+        html = html + " />\n";
+        html = html + "    " + field["label"] + "\n";
+        html = html + "  </label>\n";
+        html = html + "</div>\n";
+        return html;
+    }
+    
+    private funct renderRadio(field) {
+        html = "<div class=\"form-group\">\n";
+        html = html + "  <label>\n";
+        html = html + "    <input type=\"radio\" name=\"" + field["name"] + "\" value=\"" + field["value"] + "\" />\n";
+        html = html + "    " + field["label"] + "\n";
+        html = html + "  </label>\n";
+        html = html + "</div>\n";
+        return html;
+    }
+    
+    private funct renderHidden(field) {
+        return "<input type=\"hidden\" name=\"" + field["name"] + "\" value=\"" + field["value"] + "\" />\n";
+    }
+    
+    private funct renderSubmit(field) {
+        return "<div class=\"form-group\">\n  <button type=\"submit\">" + field["label"] + "</button>\n</div>\n";
+    }
+}
+
+** Form Validator class
+class FormValidator {
+    private rules;
+    private errors;
+    
+    funct FormValidator() {
+        this.rules = {};
+        this.errors = {};
+    }
+    
+    public funct addRule(field, ruleName, ruleFunc) {
+        if (!hasKey(this.rules, field)) {
+            temp = this.rules;
+            temp[field] = [];
+            this.rules = temp;
+        }
+        
+        fieldRules = this.rules[field];
+        rule = {
+            name = ruleName,
+            func = ruleFunc
+        };
+        push(fieldRules, rule);
+        
+        temp = this.rules;
+        temp[field] = fieldRules;
+        this.rules = temp;
+        
+        return this;
+    }
+    
+    public funct required(field) {
+        return this.addRule(field, "required", funct(value) {
+            if (value == null || value == "") {
+                return "This field is required";
+            }
+            return null;
+        });
+    }
+    
+    public funct minLength(field, min) {
+        return this.addRule(field, "minLength", funct(value) {
+            if (length(value) < min) {
+                return "Minimum length is " + min;
+            }
+            return null;
+        });
+    }
+    
+    public funct maxLength(field, max) {
+        return this.addRule(field, "maxLength", funct(value) {
+            if (length(value) > max) {
+                return "Maximum length is " + max;
+            }
+            return null;
+        });
+    }
+    
+    public funct email(field) {
+        return this.addRule(field, "email", funct(value) {
+            if (!includes(value, "@")) {
+                return "Invalid email address";
+            }
+            return null;
+        });
+    }
+    
+    public funct validate(data) {
+        this.errors = {};
+        isValid = true;
+        
+        ruleFields = keys(this.rules);
+        for (i = 0; i < length(ruleFields); i = i + 1) {
+            field = ruleFields[i];
+            
+            value = "";
+            if (hasKey(data, field)) {
+                value = data[field];
+            }
+            
+            fieldRules = this.rules[field];
+            for (j = 0; j < length(fieldRules); j = j + 1) {
+                rule = fieldRules[j];
+                error = rule["func"](value);
+                
+                if (error != null) {
+                    temp = this.errors;
+                    temp[field] = error;
+                    this.errors = temp;
+                    isValid = false;
+                }
+            }
+        }
+        
+        return isValid;
+    }
+    
+    public funct getErrors() {
+        return this.errors;
+    }
+    
+    public funct getError(field) {
+        if (hasKey(this.errors, field)) {
+            return this.errors[field];
+        }
+        return null;
+    }
+}
+
+** Form data parser
+class FormData {
+    private data;
+    
+    funct FormData(formData) {
+        this.data = formData;
+    }
+    
+    public funct get(field) {
+        if (hasKey(this.data, field)) {
+            return this.data[field];
+        }
+        return null;
+    }
+    
+    public funct has(field) {
+        return hasKey(this.data, field);
+    }
+    
+    public funct all() {
+        return this.data;
+    }
+    
+    public funct only(fields) {
+        result = {};
+        
+        for (i = 0; i < length(fields); i = i + 1) {
+            field = fields[i];
+            if (hasKey(this.data, field)) {
+                temp = result;
+                temp[field] = this.data[field];
+                result = temp;
+            }
+        }
+        
+        return result;
+    }
+}

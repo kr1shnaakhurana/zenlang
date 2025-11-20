@@ -1,0 +1,355 @@
+** ZenLang Pure GUI Framework
+** Object-oriented GUI framework written entirely in ZenLang
+** Import with: .include <zenlang/lib/gui_framework>
+
+.include <zengui>
+
+** Base Widget class
+class Widget {
+    protected id;
+    protected x;
+    protected y;
+    protected width;
+    protected height;
+    protected visible;
+    protected enabled;
+    
+    funct Widget() {
+        this.visible = true;
+        this.enabled = true;
+    }
+    
+    public funct setPosition(newX, newY) {
+        this.x = newX;
+        this.y = newY;
+    }
+    
+    public funct setSize(w, h) {
+        this.width = w;
+        this.height = h;
+    }
+    
+    public funct show() {
+        this.visible = true;
+        zengui.setVisible(this.id, true);
+    }
+    
+    public funct hide() {
+        this.visible = false;
+        zengui.setVisible(this.id, false);
+    }
+    
+    public funct enable() {
+        this.enabled = true;
+        zengui.setEnabled(this.id, true);
+    }
+    
+    public funct disable() {
+        this.enabled = false;
+        zengui.setEnabled(this.id, false);
+    }
+    
+    public funct isVisible() {
+        return this.visible;
+    }
+    
+    public funct isEnabled() {
+        return this.enabled;
+    }
+}
+
+** Window class
+class Window {
+    private id;
+    private title;
+    private width;
+    private height;
+    private widgets;
+    
+    funct Window(windowTitle, w, h) {
+        this.title = windowTitle;
+        this.width = w;
+        this.height = h;
+        this.widgets = [];
+        this.id = zengui.createWindow(windowTitle, w, h);
+    }
+    
+    funct Window(windowTitle) {
+        this.title = windowTitle;
+        this.width = 800;
+        this.height = 600;
+        this.widgets = [];
+        this.id = zengui.createWindow(windowTitle, 800, 600);
+    }
+    
+    public funct setTitle(newTitle) {
+        this.title = newTitle;
+        zengui.setTitle(this.id, newTitle);
+    }
+    
+    public funct setSize(w, h) {
+        this.width = w;
+        this.height = h;
+        zengui.setSize(this.id, w, h);
+    }
+    
+    public funct setResizable(resizable) {
+        zengui.setResizable(this.id, resizable);
+    }
+    
+    public funct addWidget(widget) {
+        push(this.widgets, widget);
+    }
+    
+    public funct show() {
+        zengui.show(this.id);
+    }
+    
+    public funct close() {
+        zengui.close(this.id);
+    }
+}
+
+** Button class
+class Button extends Widget {
+    private text;
+    private onClick;
+    
+    funct Button(buttonText, posX, posY) {
+        this.text = buttonText;
+        this.x = posX;
+        this.y = posY;
+        this.width = 100;
+        this.height = 30;
+        this.id = zengui.addButton(buttonText, posX, posY, 100, 30);
+    }
+    
+    funct Button(buttonText, posX, posY, w, h) {
+        this.text = buttonText;
+        this.x = posX;
+        this.y = posY;
+        this.width = w;
+        this.height = h;
+        this.id = zengui.addButton(buttonText, posX, posY, w, h);
+    }
+    
+    public funct setText(newText) {
+        this.text = newText;
+        zengui.setText(this.id, newText);
+    }
+    
+    public funct getText() {
+        return this.text;
+    }
+    
+    public funct setClickHandler(handler) {
+        this.onClick = handler;
+        zengui.onClick(this.id, handler);
+    }
+}
+
+** Label class
+class Label extends Widget {
+    private text;
+    
+    funct Label(labelText, posX, posY) {
+        this.text = labelText;
+        this.x = posX;
+        this.y = posY;
+        this.width = 100;
+        this.height = 30;
+        this.id = zengui.addLabel(labelText, posX, posY, 100, 30);
+    }
+    
+    funct Label(labelText, posX, posY, w, h) {
+        this.text = labelText;
+        this.x = posX;
+        this.y = posY;
+        this.width = w;
+        this.height = h;
+        this.id = zengui.addLabel(labelText, posX, posY, w, h);
+    }
+    
+    public funct setText(newText) {
+        this.text = newText;
+        zengui.setText(this.id, newText);
+    }
+    
+    public funct getText() {
+        return this.text;
+    }
+    
+    public funct setFont(fontName, size) {
+        zengui.setFont(this.id, fontName, size);
+    }
+}
+
+** TextBox class
+class TextBox extends Widget {
+    funct TextBox(posX, posY) {
+        this.x = posX;
+        this.y = posY;
+        this.width = 200;
+        this.height = 30;
+        this.id = zengui.addTextBox(posX, posY, 200, 30);
+    }
+    
+    funct TextBox(posX, posY, w, h) {
+        this.x = posX;
+        this.y = posY;
+        this.width = w;
+        this.height = h;
+        this.id = zengui.addTextBox(posX, posY, w, h);
+    }
+    
+    public funct setText(text) {
+        zengui.setText(this.id, text);
+    }
+    
+    public funct getText() {
+        return zengui.getText(this.id);
+    }
+    
+    public funct clear() {
+        zengui.setText(this.id, "");
+    }
+}
+
+** TextArea class
+class TextArea extends Widget {
+    funct TextArea(posX, posY) {
+        this.x = posX;
+        this.y = posY;
+        this.width = 300;
+        this.height = 200;
+        this.id = zengui.addTextArea(posX, posY, 300, 200);
+    }
+    
+    funct TextArea(posX, posY, w, h) {
+        this.x = posX;
+        this.y = posY;
+        this.width = w;
+        this.height = h;
+        this.id = zengui.addTextArea(posX, posY, w, h);
+    }
+    
+    public funct setText(text) {
+        zengui.setText(this.id, text);
+    }
+    
+    public funct getText() {
+        return zengui.getText(this.id);
+    }
+    
+    public funct clear() {
+        zengui.setText(this.id, "");
+    }
+    
+    public funct append(text) {
+        current = this.getText();
+        zengui.setText(this.id, current + text);
+    }
+}
+
+** CheckBox class
+class CheckBox extends Widget {
+    private text;
+    
+    funct CheckBox(checkText, posX, posY) {
+        this.text = checkText;
+        this.x = posX;
+        this.y = posY;
+        this.id = zengui.addCheckbox(checkText, posX, posY);
+    }
+    
+    public funct isChecked() {
+        return zengui.isChecked(this.id);
+    }
+    
+    public funct setChecked(checked) {
+        zengui.setChecked(this.id, checked);
+    }
+}
+
+** ListBox class
+class ListBox extends Widget {
+    private items;
+    
+    funct ListBox(posX, posY) {
+        this.x = posX;
+        this.y = posY;
+        this.width = 200;
+        this.height = 150;
+        this.items = [];
+        this.id = zengui.addListBox(posX, posY, 200, 150);
+    }
+    
+    funct ListBox(posX, posY, w, h) {
+        this.x = posX;
+        this.y = posY;
+        this.width = w;
+        this.height = h;
+        this.items = [];
+        this.id = zengui.addListBox(posX, posY, w, h);
+    }
+    
+    public funct addItem(item) {
+        push(this.items, item);
+        zengui.addListItem(this.id, item);
+    }
+    
+    public funct clear() {
+        this.items = [];
+        zengui.clearList(this.id);
+    }
+    
+    public funct getSelectedItem() {
+        return zengui.getSelectedItem(this.id);
+    }
+    
+    public funct getItems() {
+        return this.items;
+    }
+}
+
+** MessageBox utility class
+class MessageBox {
+    public static funct show(title, message) {
+        zengui.showMessage(title, message);
+    }
+    
+    public static funct showError(title, message) {
+        zengui.showError(title, message);
+    }
+    
+    public static funct showWarning(title, message) {
+        zengui.showWarning(title, message);
+    }
+    
+    public static funct askYesNo(title, message) {
+        return zengui.askYesNo(title, message);
+    }
+    
+    public static funct askOkCancel(title, message) {
+        return zengui.askOkCancel(title, message);
+    }
+}
+
+** FileDialog utility class
+class FileDialog {
+    public static funct openFile(title) {
+        return zengui.openFileDialog(title);
+    }
+    
+    public static funct openFile() {
+        return zengui.openFileDialog("Open File");
+    }
+    
+    public static funct saveFile(title) {
+        return zengui.saveFileDialog(title);
+    }
+    
+    public static funct saveFile() {
+        return zengui.saveFileDialog("Save File");
+    }
+}

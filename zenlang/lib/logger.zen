@@ -1,0 +1,74 @@
+** ZenLang Logger Library
+** Logging system with levels and formatting
+** Import with: .include <zenlang/lib/logger>
+
+.include <zenout>
+.include <time>
+.include <fs>
+
+** Logger class
+class Logger {
+    private name;
+    private level;
+    private logFile;
+    private useFile;
+    
+    funct Logger(loggerName) {
+        this.name = loggerName;
+        this.level = 2;
+        this.logFile = null;
+        this.useFile = false;
+    }
+    
+    funct Logger(loggerName, filename) {
+        this.name = loggerName;
+        this.level = 2;
+        this.logFile = filename;
+        this.useFile = true;
+    }
+    
+    public funct setLevel(lvl) {
+        this.level = lvl;
+    }
+    
+    public funct debug(message) {
+        if (this.level <= 0) {
+            this.log("DEBUG", message);
+        }
+    }
+    
+    public funct info(message) {
+        if (this.level <= 1) {
+            this.log("INFO", message);
+        }
+    }
+    
+    public funct warn(message) {
+        if (this.level <= 2) {
+            this.log("WARN", message);
+        }
+    }
+    
+    public funct error(message) {
+        if (this.level <= 3) {
+            this.log("ERROR", message);
+        }
+    }
+    
+    private funct log(levelName, message) {
+        ** Simple timestamp (just use a placeholder for now)
+        logMessage = "[" + levelName + "] [" + this.name + "] " + message;
+        
+        zenout.console(logMessage);
+        
+        if (this.useFile && this.logFile != null) {
+            fs.append(this.logFile, logMessage + "\n");
+        }
+    }
+}
+
+** Log levels as global constants
+LOG_LEVEL_DEBUG = 0;
+LOG_LEVEL_INFO = 1;
+LOG_LEVEL_WARN = 2;
+LOG_LEVEL_ERROR = 3;

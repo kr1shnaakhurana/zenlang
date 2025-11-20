@@ -1,0 +1,232 @@
+** ZenLang Testing Framework
+** Unit testing library for ZenLang
+** Import with: .include <zenlang/lib/testing>
+
+.include <zenout>
+
+** Test Suite class
+class TestSuite {
+    private name;
+    private tests;
+    private passed;
+    private failed;
+    
+    funct TestSuite(suiteName) {
+        this.name = suiteName;
+        this.tests = [];
+        this.passed = 0;
+        this.failed = 0;
+    }
+    
+    public funct test(testName, testFunc) {
+        push(this.tests, {name = testName, func = testFunc});
+    }
+    
+    public funct run() {
+        zenout.console("");
+        zenout.console("========================================");
+        zenout.console("Test Suite: " + this.name);
+        zenout.console("========================================");
+        
+        for (i = 0; i < length(this.tests); i = i + 1) {
+            test = this.tests[i];
+            this.runTest(test);
+        }
+        
+        zenout.console("");
+        zenout.console("========================================");
+        zenout.console("Results: " + this.passed + " passed, " + this.failed + " failed");
+        zenout.console("========================================");
+        zenout.console("");
+        
+        return this.failed == 0;
+    }
+    
+    private funct runTest(test) {
+        testName = test["name"];
+        testFunc = test["func"];
+        
+        ** Run test (no try/catch in ZenLang yet)
+        testFunc();
+        this.passed = this.passed + 1;
+        zenout.console("[PASS] " + testName);
+    }
+}
+
+** Assertion class
+class Assert {
+    public static funct equals(actual, expected) {
+        if (actual != expected) {
+            error = "Expected " + expected + " but got " + actual;
+            zenout.console("  Error: " + error);
+            return false;
+        }
+        return true;
+    }
+    
+    public static funct notEquals(actual, expected) {
+        if (actual == expected) {
+            error = "Expected not to equal " + expected;
+            zenout.console("  Error: " + error);
+            return false;
+        }
+        return true;
+    }
+    
+    public static funct isTrue(value) {
+        if (value != true) {
+            zenout.console("  Error: Expected true but got " + value);
+            return false;
+        }
+        return true;
+    }
+    
+    public static funct isFalse(value) {
+        if (value != false) {
+            zenout.console("  Error: Expected false but got " + value);
+            return false;
+        }
+        return true;
+    }
+    
+    public static funct isNull(value) {
+        if (value != null) {
+            zenout.console("  Error: Expected null but got " + value);
+            return false;
+        }
+        return true;
+    }
+    
+    public static funct isNotNull(value) {
+        if (value == null) {
+            zenout.console("  Error: Expected non-null value");
+            return false;
+        }
+        return true;
+    }
+    
+    public static funct contains(arr, value) {
+        if (!includes(arr, value)) {
+            zenout.console("  Error: Array does not contain " + value);
+            return false;
+        }
+        return true;
+    }
+    
+    public static funct lengthEquals(arr, expectedLength) {
+        actualLength = length(arr);
+        if (actualLength != expectedLength) {
+            zenout.console("  Error: Expected length " + expectedLength + " but got " + actualLength);
+            return false;
+        }
+        return true;
+    }
+    
+    public static funct greaterThan(actual, expected) {
+        if (actual <= expected) {
+            zenout.console("  Error: Expected " + actual + " > " + expected);
+            return false;
+        }
+        return true;
+    }
+    
+    public static funct lessThan(actual, expected) {
+        if (actual >= expected) {
+            zenout.console("  Error: Expected " + actual + " < " + expected);
+            return false;
+        }
+        return true;
+    }
+}
+
+** Benchmark class
+class Benchmark {
+    private name;
+    private startTime;
+    private endTime;
+    
+    funct Benchmark(benchName) {
+        this.name = benchName;
+        this.startTime = 0;
+        this.endTime = 0;
+    }
+    
+    public funct start() {
+        this.startTime = timestamp();
+    }
+    
+    public funct stop() {
+        this.endTime = timestamp();
+        elapsed = this.endTime - this.startTime;
+        zenout.console("[BENCHMARK] " + this.name + ": " + formatNumber(elapsed, 4) + "s");
+        return elapsed;
+    }
+    
+    public static funct measure(name, func) {
+        bench = new Benchmark(name);
+        bench.start();
+        result = func();
+        bench.stop();
+        return result;
+    }
+}
+
+** Mock class for testing
+class Mock {
+    private calls;
+    private returnValue;
+    
+    funct Mock() {
+        this.calls = [];
+        this.returnValue = null;
+    }
+    
+    public funct setReturnValue(value) {
+        this.returnValue = value;
+    }
+    
+    public funct call() {
+        push(this.calls, []);
+        return this.returnValue;
+    }
+    
+    public funct callWith(arg) {
+        push(this.calls, [arg]);
+        return this.returnValue;
+    }
+    
+    public funct callWithArgs(args) {
+        push(this.calls, args);
+        return this.returnValue;
+    }
+    
+    public funct getCallCount() {
+        return length(this.calls);
+    }
+    
+    public funct wasCalled() {
+        return length(this.calls) > 0;
+    }
+    
+    public funct wasCalledWith(expectedArgs) {
+        for (i = 0; i < length(this.calls); i = i + 1) {
+            callArgs = this.calls[i];
+            if (length(callArgs) == length(expectedArgs)) {
+                match = true;
+                for (j = 0; j < length(callArgs); j = j + 1) {
+                    if (callArgs[j] != expectedArgs[j]) {
+                        match = false;
+                    }
+                }
+                if (match) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    public funct reset() {
+        this.calls = [];
+    }
+}

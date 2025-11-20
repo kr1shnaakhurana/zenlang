@@ -1,0 +1,268 @@
+** ZenLang Pipeline Library
+** Data transformation pipelines and middleware chains
+** Import with: .include <zenlang/lib/pipeline>
+
+.include <zenout>
+
+** Pipeline class for data transformation
+class Pipeline {
+    private stages;
+    private errorHandler;
+    
+    funct Pipeline() {
+        this.stages = [];
+        this.errorHandler = null;
+    }
+    
+    public funct pipe(transformer) {
+        push(this.stages, transformer);
+        return this;
+    }
+    
+    public funct onError(handler) {
+        this.errorHandler = handler;
+        return this;
+    }
+    
+    public funct process(input) {
+        result = input;
+        
+        for (i = 0; i < length(this.stages); i = i + 1) {
+            stage = this.stages[i];
+            result = stage(result);
+            
+            ** Check if result is null (error condition)
+            if (result == null && this.errorHandler != null) {
+                return this.errorHandler(input, i);
+            }
+        }
+        
+        return result;
+    }
+    
+    public funct processMany(inputs) {
+        results = [];
+        
+        for (i = 0; i < length(inputs); i = i + 1) {
+            result = this.process(inputs[i]);
+            push(results, result);
+        }
+        
+        return results;
+    }
+    
+    public funct getStageCount() {
+        return length(this.stages);
+    }
+}
+
+** Middleware chain for request/response processing
+class MiddlewareChain {
+    private middlewares;
+    
+    funct MiddlewareChain() {
+        this.middlewares = [];
+    }
+    
+    public funct use(middleware) {
+        push(this.middlewares, middleware);
+        return this;
+    }
+    
+    public funct execute(context) {
+        return this.executeFrom(context, 0);
+    }
+    
+    private funct executeFrom(context, index) {
+        if (index >= length(this.middlewares)) {
+            return context;
+        }
+        
+        middleware = this.middlewares[index];
+        
+        ** Create next function
+        nextIndex = index + 1;
+        next = funct() {
+            return this.executeFrom(context, nextIndex);
+        };
+        
+        ** Execute middleware
+        middleware(context, next);
+        
+        return context;
+    }
+    
+    public funct getCount() {
+        return length(this.middlewares);
+    }
+}
+
+** Stream processor for continuous data
+class Stream {
+    private transformers;
+    private filters;
+    private subscribers;
+    
+    funct Stream() {
+        this.transformers = [];
+        this.filters = [];
+        this.subscribers = [];
+    }
+    
+    public funct map(transformer) {
+        push(this.transformers, transformer);
+        return this;
+    }
+    
+    public funct filter(predicate) {
+        push(this.filters, predicate);
+        return this;
+    }
+    
+    public funct subscribe(subscriber) {
+        push(this.subscribers, subscriber);
+        return this;
+    }
+    
+    public funct push(value) {
+        ** Apply filters
+        shouldProcess = true;
+        for (i = 0; i < length(this.filters); i = i + 1) {
+            filterFunc = this.filters[i];
+            if (!filterFunc(value)) {
+                shouldProcess = false;
+            }
+        }
+        
+        if (!shouldProcess) {
+            return false;
+        }
+        
+        ** Apply transformations
+        result = value;
+        for (i = 0; i < length(this.transformers); i = i + 1) {
+            transformer = this.transformers[i];
+            result = transformer(result);
+        }
+        
+        ** Notify subscribers
+        for (i = 0; i < length(this.subscribers); i = i + 1) {
+            subscriber = this.subscribers[i];
+            subscriber(result);
+        }
+        
+        return true;
+    }
+    
+    public funct pushMany(values) {
+        count = 0;
+        for (i = 0; i < length(values); i = i + 1) {
+            if (this.push(values[i])) {
+                count = count + 1;
+            }
+        }
+        return count;
+    }
+}
+
+** Batch processor
+class BatchProcessor {
+    private batchSize;
+    private processor;
+    private buffer;
+    
+    funct BatchProcessor(batchSize, processor) {
+        this.batchSize = batchSize;
+        this.processor = processor;
+        this.buffer = [];
+    }
+    
+    public funct add(item) {
+        push(this.buffer, item);
+        
+        if (length(this.buffer) >= this.batchSize) {
+            return this.flush();
+        }
+        
+        return false;
+    }
+    
+    public funct flush() {
+        if (length(this.buffer) == 0) {
+            return false;
+        }
+        
+        ** Process the batch
+        this.processor(this.buffer);
+        
+        ** Clear buffer
+        this.buffer = [];
+        
+        return true;
+    }
+    
+    public funct getBufferSize() {
+        return length(this.buffer);
+    }
+}
+
+** Chain of Responsibility pattern
+class ResponsibilityChain {
+    private handlers;
+    
+    funct ResponsibilityChain() {
+        this.handlers = [];
+    }
+    
+    public funct addHandler(handler) {
+        push(this.handlers, handler);
+        return this;
+    }
+    
+    public funct handle(request) {
+        for (i = 0; i < length(this.handlers); i = i + 1) {
+            handler = this.handlers[i];
+            result = handler(request);
+            
+            ** If handler returns non-null, stop chain
+            if (result != null) {
+                return result;
+            }
+        }
+        
+        return null;
+    }
+}
+
+** Compose multiple functions into one
+class Composer {
+    public static funct compose(functions) {
+        return funct(input) {
+            result = input;
+            
+            ** Apply functions right to left
+            i = length(functions) - 1;
+            while (i >= 0) {
+                func = functions[i];
+                result = func(result);
+                i = i - 1;
+            }
+            
+            return result;
+        };
+    }
+    
+    public static funct pipe(functions) {
+        return funct(input) {
+            result = input;
+            
+            ** Apply functions left to right
+            for (i = 0; i < length(functions); i = i + 1) {
+                func = functions[i];
+                result = func(result);
+            }
+            
+            return result;
+        };
+    }
+}

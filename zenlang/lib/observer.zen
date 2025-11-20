@@ -1,0 +1,307 @@
+** ZenLang Observer Pattern Library
+** Observer/Subject pattern and reactive programming
+** Import with: .include <zenlang/lib/observer>
+
+.include <zenout>
+
+** Subject class (Observable)
+class Subject {
+    private observers;
+    private state;
+    
+    funct Subject() {
+        this.observers = [];
+        this.state = null;
+    }
+    
+    public funct attach(observer) {
+        push(this.observers, observer);
+    }
+    
+    public funct detach(observer) {
+        newObservers = [];
+        
+        for (i = 0; i < length(this.observers); i = i + 1) {
+            if (this.observers[i] != observer) {
+                push(newObservers, this.observers[i]);
+            }
+        }
+        
+        this.observers = newObservers;
+    }
+    
+    public funct notify() {
+        for (i = 0; i < length(this.observers); i = i + 1) {
+            observer = this.observers[i];
+            observer.update(this.state);
+        }
+    }
+    
+    public funct setState(newState) {
+        this.state = newState;
+        this.notify();
+    }
+    
+    public funct getState() {
+        return this.state;
+    }
+    
+    public funct getObserverCount() {
+        return length(this.observers);
+    }
+}
+
+** Observer interface implementation
+class Observer {
+    private name;
+    private callback;
+    
+    funct Observer(observerName, updateCallback) {
+        this.name = observerName;
+        this.callback = updateCallback;
+    }
+    
+    public funct update(state) {
+        this.callback(state);
+    }
+    
+    public funct getName() {
+        return this.name;
+    }
+}
+
+** Property observer for object properties
+class PropertyObserver {
+    private object;
+    private property;
+    private watchers;
+    private currentValue;
+    
+    funct PropertyObserver(obj, prop) {
+        this.object = obj;
+        this.property = prop;
+        this.watchers = [];
+        
+        if (hasKey(obj, prop)) {
+            this.currentValue = obj[prop];
+        } else {
+            this.currentValue = null;
+        }
+    }
+    
+    public funct watch(callback) {
+        push(this.watchers, callback);
+    }
+    
+    public funct check() {
+        if (!hasKey(this.object, this.property)) {
+            return false;
+        }
+        
+        newValue = this.object[this.property];
+        
+        if (newValue != this.currentValue) {
+            oldValue = this.currentValue;
+            this.currentValue = newValue;
+            
+            ** Notify watchers
+            for (i = 0; i < length(this.watchers); i = i + 1) {
+                watcher = this.watchers[i];
+                watcher(newValue, oldValue);
+            }
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public funct getValue() {
+        return this.currentValue;
+    }
+}
+
+** Reactive value container
+class Reactive {
+    private value;
+    private subscribers;
+    private computed;
+    
+    funct Reactive(initialValue) {
+        this.value = initialValue;
+        this.subscribers = [];
+        this.computed = [];
+    }
+    
+    public funct get() {
+        return this.value;
+    }
+    
+    public funct set(newValue) {
+        if (newValue != this.value) {
+            oldValue = this.value;
+            this.value = newValue;
+            
+            ** Notify subscribers
+            for (i = 0; i < length(this.subscribers); i = i + 1) {
+                subscriber = this.subscribers[i];
+                subscriber(newValue, oldValue);
+            }
+            
+            ** Update computed values
+            for (i = 0; i < length(this.computed); i = i + 1) {
+                comp = this.computed[i];
+                comp.recompute();
+            }
+        }
+    }
+    
+    public funct subscribe(callback) {
+        push(this.subscribers, callback);
+    }
+    
+    public funct addComputed(computedValue) {
+        push(this.computed, computedValue);
+    }
+}
+
+** Computed value that depends on reactive values
+class Computed {
+    private dependencies;
+    private computeFunc;
+    private cachedValue;
+    private dirty;
+    
+    funct Computed(deps, func) {
+        this.dependencies = deps;
+        this.computeFunc = func;
+        this.cachedValue = null;
+        this.dirty = true;
+        
+        ** Register with dependencies
+        for (i = 0; i < length(deps); i = i + 1) {
+            dep = deps[i];
+            dep.addComputed(this);
+        }
+    }
+    
+    public funct get() {
+        if (this.dirty) {
+            this.recompute();
+        }
+        return this.cachedValue;
+    }
+    
+    public funct recompute() {
+        ** Get values from dependencies
+        values = [];
+        for (i = 0; i < length(this.dependencies); i = i + 1) {
+            dep = this.dependencies[i];
+            push(values, dep.get());
+        }
+        
+        ** Compute new value
+        this.cachedValue = this.computeFunc(values);
+        this.dirty = false;
+    }
+    
+    public funct markDirty() {
+        this.dirty = true;
+    }
+}
+
+** Store pattern for state management
+class Store {
+    private state;
+    private mutations;
+    private subscribers;
+    private history;
+    private maxHistory;
+    
+    funct Store(initialState) {
+        this.state = initialState;
+        this.mutations = {};
+        this.subscribers = [];
+        this.history = [];
+        this.maxHistory = 10;
+        
+        push(this.history, initialState);
+    }
+    
+    public funct getState() {
+        return this.state;
+    }
+    
+    public funct registerMutation(name, mutator) {
+        temp = this.mutations;
+        temp[name] = mutator;
+        this.mutations = temp;
+    }
+    
+    public funct commit(mutationName, payload) {
+        if (!hasKey(this.mutations, mutationName)) {
+            return false;
+        }
+        
+        mutator = this.mutations[mutationName];
+        oldState = this.state;
+        
+        ** Apply mutation
+        this.state = mutator(this.state, payload);
+        
+        ** Add to history
+        push(this.history, this.state);
+        if (length(this.history) > this.maxHistory) {
+            ** Remove oldest
+            newHistory = [];
+            for (i = 1; i < length(this.history); i = i + 1) {
+                push(newHistory, this.history[i]);
+            }
+            this.history = newHistory;
+        }
+        
+        ** Notify subscribers
+        for (i = 0; i < length(this.subscribers); i = i + 1) {
+            subscriber = this.subscribers[i];
+            subscriber(this.state, oldState);
+        }
+        
+        return true;
+    }
+    
+    public funct subscribe(callback) {
+        push(this.subscribers, callback);
+    }
+    
+    public funct getHistory() {
+        return this.history;
+    }
+    
+    public funct canUndo() {
+        return length(this.history) > 1;
+    }
+    
+    public funct undo() {
+        if (!this.canUndo()) {
+            return false;
+        }
+        
+        ** Remove current state
+        newHistory = [];
+        for (i = 0; i < length(this.history) - 1; i = i + 1) {
+            push(newHistory, this.history[i]);
+        }
+        this.history = newHistory;
+        
+        ** Restore previous state
+        this.state = this.history[length(this.history) - 1];
+        
+        ** Notify subscribers
+        for (i = 0; i < length(this.subscribers); i = i + 1) {
+            subscriber = this.subscribers[i];
+            subscriber(this.state, null);
+        }
+        
+        return true;
+    }
+}

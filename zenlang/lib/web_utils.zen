@@ -1,0 +1,389 @@
+** ZenLang Web Utilities Library
+** URL parsing, cookies, sessions, and HTTP helpers
+** Import with: .include <zenlang/lib/web_utils>
+
+.include <zenout>
+
+** URL Parser class
+class UrlParser {
+    private url;
+    private protocol;
+    private host;
+    private port;
+    private path;
+    private query;
+    private hash;
+    
+    funct UrlParser(urlString) {
+        this.url = urlString;
+        this.parse();
+    }
+    
+    private funct parse() {
+        ** Simple URL parsing
+        remaining = this.url;
+        
+        ** Extract protocol
+        if (includes(remaining, "://")) {
+            parts = split(remaining, "://");
+            this.protocol = parts[0];
+            remaining = parts[1];
+        } else {
+            this.protocol = "http";
+        }
+        
+        ** Extract hash
+        if (includes(remaining, "#")) {
+            parts = split(remaining, "#");
+            remaining = parts[0];
+            this.hash = parts[1];
+        } else {
+            this.hash = "";
+        }
+        
+        ** Extract query
+        if (includes(remaining, "?")) {
+            parts = split(remaining, "?");
+            remaining = parts[0];
+            this.query = parts[1];
+        } else {
+            this.query = "";
+        }
+        
+        ** Extract path
+        if (includes(remaining, "/")) {
+            parts = split(remaining, "/");
+            this.host = parts[0];
+            this.path = "/" + parts[1];
+        } else {
+            this.host = remaining;
+            this.path = "/";
+        }
+        
+        ** Extract port
+        if (includes(this.host, ":")) {
+            parts = split(this.host, ":");
+            this.host = parts[0];
+            this.port = parts[1];
+        } else {
+            this.port = "80";
+        }
+    }
+    
+    public funct getProtocol() {
+        return this.protocol;
+    }
+    
+    public funct getHost() {
+        return this.host;
+    }
+    
+    public funct getPort() {
+        return this.port;
+    }
+    
+    public funct getPath() {
+        return this.path;
+    }
+    
+    public funct getQuery() {
+        return this.query;
+    }
+    
+    public funct getHash() {
+        return this.hash;
+    }
+    
+    public funct getQueryParams() {
+        if (this.query == "") {
+            return {};
+        }
+        
+        params = {};
+        pairs = split(this.query, "&");
+        
+        for (i = 0; i < length(pairs); i = i + 1) {
+            pair = pairs[i];
+            if (includes(pair, "=")) {
+                parts = split(pair, "=");
+                key = parts[0];
+                value = parts[1];
+                temp = params;
+                temp[key] = value;
+                params = temp;
+            }
+        }
+        
+        return params;
+    }
+}
+
+** Cookie Manager class
+class CookieManager {
+    private cookies;
+    
+    funct CookieManager() {
+        this.cookies = {};
+    }
+    
+    public funct set(name, value, maxAge) {
+        cookie = {
+            value = value,
+            maxAge = maxAge
+        };
+        
+        temp = this.cookies;
+        temp[name] = cookie;
+        this.cookies = temp;
+    }
+    
+    public funct get(name) {
+        if (hasKey(this.cookies, name)) {
+            return this.cookies[name]["value"];
+        }
+        return null;
+    }
+    
+    public funct has(name) {
+        return hasKey(this.cookies, name);
+    }
+    
+    public funct delete(name) {
+        if (hasKey(this.cookies, name)) {
+            newCookies = {};
+            cookieKeys = keys(this.cookies);
+            
+            for (i = 0; i < length(cookieKeys); i = i + 1) {
+                key = cookieKeys[i];
+                if (key != name) {
+                    temp = newCookies;
+                    temp[key] = this.cookies[key];
+                    newCookies = temp;
+                }
+            }
+            
+            this.cookies = newCookies;
+        }
+    }
+    
+    public funct toHeader() {
+        header = "";
+        cookieKeys = keys(this.cookies);
+        
+        for (i = 0; i < length(cookieKeys); i = i + 1) {
+            key = cookieKeys[i];
+            cookie = this.cookies[key];
+            
+            if (i > 0) {
+                header = header + "; ";
+            }
+            
+            header = header + key + "=" + cookie["value"];
+        }
+        
+        return header;
+    }
+}
+
+** Session Manager class
+class SessionManager {
+    private sessions;
+    private nextId;
+    
+    funct SessionManager() {
+        this.sessions = {};
+        this.nextId = 1;
+    }
+    
+    public funct create() {
+        sessionId = "sess_" + this.nextId;
+        this.nextId = this.nextId + 1;
+        
+        session = {
+            id = sessionId,
+            data = {},
+            created = 0
+        };
+        
+        temp = this.sessions;
+        temp[sessionId] = session;
+        this.sessions = temp;
+        
+        return sessionId;
+    }
+    
+    public funct get(sessionId) {
+        if (hasKey(this.sessions, sessionId)) {
+            return this.sessions[sessionId];
+        }
+        return null;
+    }
+    
+    public funct set(sessionId, key, value) {
+        if (hasKey(this.sessions, sessionId)) {
+            session = this.sessions[sessionId];
+            sessionData = session["data"];
+            
+            temp = sessionData;
+            temp[key] = value;
+            sessionData = temp;
+            
+            session["data"] = sessionData;
+            
+            temp = this.sessions;
+            temp[sessionId] = session;
+            this.sessions = temp;
+        }
+    }
+    
+    public funct getData(sessionId, key) {
+        if (hasKey(this.sessions, sessionId)) {
+            session = this.sessions[sessionId];
+            sessionData = session["data"];
+            
+            if (hasKey(sessionData, key)) {
+                return sessionData[key];
+            }
+        }
+        return null;
+    }
+    
+    public funct destroy(sessionId) {
+        if (hasKey(this.sessions, sessionId)) {
+            newSessions = {};
+            sessionKeys = keys(this.sessions);
+            
+            for (i = 0; i < length(sessionKeys); i = i + 1) {
+                key = sessionKeys[i];
+                if (key != sessionId) {
+                    temp = newSessions;
+                    temp[key] = this.sessions[key];
+                    newSessions = temp;
+                }
+            }
+            
+            this.sessions = newSessions;
+        }
+    }
+}
+
+** HTTP Response Builder
+class ResponseBuilder {
+    private statusCode;
+    private headers;
+    private body;
+    
+    funct ResponseBuilder() {
+        this.statusCode = 200;
+        this.headers = {};
+        this.body = "";
+    }
+    
+    public funct status(code) {
+        this.statusCode = code;
+        return this;
+    }
+    
+    public funct header(name, value) {
+        temp = this.headers;
+        temp[name] = value;
+        this.headers = temp;
+        return this;
+    }
+    
+    public funct json(data) {
+        this.header("Content-Type", "application/json");
+        this.body = this.toJSON(data);
+        return this;
+    }
+    
+    public funct html(content) {
+        this.header("Content-Type", "text/html");
+        this.body = content;
+        return this;
+    }
+    
+    public funct text(content) {
+        this.header("Content-Type", "text/plain");
+        this.body = content;
+        return this;
+    }
+    
+    public funct redirect(url) {
+        this.status(302);
+        this.header("Location", url);
+        return this;
+    }
+    
+    public funct build() {
+        return {
+            status = this.statusCode,
+            headers = this.headers,
+            body = this.body
+        };
+    }
+    
+    private funct toJSON(data) {
+        ** Simple JSON conversion
+        return "" + data;
+    }
+}
+
+** Middleware chain helper
+class MiddlewareStack {
+    private middlewares;
+    
+    funct MiddlewareStack() {
+        this.middlewares = [];
+    }
+    
+    public funct use(middleware) {
+        push(this.middlewares, middleware);
+        return this;
+    }
+    
+    public funct execute(request, response) {
+        return this.executeAt(request, response, 0);
+    }
+    
+    private funct executeAt(request, response, index) {
+        if (index >= length(this.middlewares)) {
+            return response;
+        }
+        
+        middleware = this.middlewares[index];
+        middleware(request, response);
+        
+        return this.executeAt(request, response, index + 1);
+    }
+}
+
+** Helper function to split strings
+funct split(text, delimiter) {
+    result = [];
+    current = "";
+    delimLen = length(delimiter);
+    
+    i = 0;
+    while (i < length(text)) {
+        found = true;
+        
+        for (j = 0; j < delimLen; j = j + 1) {
+            if (i + j >= length(text) || charAt(text, i + j) != charAt(delimiter, j)) {
+                found = false;
+            }
+        }
+        
+        if (found) {
+            push(result, current);
+            current = "";
+            i = i + delimLen;
+        } else {
+            current = current + charAt(text, i);
+            i = i + 1;
+        }
+    }
+    
+    push(result, current);
+    return result;
+};

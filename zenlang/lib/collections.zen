@@ -1,0 +1,323 @@
+** ZenLang Collections Library
+** Advanced data structure classes
+** Import with: .include <zenlang/lib/collections>
+
+** ArrayList - Dynamic array with advanced operations
+class ArrayList {
+    private items;
+    private size;
+    
+    funct ArrayList() {
+        this.items = [];
+        this.size = 0;
+    }
+    
+    public funct add(item) {
+        push(this.items, item);
+        this.size = this.size + 1;
+    }
+    
+    public funct get(index) {
+        if (index >= 0 && index < this.size) {
+            return this.items[index];
+        }
+        return null;
+    }
+    
+    public funct set(index, value) {
+        if (index >= 0 && index < this.size) {
+            this.items[index] = value;
+            return true;
+        }
+        return false;
+    }
+    
+    public funct remove(index) {
+        if (index >= 0 && index < this.size) {
+            item = this.items[index];
+            newItems = [];
+            for (i = 0; i < this.size; i = i + 1) {
+                if (i != index) {
+                    push(newItems, this.items[i]);
+                }
+            }
+            this.items = newItems;
+            this.size = this.size - 1;
+            return item;
+        }
+        return null;
+    }
+    
+    public funct contains(item) {
+        return includes(this.items, item);
+    }
+    
+    public funct indexOf(item) {
+        return indexOf(this.items, item);
+    }
+    
+    public funct clear() {
+        this.items = [];
+        this.size = 0;
+    }
+    
+    public funct getSize() {
+        return this.size;
+    }
+    
+    public funct isEmpty() {
+        return this.size == 0;
+    }
+    
+    public funct toArray() {
+        return this.items;
+    }
+}
+
+** Stack - LIFO data structure
+class Stack {
+    private items;
+    private top;
+    
+    funct Stack() {
+        this.items = [];
+        this.top = -1;
+    }
+    
+    public funct push(item) {
+        this.top = this.top + 1;
+        push(this.items, item);
+    }
+    
+    public funct pop() {
+        if (this.top >= 0) {
+            item = this.items[this.top];
+            this.items = slice(this.items, 0, this.top);
+            this.top = this.top - 1;
+            return item;
+        }
+        return null;
+    }
+    
+    public funct peek() {
+        if (this.top >= 0) {
+            return this.items[this.top];
+        }
+        return null;
+    }
+    
+    public funct isEmpty() {
+        return this.top < 0;
+    }
+    
+    public funct size() {
+        return this.top + 1;
+    }
+    
+    public funct clear() {
+        this.items = [];
+        this.top = -1;
+    }
+}
+
+** Queue - FIFO data structure
+class Queue {
+    private items;
+    
+    funct Queue() {
+        this.items = [];
+    }
+    
+    public funct enqueue(item) {
+        push(this.items, item);
+    }
+    
+    public funct dequeue() {
+        if (length(this.items) > 0) {
+            return shift(this.items);
+        }
+        return null;
+    }
+    
+    public funct peek() {
+        if (length(this.items) > 0) {
+            return this.items[0];
+        }
+        return null;
+    }
+    
+    public funct isEmpty() {
+        return length(this.items) == 0;
+    }
+    
+    public funct size() {
+        return length(this.items);
+    }
+    
+    public funct clear() {
+        this.items = [];
+    }
+}
+
+** HashMap - Key-value storage (using arrays)
+class HashMap {
+    private keys;
+    private values;
+    
+    funct HashMap() {
+        this.keys = [];
+        this.values = [];
+    }
+    
+    private funct findIndex(key) {
+        keyStr = key + "";
+        for (i = 0; i < length(this.keys); i = i + 1) {
+            if (this.keys[i] == keyStr) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    public funct put(key, value) {
+        keyStr = key + "";
+        idx = this.findIndex(keyStr);
+        if (idx >= 0) {
+            this.values[idx] = value;
+        } else {
+            push(this.keys, keyStr);
+            push(this.values, value);
+        }
+    }
+    
+    public funct get(key) {
+        idx = this.findIndex(key);
+        if (idx >= 0) {
+            return this.values[idx];
+        }
+        return null;
+    }
+    
+    public funct remove(key) {
+        idx = this.findIndex(key);
+        if (idx >= 0) {
+            value = this.values[idx];
+            newKeys = [];
+            newValues = [];
+            for (i = 0; i < length(this.keys); i = i + 1) {
+                if (i != idx) {
+                    push(newKeys, this.keys[i]);
+                    push(newValues, this.values[i]);
+                }
+            }
+            this.keys = newKeys;
+            this.values = newValues;
+            return value;
+        }
+        return null;
+    }
+    
+    public funct containsKey(key) {
+        return this.findIndex(key) >= 0;
+    }
+    
+    public funct size() {
+        return length(this.keys);
+    }
+    
+    public funct isEmpty() {
+        return length(this.keys) == 0;
+    }
+    
+    public funct getKeys() {
+        return this.keys;
+    }
+    
+    public funct getValues() {
+        return this.values;
+    }
+    
+    public funct clear() {
+        this.keys = [];
+        this.values = [];
+    }
+}
+
+** LinkedListNode - Node for linked list
+class LinkedListNode {
+    public data;
+    public next;
+    
+    funct LinkedListNode(value) {
+        this.data = value;
+        this.next = null;
+    }
+}
+
+** LinkedList - Linked list implementation
+class LinkedList {
+    private head;
+    private tail;
+    private count;
+    
+    funct LinkedList() {
+        this.head = null;
+        this.tail = null;
+        this.count = 0;
+    }
+    
+    public funct addFirst(value) {
+        node = new LinkedListNode(value);
+        if (this.head == null) {
+            this.head = node;
+            this.tail = node;
+        } else {
+            node.next = this.head;
+            this.head = node;
+        }
+        this.count = this.count + 1;
+    }
+    
+    public funct addLast(value) {
+        node = new LinkedListNode(value);
+        if (this.tail == null) {
+            this.head = node;
+            this.tail = node;
+        } else {
+            this.tail.next = node;
+            this.tail = node;
+        }
+        this.count = this.count + 1;
+    }
+    
+    public funct removeFirst() {
+        if (this.head != null) {
+            value = this.head.data;
+            this.head = this.head.next;
+            if (this.head == null) {
+                this.tail = null;
+            }
+            this.count = this.count - 1;
+            return value;
+        }
+        return null;
+    }
+    
+    public funct size() {
+        return this.count;
+    }
+    
+    public funct isEmpty() {
+        return this.count == 0;
+    }
+    
+    public funct toArray() {
+        result = [];
+        current = this.head;
+        while (current != null) {
+            push(result, current.data);
+            current = current.next;
+        }
+        return result;
+    }
+}

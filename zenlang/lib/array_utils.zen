@@ -1,0 +1,389 @@
+** ZenLang Array Utilities Library
+** Import with: .include <dr/lib/array_utils>
+
+** Find element in array
+funct find(arr, value) {
+    for (i = 0; i < length(arr); i = i + 1) {
+        if (arr[i] == value) {
+            return arr[i];
+        };
+    };
+    return null;
+};
+
+** Remove duplicates
+funct unique(arr) {
+    result = [];
+    for (i = 0; i < length(arr); i = i + 1) {
+        if (!includes(result, arr[i])) {
+            push(result, arr[i]);
+        };
+    };
+    return result;
+};
+
+** Flatten nested array
+funct flatten(arr) {
+    result = [];
+    for (i = 0; i < length(arr); i = i + 1) {
+        item = arr[i];
+        if (isArray(item)) {
+            nested = flatten(item);
+            for (j = 0; j < length(nested); j = j + 1) {
+                push(result, nested[j]);
+            };
+        } else {
+            push(result, item);
+        };
+    };
+    return result;
+};
+
+** Chunk array into smaller arrays
+funct chunk(arr, size) {
+    result = [];
+    current = [];
+    
+    for (i = 0; i < length(arr); i = i + 1) {
+        push(current, arr[i]);
+        
+        if (length(current) == size) {
+            push(result, current);
+            current = [];
+        };
+    };
+    
+    if (length(current) > 0) {
+        push(result, current);
+    };
+    
+    return result;
+};
+
+** Take first n elements
+funct take(arr, n) {
+    return slice(arr, 0, n);
+};
+
+** Drop first n elements
+funct drop(arr, n) {
+    return slice(arr, n, length(arr));
+};
+
+** Zip two arrays together
+funct zip(arr1, arr2) {
+    result = [];
+    len = min([length(arr1), length(arr2)]);
+    
+    for (i = 0; i < len; i = i + 1) {
+        push(result, [arr1[i], arr2[i]]);
+    };
+    
+    return result;
+};
+
+** Partition array by condition
+funct partition(arr, condition) {
+    truthy = [];
+    falsy = [];
+    
+    for (i = 0; i < length(arr); i = i + 1) {
+        if (condition(arr[i])) {
+            push(truthy, arr[i]);
+        } else {
+            push(falsy, arr[i]);
+        };
+    };
+    
+    return [truthy, falsy];
+};
+
+** Compact - remove null/false values
+funct compact(arr) {
+    result = [];
+    for (i = 0; i < length(arr); i = i + 1) {
+        item = arr[i];
+        if (item != null && item != false && item != 0) {
+            push(result, item);
+        };
+    };
+    return result;
+};
+
+** Difference between two arrays
+funct difference(arr1, arr2) {
+    result = [];
+    for (i = 0; i < length(arr1); i = i + 1) {
+        if (!includes(arr2, arr1[i])) {
+            push(result, arr1[i]);
+        };
+    };
+    return result;
+};
+
+** Intersection of two arrays
+funct intersection(arr1, arr2) {
+    result = [];
+    for (i = 0; i < length(arr1); i = i + 1) {
+        if (includes(arr2, arr1[i]) && !includes(result, arr1[i])) {
+            push(result, arr1[i]);
+        };
+    };
+    return result;
+};
+
+
+** Advanced Array Functions
+
+** Binary search (array must be sorted)
+funct binarySearch(arr, target) {
+    left = 0;
+    right = length(arr) - 1;
+    
+    while (left <= right) {
+        mid = left + ((right - left) / 2);
+        mid = int(mid);
+        
+        if (arr[mid] == target) {
+            return mid;
+        };
+        
+        if (arr[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        };
+    };
+    
+    return -1;
+};
+
+** Rotate array left
+funct rotateLeft(arr, positions) {
+    len = length(arr);
+    if (len == 0) { return arr; };
+    
+    positions = positions % len;
+    result = [];
+    
+    for (i = positions; i < len; i = i + 1) {
+        push(result, arr[i]);
+    };
+    for (i = 0; i < positions; i = i + 1) {
+        push(result, arr[i]);
+    };
+    
+    return result;
+};
+
+** Rotate array right
+funct rotateRight(arr, positions) {
+    len = length(arr);
+    if (len == 0) { return arr; };
+    
+    positions = positions % len;
+    return rotateLeft(arr, len - positions);
+};
+
+** Sliding window
+funct slidingWindow(arr, windowSize) {
+    windows = [];
+    
+    for (i = 0; i <= length(arr) - windowSize; i = i + 1) {
+        window = [];
+        for (j = 0; j < windowSize; j = j + 1) {
+            push(window, arr[i + j]);
+        };
+        push(windows, window);
+    };
+    
+    return windows;
+};
+
+** Cartesian product of two arrays
+funct cartesianProduct(arr1, arr2) {
+    result = [];
+    
+    for (i = 0; i < length(arr1); i = i + 1) {
+        for (j = 0; j < length(arr2); j = j + 1) {
+            push(result, [arr1[i], arr2[j]]);
+        };
+    };
+    
+    return result;
+};
+
+** Permutations of array
+funct permutations(arr) {
+    if (length(arr) <= 1) {
+        return [arr];
+    };
+    
+    result = [];
+    
+    for (i = 0; i < length(arr); i = i + 1) {
+        current = arr[i];
+        remaining = [];
+        
+        for (j = 0; j < length(arr); j = j + 1) {
+            if (j != i) {
+                push(remaining, arr[j]);
+            };
+        };
+        
+        subPerms = permutations(remaining);
+        
+        for (j = 0; j < length(subPerms); j = j + 1) {
+            perm = [current];
+            for (k = 0; k < length(subPerms[j]); k = k + 1) {
+                push(perm, subPerms[j][k]);
+            };
+            push(result, perm);
+        };
+    };
+    
+    return result;
+};
+
+** Combinations of array (choose k elements)
+funct combinations(arr, k) {
+    if (k == 0) { return [[]]; };
+    if (length(arr) == 0) { return []; };
+    
+    result = [];
+    first = arr[0];
+    rest = slice(arr, 1);
+    
+    ** Combinations including first element
+    withFirst = combinations(rest, k - 1);
+    for (i = 0; i < length(withFirst); i = i + 1) {
+        combo = [first];
+        for (j = 0; j < length(withFirst[i]); j = j + 1) {
+            push(combo, withFirst[i][j]);
+        };
+        push(result, combo);
+    };
+    
+    ** Combinations without first element
+    withoutFirst = combinations(rest, k);
+    for (i = 0; i < length(withoutFirst); i = i + 1) {
+        push(result, withoutFirst[i]);
+    };
+    
+    return result;
+};
+
+** Group consecutive elements
+funct groupConsecutive(arr) {
+    if (length(arr) == 0) { return []; };
+    
+    groups = [];
+    current = [arr[0]];
+    
+    for (i = 1; i < length(arr); i = i + 1) {
+        if (arr[i] == arr[i - 1] + 1) {
+            push(current, arr[i]);
+        } else {
+            push(groups, current);
+            current = [arr[i]];
+        };
+    };
+    
+    push(groups, current);
+    return groups;
+};
+
+** Frequency map
+funct frequencyMap(arr) {
+    freq = {};
+    
+    for (i = 0; i < length(arr); i = i + 1) {
+        item = arr[i];
+        key = item + "";
+        
+        if (hasKey(freq, key)) {
+            freq[key] = freq[key] + 1;
+        } else {
+            freq[key] = 1;
+        };
+    };
+    
+    return freq;
+};
+
+** Most frequent element
+funct mostFrequent(arr) {
+    if (length(arr) == 0) { return null; };
+    
+    freq = frequencyMap(arr);
+    maxCount = 0;
+    maxItem = null;
+    
+    freqKeys = keys(freq);
+    for (i = 0; i < length(freqKeys); i = i + 1) {
+        key = freqKeys[i];
+        if (freq[key] > maxCount) {
+            maxCount = freq[key];
+            maxItem = key;
+        };
+    };
+    
+    return maxItem;
+};
+
+** Running sum
+funct runningSum(arr) {
+    result = [];
+    sum = 0;
+    
+    for (i = 0; i < length(arr); i = i + 1) {
+        sum = sum + arr[i];
+        push(result, sum);
+    };
+    
+    return result;
+};
+
+** Running product
+funct runningProduct(arr) {
+    result = [];
+    product = 1;
+    
+    for (i = 0; i < length(arr); i = i + 1) {
+        product = product * arr[i];
+        push(result, product);
+    };
+    
+    return result;
+};
+
+** Pairwise operation
+funct pairwise(arr, operation) {
+    result = [];
+    
+    for (i = 0; i < length(arr) - 1; i = i + 1) {
+        push(result, operation(arr[i], arr[i + 1]));
+    };
+    
+    return result;
+};
+
+** Interleave two arrays
+funct interleave(arr1, arr2) {
+    result = [];
+    maxLen = length(arr1);
+    if (length(arr2) > maxLen) {
+        maxLen = length(arr2);
+    };
+    
+    for (i = 0; i < maxLen; i = i + 1) {
+        if (i < length(arr1)) {
+            push(result, arr1[i]);
+        };
+        if (i < length(arr2)) {
+            push(result, arr2[i]);
+        };
+    };
+    
+    return result;
+};

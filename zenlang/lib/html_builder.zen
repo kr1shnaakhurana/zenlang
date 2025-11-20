@@ -1,0 +1,331 @@
+** ZenLang HTML Builder Library
+** Programmatic HTML generation with fluent API
+** Import with: .include <zenlang/lib/html_builder>
+
+.include <zenout>
+
+** HTML Element class
+class HtmlElement {
+    private tag;
+    private attributes;
+    private children;
+    private content;
+    private selfClosing;
+    
+    funct HtmlElement(tagName) {
+        this.tag = tagName;
+        this.attributes = {};
+        this.children = [];
+        this.content = "";
+        this.selfClosing = false;
+    }
+    
+    public funct attr(name, value) {
+        temp = this.attributes;
+        temp[name] = value;
+        this.attributes = temp;
+        return this;
+    }
+    
+    public funct id(idValue) {
+        return this.attr("id", idValue);
+    }
+    
+    public funct addClass(className) {
+        if (hasKey(this.attributes, "class")) {
+            existing = this.attributes["class"];
+            return this.attr("class", existing + " " + className);
+        }
+        return this.attr("class", className);
+    }
+    
+    public funct text(textContent) {
+        this.content = textContent;
+        return this;
+    }
+    
+    public funct html(htmlContent) {
+        this.content = htmlContent;
+        return this;
+    }
+    
+    public funct child(element) {
+        push(this.children, element);
+        return this;
+    }
+    
+    public funct setSelfClosing(value) {
+        this.selfClosing = value;
+        return this;
+    }
+    
+    public funct render() {
+        html = "<" + this.tag;
+        
+        ** Add attributes
+        attrKeys = keys(this.attributes);
+        for (i = 0; i < length(attrKeys); i = i + 1) {
+            key = attrKeys[i];
+            value = this.attributes[key];
+            html = html + " " + key + "=\"" + value + "\"";
+        }
+        
+        ** Self-closing tags
+        if (this.selfClosing) {
+            html = html + " />";
+            return html;
+        }
+        
+        html = html + ">";
+        
+        ** Add content
+        if (this.content != "") {
+            html = html + this.content;
+        }
+        
+        ** Add children
+        for (i = 0; i < length(this.children); i = i + 1) {
+            child = this.children[i];
+            html = html + child.render();
+        }
+        
+        ** Close tag
+        html = html + "</" + this.tag + ">";
+        
+        return html;
+    }
+}
+
+** HTML Builder with helper methods
+class HtmlBuilder {
+    public static funct div() {
+        return new HtmlElement("div");
+    }
+    
+    public static funct span() {
+        return new HtmlElement("span");
+    }
+    
+    public static funct p() {
+        return new HtmlElement("p");
+    }
+    
+    public static funct h1() {
+        return new HtmlElement("h1");
+    }
+    
+    public static funct h2() {
+        return new HtmlElement("h2");
+    }
+    
+    public static funct h3() {
+        return new HtmlElement("h3");
+    }
+    
+    public static funct a() {
+        return new HtmlElement("a");
+    }
+    
+    public static funct img() {
+        elem = new HtmlElement("img");
+        elem.setSelfClosing(true);
+        return elem;
+    }
+    
+    public static funct input() {
+        elem = new HtmlElement("input");
+        elem.setSelfClosing(true);
+        return elem;
+    }
+    
+    public static funct button() {
+        return new HtmlElement("button");
+    }
+    
+    public static funct form() {
+        return new HtmlElement("form");
+    }
+    
+    public static funct label() {
+        return new HtmlElement("label");
+    }
+    
+    public static funct ul() {
+        return new HtmlElement("ul");
+    }
+    
+    public static funct ol() {
+        return new HtmlElement("ol");
+    }
+    
+    public static funct li() {
+        return new HtmlElement("li");
+    }
+    
+    public static funct table() {
+        return new HtmlElement("table");
+    }
+    
+    public static funct tr() {
+        return new HtmlElement("tr");
+    }
+    
+    public static funct td() {
+        return new HtmlElement("td");
+    }
+    
+    public static funct th() {
+        return new HtmlElement("th");
+    }
+    
+    public static funct thead() {
+        return new HtmlElement("thead");
+    }
+    
+    public static funct tbody() {
+        return new HtmlElement("tbody");
+    }
+    
+    public static funct select() {
+        return new HtmlElement("select");
+    }
+    
+    public static funct option() {
+        return new HtmlElement("option");
+    }
+    
+    public static funct textarea() {
+        return new HtmlElement("textarea");
+    }
+    
+    public static funct br() {
+        elem = new HtmlElement("br");
+        elem.setSelfClosing(true);
+        return elem;
+    }
+    
+    public static funct hr() {
+        elem = new HtmlElement("hr");
+        elem.setSelfClosing(true);
+        return elem;
+    }
+    
+    public static funct nav() {
+        return new HtmlElement("nav");
+    }
+    
+    public static funct header() {
+        return new HtmlElement("header");
+    }
+    
+    public static funct footer() {
+        return new HtmlElement("footer");
+    }
+    
+    public static funct section() {
+        return new HtmlElement("section");
+    }
+    
+    public static funct article() {
+        return new HtmlElement("article");
+    }
+    
+    public static funct main() {
+        return new HtmlElement("main");
+    }
+}
+
+** Document builder for complete HTML pages
+class HtmlDocument {
+    private title;
+    private head;
+    private body;
+    private styles;
+    private scripts;
+    
+    funct HtmlDocument(pageTitle) {
+        this.title = pageTitle;
+        this.head = [];
+        this.body = [];
+        this.styles = [];
+        this.scripts = [];
+    }
+    
+    public funct addStyle(css) {
+        push(this.styles, css);
+        return this;
+    }
+    
+    public funct addScript(js) {
+        push(this.scripts, js);
+        return this;
+    }
+    
+    public funct addMeta(name, content) {
+        meta = "<meta name=\"" + name + "\" content=\"" + content + "\">";
+        push(this.head, meta);
+        return this;
+    }
+    
+    public funct addLink(rel, href) {
+        link = "<link rel=\"" + rel + "\" href=\"" + href + "\">";
+        push(this.head, link);
+        return this;
+    }
+    
+    public funct addToBody(element) {
+        push(this.body, element);
+        return this;
+    }
+    
+    public funct render() {
+        html = "<!DOCTYPE html>\n<html>\n<head>\n";
+        html = html + "<meta charset=\"UTF-8\">\n";
+        html = html + "<title>" + this.title + "</title>\n";
+        
+        ** Add head elements
+        for (i = 0; i < length(this.head); i = i + 1) {
+            html = html + this.head[i] + "\n";
+        }
+        
+        ** Add styles
+        if (length(this.styles) > 0) {
+            html = html + "<style>\n";
+            for (i = 0; i < length(this.styles); i = i + 1) {
+                html = html + this.styles[i] + "\n";
+            }
+            html = html + "</style>\n";
+        }
+        
+        html = html + "</head>\n<body>\n";
+        
+        ** Add body elements
+        for (i = 0; i < length(this.body); i = i + 1) {
+            element = this.body[i];
+            if (isString(element)) {
+                html = html + element + "\n";
+            } else {
+                html = html + element.render() + "\n";
+            }
+        }
+        
+        ** Add scripts
+        if (length(this.scripts) > 0) {
+            html = html + "<script>\n";
+            for (i = 0; i < length(this.scripts); i = i + 1) {
+                html = html + this.scripts[i] + "\n";
+            }
+            html = html + "</script>\n";
+        }
+        
+        html = html + "</body>\n</html>";
+        
+        return html;
+    }
+}
+
+** Helper to check if value is string
+funct isString(value) {
+    ** Simple check - if it has no render method, assume string
+    return true;
+};

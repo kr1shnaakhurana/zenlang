@@ -1,0 +1,255 @@
+** ZenLang Router Library
+** URL routing for web applications
+** Import with: .include <zenlang/lib/router>
+
+.include <zenlang/lib/collections>
+
+** Route class
+class Route {
+    public path;
+    public handler;
+    public method;
+    public params;
+    
+    funct Route(routePath, routeHandler, routeMethod) {
+        this.path = routePath;
+        this.handler = routeHandler;
+        this.method = routeMethod;
+        this.params = {};
+    }
+    
+    funct Route(routePath, routeHandler) {
+        this.path = routePath;
+        this.handler = routeHandler;
+        this.method = "GET";
+        this.params = {};
+    }
+}
+
+** Router class
+class Router {
+    private routes;
+    private middlewares;
+    private notFoundHandler;
+    
+    funct Router() {
+        this.routes = new ArrayList();
+        this.middlewares = [];
+        this.notFoundHandler = null;
+    }
+    
+    public funct get(path, handler) {
+        route = new Route(path, handler, "GET");
+        this.routes.add(route);
+    }
+    
+    public funct post(path, handler) {
+        route = new Route(path, handler, "POST");
+        this.routes.add(route);
+    }
+    
+    public funct put(path, handler) {
+        route = new Route(path, handler, "PUT");
+        this.routes.add(route);
+    }
+    
+    public funct delete(path, handler) {
+        route = new Route(path, handler, "DELETE");
+        this.routes.add(route);
+    }
+    
+    public funct use(middleware) {
+        push(this.middlewares, middleware);
+    }
+    
+    public funct notFound(handler) {
+        this.notFoundHandler = handler;
+    }
+    
+    public funct match(method, path) {
+        for (i = 0; i < this.routes.getSize(); i = i + 1) {
+            route = this.routes.get(i);
+            
+            if (route.method == method) {
+                matched = this.matchPath(route.path, path);
+                if (matched != null) {
+                    route.params = matched;
+                    return route;
+                }
+            }
+        }
+        return null;
+    }
+    
+    private funct matchPath(pattern, path) {
+        ** Simple pattern matching
+        if (pattern == path) {
+            return {};
+        }
+        
+        ** Check for parameters
+        if (indexOf(pattern, ":") == -1) {
+            return null;
+        }
+        
+        patternParts = split(pattern, "/");
+        pathParts = split(path, "/");
+        
+        if (length(patternParts) != length(pathParts)) {
+            return null;
+        }
+        
+        params = {};
+        
+        for (i = 0; i < length(patternParts); i = i + 1) {
+            patternPart = patternParts[i];
+            pathPart = pathParts[i];
+            
+            if (startsWith(patternPart, ":")) {
+                paramName = substring(patternPart, 1);
+                params[paramName] = pathPart;
+            } else if (patternPart != pathPart) {
+                return null;
+            }
+        }
+        
+        return params;
+    }
+    
+    public funct handle(method, path, request) {
+        ** Execute middlewares
+        for (i = 0; i < length(this.middlewares); i = i + 1) {
+            middleware = this.middlewares[i];
+            middleware(request);
+        }
+        
+        ** Find matching route
+        route = this.match(method, path);
+        
+        if (route != null) {
+            request.setParams(route.params);
+            return route.handler(request);
+        }
+        
+        ** No route found
+        if (this.notFoundHandler != null) {
+            return this.notFoundHandler(request);
+        }
+        
+        return {status = 404, body = "Not Found"};
+    }
+}
+
+** Request class
+class Request {
+    public method;
+    public path;
+    public params;
+    public query;
+    public body;
+    public headers;
+    
+    funct Request(reqMethod, reqPath) {
+        this.method = reqMethod;
+        this.path = reqPath;
+        this.params = {};
+        this.query = {};
+        this.body = null;
+        this.headers = {};
+    }
+    
+    public funct setParams(newParams) {
+        this.params = newParams;
+    }
+    
+    public funct getParam(name) {
+        if (hasKey(this.params, name)) {
+            return this.params[name];
+        }
+        return null;
+    }
+    
+    public funct getQuery(name) {
+        if (hasKey(this.query, name)) {
+            return this.query[name];
+        }
+        return null;
+    }
+    
+    public funct getHeader(name) {
+        if (hasKey(this.headers, name)) {
+            return this.headers[name];
+        }
+        return null;
+    }
+}
+
+** Response class
+class Response {
+    public status;
+    public body;
+    public headers;
+    
+    funct Response() {
+        this.status = 200;
+        this.body = "";
+        this.headers = {};
+    }
+    
+    public funct setStatus(code) {
+        this.status = code;
+        return this;
+    }
+    
+    public funct setBody(content) {
+        this.body = content;
+        return this;
+    }
+    
+    public funct setHeader(name, value) {
+        temp = this.headers;
+        temp[name] = value;
+        this.headers = temp;
+        return this;
+    }
+    
+    public funct json(data) {
+        this.body = toJSON(data);
+        temp = this.headers;
+        temp["Content-Type"] = "application/json";
+        this.headers = temp;
+        return this;
+    }
+    
+    public funct html(content) {
+        this.body = content;
+        temp = this.headers;
+        temp["Content-Type"] = "text/html";
+        this.headers = temp;
+        return this;
+    }
+    
+    public funct text(content) {
+        this.body = content;
+        temp = this.headers;
+        temp["Content-Type"] = "text/plain";
+        this.headers = temp;
+        return this;
+    }
+    
+    public funct redirect(url) {
+        this.status = 302;
+        temp = this.headers;
+        temp["Location"] = url;
+        this.headers = temp;
+        return this;
+    }
+    
+    public funct build() {
+        return {
+            status = this.status,
+            headers = this.headers,
+            body = this.body
+        };
+    }
+}

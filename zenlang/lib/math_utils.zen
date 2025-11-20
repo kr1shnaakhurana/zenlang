@@ -1,0 +1,134 @@
+** ZenLang Math Utilities Library
+** Import with: .include <dr/lib/math_utils>
+
+** Factorial
+funct factorial(n) {
+    if (n <= 1) {
+        return 1;
+    };
+    return n * factorial(n - 1);
+};
+
+** Fibonacci
+funct fibonacci(n) {
+    if (n <= 1) {
+        return n;
+    };
+    return fibonacci(n - 1) + fibonacci(n - 2);
+};
+
+** Check if prime
+funct isPrime(n) {
+    if (n <= 1) {
+        return false;
+    };
+    
+    i = 2;
+    while (i * i <= n) {
+        if (n % i == 0) {
+            return false;
+        };
+        i = i + 1;
+    };
+    
+    return true;
+};
+
+** Greatest common divisor
+funct gcd(a, b) {
+    while (b != 0) {
+        temp = b;
+        b = a % b;
+        a = temp;
+    };
+    return a;
+};
+
+** Least common multiple
+funct lcm(a, b) {
+    return (a * b) / gcd(a, b);
+};
+
+** Power function
+funct power(base, exp) {
+    result = 1;
+    for (i = 0; i < exp; i = i + 1) {
+        result = result * base;
+    };
+    return result;
+};
+
+** Absolute value
+funct absolute(n) {
+    if (n < 0) {
+        return -n;
+    };
+    return n;
+};
+
+** Clamp value between min and max
+funct clamp(value, minVal, maxVal) {
+    if (value < minVal) {
+        return minVal;
+    };
+    if (value > maxVal) {
+        return maxVal;
+    };
+    return value;
+};
+
+** Linear interpolation
+funct lerp(start, end, t) {
+    return start + (end - start) * t;
+};
+
+** Map value from one range to another
+funct mapRange(value, inMin, inMax, outMin, outMax) {
+    return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+};
+
+** Round to decimal places
+funct roundTo(num, decimals) {
+    multiplier = power(10, decimals);
+    return int(num * multiplier + 0.5) / multiplier;
+};
+
+** Check if even
+funct isEven(n) {
+    return n % 2 == 0;
+};
+
+** Check if odd
+funct isOdd(n) {
+    return n % 2 != 0;
+};
+
+** Sum of array
+funct sumArray(arr) {
+    total = 0;
+    for (i = 0; i < length(arr); i = i + 1) {
+        total = total + arr[i];
+    };
+    return total;
+};
+
+** Average of array
+funct average(arr) {
+    if (length(arr) == 0) {
+        return 0;
+    };
+    return sumArray(arr) / length(arr);
+};
+
+** Median of array
+funct median(arr) {
+    sorted = sort(arr);
+    len = length(sorted);
+    mid = int(len / 2);
+    
+    if (isEven(len)) {
+        return (sorted[mid - 1] + sorted[mid]) / 2;
+    };
+    
+    return sorted[mid];
+};

@@ -1,0 +1,297 @@
+** ZenLang JSON Parser Library
+** Pure ZenLang JSON parsing and serialization
+** Import with: .include <zenlang/lib/json_parser>
+
+** Helper function to create empty objects
+funct createObject() {
+    return {};
+}
+
+** Helper function to create empty arrays
+funct createArray() {
+    return [];
+}
+
+** JSON Parser class
+class JSONParser {
+    private text;
+    private pos;
+    private length;
+    
+    funct JSONParser() {
+        this.text = "";
+        this.pos = 0;
+        this.length = 0;
+    }
+    
+    public funct parse(jsonText) {
+        this.text = jsonText;
+        this.pos = 0;
+        this.length = length(jsonText);
+        return this.parseValue();
+    }
+    
+    private funct parseValue() {
+        this.skipWhitespace();
+        
+        if (this.pos >= this.length) {
+            return null;
+        }
+        
+        char = charAt(this.text, this.pos);
+        
+        ** Check what type of value this is
+        if (char == "t") {
+            return this.parseBoolean();
+        }
+        if (char == "f") {
+            return this.parseBoolean();
+        }
+        if (char == "n") {
+            return this.parseNull();
+        }
+        
+        ** Check for special characters
+        code = charCodeAt(char, 0);
+        
+        if (code == 123) {
+            ** 123 is open brace
+            return this.parseObject();
+        }
+        if (code == 91) {
+            ** 91 is open bracket
+            return this.parseArray();
+        }
+        if (code == 34) {
+            ** 34 is quote
+            return this.parseString();
+        }
+        
+        ** Otherwise it's a number
+        return this.parseNumber();
+    }
+    
+    private funct parseObject() {
+        obj = createObject();
+        this.pos = this.pos + 1;
+        this.skipWhitespace();
+        
+        if (charAt(this.text, this.pos) == "}") {
+            this.pos = this.pos + 1;
+            return obj;
+        }
+        
+        while (this.pos < this.length) {
+            this.skipWhitespace();
+            
+            ** Parse key
+            key = this.parseString();
+            
+            this.skipWhitespace();
+            
+            ** Expect colon
+            if (charAt(this.text, this.pos) == ":") {
+                this.pos = this.pos + 1;
+            }
+            
+            this.skipWhitespace();
+            
+            ** Parse value
+            value = this.parseValue();
+            obj[key] = value;
+            
+            this.skipWhitespace();
+            
+            char = charAt(this.text, this.pos);
+            if (char == ",") {
+                this.pos = this.pos + 1;
+            } else if (char == "}") {
+                this.pos = this.pos + 1;
+                return obj;
+            }
+        }
+        
+        return obj;
+    }
+    
+    private funct parseArray() {
+        arr = createArray();
+        this.pos = this.pos + 1;
+        this.skipWhitespace();
+        
+        if (charAt(this.text, this.pos) == "]") {
+            this.pos = this.pos + 1;
+            return arr;
+        }
+        
+        while (this.pos < this.length) {
+            value = this.parseValue();
+            push(arr, value);
+            
+            this.skipWhitespace();
+            
+            char = charAt(this.text, this.pos);
+            if (char == ",") {
+                this.pos = this.pos + 1;
+            } else if (char == "]") {
+                this.pos = this.pos + 1;
+                return arr;
+            }
+        }
+        
+        return arr;
+    }
+    
+    private funct parseString() {
+        this.pos = this.pos + 1;
+        start = this.pos;
+        result = "";
+        
+        while (this.pos < this.length) {
+            char = charAt(this.text, this.pos);
+            
+            if (char == "\"") {
+                this.pos = this.pos + 1;
+                return result;
+            } else if (char == "\\") {
+                this.pos = this.pos + 1;
+                if (this.pos < this.length) {
+                    escaped = charAt(this.text, this.pos);
+                    result = result + escaped;
+                    this.pos = this.pos + 1;
+                }
+            } else {
+                result = result + char;
+                this.pos = this.pos + 1;
+            }
+        }
+        
+        return result;
+    }
+    
+    private funct parseNumber() {
+        start = this.pos;
+        
+        while (this.pos < this.length) {
+            char = charAt(this.text, this.pos);
+            if (char >= "0" && char <= "9" || char == "." || char == "-" || char == "e" || char == "E" || char == "+") {
+                this.pos = this.pos + 1;
+            } else {
+                numStr = substring(this.text, start, this.pos);
+                return float(numStr);
+            }
+        }
+        
+        numStr = substring(this.text, start, this.pos);
+        return float(numStr);
+    }
+    
+    private funct parseBoolean() {
+        if (substring(this.text, this.pos, this.pos + 4) == "true") {
+            this.pos = this.pos + 4;
+            return true;
+        } else if (substring(this.text, this.pos, this.pos + 5) == "false") {
+            this.pos = this.pos + 5;
+            return false;
+        }
+        return false;
+    }
+    
+    private funct parseNull() {
+        if (substring(this.text, this.pos, this.pos + 4) == "null") {
+            this.pos = this.pos + 4;
+            return null;
+        }
+        return null;
+    }
+    
+    private funct skipWhitespace() {
+        while (this.pos < this.length) {
+            char = charAt(this.text, this.pos);
+            if (char == " " || char == "\n" || char == "\r" || char == "\t") {
+                this.pos = this.pos + 1;
+            } else {
+                return null;
+            }
+        }
+    }
+}
+
+** JSON Serializer class
+class JSONSerializer {
+    public static funct stringify(value) {
+        return JSONSerializer.serializeValue(value);
+    }
+    
+    private static funct serializeValue(value) {
+        if (value == null) {
+            return "null";
+        } else if (isBool(value)) {
+            if (value) {
+                return "true";
+            } else {
+                return "false";
+            }
+        } else if (isNumber(value)) {
+            return value + "";
+        } else if (isString(value)) {
+            return JSONSerializer.serializeString(value);
+        } else if (isArray(value)) {
+            return JSONSerializer.serializeArray(value);
+        } else if (isObject(value)) {
+            return JSONSerializer.serializeObject(value);
+        }
+        return "null";
+    }
+    
+    private static funct serializeString(str) {
+        escaped = replace(str, "\\", "\\\\");
+        escaped = replace(escaped, "\"", "\\\"");
+        escaped = replace(escaped, "\n", "\\n");
+        escaped = replace(escaped, "\r", "\\r");
+        escaped = replace(escaped, "\t", "\\t");
+        return "\"" + escaped + "\"";
+    }
+    
+    private static funct serializeArray(arr) {
+        result = "[";
+        for (i = 0; i < length(arr); i = i + 1) {
+            if (i > 0) {
+                result = result + ",";
+            }
+            result = result + JSONSerializer.serializeValue(arr[i]);
+        }
+        result = result + "]";
+        return result;
+    }
+    
+    private static funct serializeObject(obj) {
+        result = "{";
+        objKeys = keys(obj);
+        first = true;
+        
+        for (i = 0; i < length(objKeys); i = i + 1) {
+            key = objKeys[i];
+            if (!first) {
+                result = result + ",";
+            }
+            first = false;
+            result = result + JSONSerializer.serializeString(key);
+            result = result + ":";
+            result = result + JSONSerializer.serializeValue(obj[key]);
+        }
+        
+        result = result + "}";
+        return result;
+    }
+}
+
+** Convenience functions
+funct parseJSON(jsonText) {
+    parser = new JSONParser();
+    return parser.parse(jsonText);
+}
+
+funct stringifyJSON(value) {
+    return JSONSerializer.stringify(value);
+}

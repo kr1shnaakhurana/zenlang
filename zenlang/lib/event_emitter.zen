@@ -1,0 +1,134 @@
+** ZenLang Event Emitter Library
+** Event-driven programming support
+** Import with: .include <zenlang/lib/event_emitter>
+
+.include <zenlang/lib/collections>
+
+** EventEmitter class
+class EventEmitter {
+    private listeners;
+    
+    funct EventEmitter() {
+        this.listeners = {};
+    }
+    
+    private funct getHandlers(eventName) {
+        if (hasKey(this.listeners, eventName)) {
+            return this.listeners[eventName];
+        }
+        return [];
+    }
+    
+    private funct setHandlers(eventName, handlers) {
+        temp = this.listeners;
+        temp[eventName] = handlers;
+        this.listeners = temp;
+    }
+    
+    public funct on(eventName, handler) {
+        handlers = this.getHandlers(eventName);
+        push(handlers, handler);
+        this.setHandlers(eventName, handlers);
+    }
+    
+    public funct once(eventName, handler) {
+        wrapper = funct() {
+            handler();
+            this.off(eventName, wrapper);
+        };
+        this.on(eventName, wrapper);
+    }
+    
+    public funct off(eventName, handler) {
+        handlers = this.getHandlers(eventName);
+        if (length(handlers) == 0) {
+            return false;
+        }
+        
+        newHandlers = [];
+        
+        for (i = 0; i < length(handlers); i = i + 1) {
+            if (handlers[i] != handler) {
+                push(newHandlers, handlers[i]);
+            }
+        }
+        
+        this.setHandlers(eventName, newHandlers);
+        return true;
+    }
+    
+    public funct emit(eventName) {
+        handlers = this.getHandlers(eventName);
+        count = 0;
+        
+        for (i = 0; i < length(handlers); i = i + 1) {
+            handlers[i]();
+            count = count + 1;
+        }
+        
+        return count;
+    }
+    
+    public funct emitWith(eventName, data) {
+        handlers = this.getHandlers(eventName);
+        count = 0;
+        
+        for (i = 0; i < length(handlers); i = i + 1) {
+            handlers[i](data);
+            count = count + 1;
+        }
+        
+        return count;
+    }
+    
+    public funct removeAllListeners(eventName) {
+        this.setHandlers(eventName, []);
+        return true;
+    }
+    
+    public funct listenerCount(eventName) {
+        handlers = this.getHandlers(eventName);
+        return length(handlers);
+    }
+}
+
+** Observable class (reactive programming)
+class Observable {
+    private value;
+    private observers;
+    
+    funct Observable(initialValue) {
+        this.value = initialValue;
+        this.observers = [];
+    }
+    
+    public funct get() {
+        return this.value;
+    }
+    
+    public funct set(newValue) {
+        oldValue = this.value;
+        this.value = newValue;
+        this.notify(oldValue, newValue);
+    }
+    
+    public funct subscribe(observer) {
+        push(this.observers, observer);
+    }
+    
+    public funct unsubscribe(observer) {
+        newObservers = [];
+        for (i = 0; i < length(this.observers); i = i + 1) {
+            if (this.observers[i] != observer) {
+                push(newObservers, this.observers[i]);
+            }
+        }
+        this.observers = newObservers;
+    }
+    
+    private funct notify(oldValue, newValue) {
+        for (i = 0; i < length(this.observers); i = i + 1) {
+            this.observers[i](newValue, oldValue);
+        }
+    }
+}

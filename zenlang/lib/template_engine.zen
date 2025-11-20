@@ -1,0 +1,205 @@
+** ZenLang Template Engine Library
+** Simple template rendering with variable substitution
+** Import with: .include <zenlang/lib/template_engine>
+
+.include <zenout>
+
+** Template Engine class
+class TemplateEngine {
+    private templates;
+    private partials;
+    
+    funct TemplateEngine() {
+        this.templates = {};
+        this.partials = {};
+    }
+    
+    public funct register(name, template) {
+        temp = this.templates;
+        temp[name] = template;
+        this.templates = temp;
+    }
+    
+    public funct registerPartial(name, partial) {
+        temp = this.partials;
+        temp[name] = partial;
+        this.partials = temp;
+    }
+    
+    public funct render(name, data) {
+        if (!hasKey(this.templates, name)) {
+            return "Template not found: " + name;
+        }
+        
+        template = this.templates[name];
+        return this.process(template, data);
+    }
+    
+    private funct process(template, data) {
+        result = template;
+        
+        ** Replace variables {{variable}}
+        dataKeys = keys(data);
+        for (i = 0; i < length(dataKeys); i = i + 1) {
+            key = dataKeys[i];
+            value = data[key];
+            placeholder = "{{" + key + "}}";
+            result = replace(result, placeholder, "" + value);
+        }
+        
+        ** Process partials {{>partial}}
+        partialKeys = keys(this.partials);
+        for (i = 0; i < length(partialKeys); i = i + 1) {
+            key = partialKeys[i];
+            partial = this.partials[key];
+            placeholder = "{{>" + key + "}}";
+            result = replace(result, placeholder, partial);
+        }
+        
+        return result;
+    }
+    
+    public funct renderString(template, data) {
+        return this.process(template, data);
+    }
+}
+
+** Component-based template system
+class Component {
+    private name;
+    private template;
+    private props;
+    
+    funct Component(componentName, componentTemplate) {
+        this.name = componentName;
+        this.template = componentTemplate;
+        this.props = {};
+    }
+    
+    public funct setProp(key, value) {
+        temp = this.props;
+        temp[key] = value;
+        this.props = temp;
+        return this;
+    }
+    
+    public funct render() {
+        result = this.template;
+        
+        propKeys = keys(this.props);
+        for (i = 0; i < length(propKeys); i = i + 1) {
+            key = propKeys[i];
+            value = this.props[key];
+            placeholder = "{{" + key + "}}";
+            result = replace(result, placeholder, "" + value);
+        }
+        
+        return result;
+    }
+}
+
+** Layout system
+class Layout {
+    private template;
+    private sections;
+    
+    funct Layout(layoutTemplate) {
+        this.template = layoutTemplate;
+        this.sections = {};
+    }
+    
+    public funct setSection(name, content) {
+        temp = this.sections;
+        temp[name] = content;
+        this.sections = temp;
+        return this;
+    }
+    
+    public funct render() {
+        result = this.template;
+        
+        sectionKeys = keys(this.sections);
+        for (i = 0; i < length(sectionKeys); i = i + 1) {
+            key = sectionKeys[i];
+            content = this.sections[key];
+            placeholder = "{{@" + key + "}}";
+            result = replace(result, placeholder, content);
+        }
+        
+        return result;
+    }
+}
+
+** View renderer with layouts
+class ViewRenderer {
+    private layouts;
+    private views;
+    private engine;
+    
+    funct ViewRenderer() {
+        this.layouts = {};
+        this.views = {};
+        this.engine = new TemplateEngine();
+    }
+    
+    public funct registerLayout(name, template) {
+        temp = this.layouts;
+        temp[name] = template;
+        this.layouts = temp;
+    }
+    
+    public funct registerView(name, template) {
+        temp = this.views;
+        temp[name] = template;
+        this.views = temp;
+    }
+    
+    public funct render(viewName, data, layoutName) {
+        if (!hasKey(this.views, viewName)) {
+            return "View not found: " + viewName;
+        }
+        
+        view = this.views[viewName];
+        content = this.engine.renderString(view, data);
+        
+        ** If layout specified, wrap content
+        if (layoutName != null && hasKey(this.layouts, layoutName)) {
+            layout = new Layout(this.layouts[layoutName]);
+            layout.setSection("content", content);
+            return layout.render();
+        }
+        
+        return content;
+    }
+}
+
+** Helper function for string replacement
+funct replace(text, search, replacement) {
+    result = "";
+    searchLen = length(search);
+    textLen = length(text);
+    i = 0;
+    
+    while (i < textLen) {
+        found = true;
+        
+        ** Check if search string matches at current position
+        for (j = 0; j < searchLen; j = j + 1) {
+            if (i + j >= textLen) {
+                found = false;
+            } else if (charAt(text, i + j) != charAt(search, j)) {
+                found = false;
+            }
+        }
+        
+        if (found) {
+            result = result + replacement;
+            i = i + searchLen;
+        } else {
+            result = result + charAt(text, i);
+            i = i + 1;
+        }
+    }
+    
+    return result;
+};

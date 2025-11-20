@@ -1,0 +1,105 @@
+** ZenLang Date Utilities Library
+** Import with: .include <dr/lib/date_utils>
+
+** Days in each month
+funct daysInMonth(month, year) {
+    if (month == 2) {
+        ** Check leap year
+        if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) {
+            return 29;
+        };
+        return 28;
+    };
+    
+    if (month == 4 || month == 6 || month == 9 || month == 11) {
+        return 30;
+    };
+    
+    return 31;
+};
+
+** Check if leap year
+funct isLeapYear(year) {
+    return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+};
+
+** Get month name
+funct monthName(month) {
+    months = ["January", "February", "March", "April", "May", "June",
+              "July", "August", "September", "October", "November", "December"];
+    
+    if (month >= 1 && month <= 12) {
+        return months[month - 1];
+    };
+    
+    return "Invalid";
+};
+
+** Get day name
+funct dayName(day) {
+    days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    
+    if (day >= 0 && day < 7) {
+        return days[day];
+    };
+    
+    return "Invalid";
+};
+
+** Format date as string
+funct formatDate(year, month, day) {
+    monthStr = padLeft(month + "", 2, "0");
+    dayStr = padLeft(day + "", 2, "0");
+    return year + "-" + monthStr + "-" + dayStr;
+};
+
+** Calculate age from birth year
+funct calculateAge(birthYear, currentYear) {
+    return currentYear - birthYear;
+};
+
+** Add days to a date (simplified)
+funct addDays(day, month, year, daysToAdd) {
+    newDay = day + daysToAdd;
+    newMonth = month;
+    newYear = year;
+    
+    while (newDay > daysInMonth(newMonth, newYear)) {
+        newDay = newDay - daysInMonth(newMonth, newYear);
+        newMonth = newMonth + 1;
+        
+        if (newMonth > 12) {
+            newMonth = 1;
+            newYear = newYear + 1;
+        };
+    };
+    
+    return {day=newDay, month=newMonth, year=newYear};
+};
+
+** Get quarter of year
+funct getQuarter(month) {
+    if (month <= 3) {
+        return 1;
+    };
+    if (month <= 6) {
+        return 2;
+    };
+    if (month <= 9) {
+        return 3;
+    };
+    return 4;
+};
+
+** Check if date is valid
+funct isValidDate(day, month, year) {
+    if (month < 1 || month > 12) {
+        return false;
+    };
+    
+    if (day < 1 || day > daysInMonth(month, year)) {
+        return false;
+    };
+    
+    return true;
+};

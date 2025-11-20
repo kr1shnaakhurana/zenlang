@@ -1,0 +1,780 @@
+** ZenLang Custom GUI Library
+** Pure ZenLang GUI framework with class-based components
+** Import with: .include <zenlang/lib/gui>
+
+.include <zengui>
+.include <zenlang/lib/collections>
+
+** Base Widget class
+class Widget {
+    protected id;
+    protected x;
+    protected y;
+    protected width;
+    protected height;
+    protected visible;
+    protected enabled;
+    protected parent;
+    protected children;
+    
+    funct Widget() {
+        this.id = "widget_" + timestamp();
+        this.x = 0;
+        this.y = 0;
+        this.width = 100;
+        this.height = 30;
+        this.visible = true;
+        this.enabled = true;
+        this.parent = null;
+        this.children = new ArrayList();
+    }
+    
+    public funct setPosition(newX, newY) {
+        this.x = newX;
+        this.y = newY;
+    }
+    
+    public funct setSize(w, h) {
+        this.width = w;
+        this.height = h;
+    }
+    
+    public funct setBounds(newX, newY, w, h) {
+        this.x = newX;
+        this.y = newY;
+        this.width = w;
+        this.height = h;
+    }
+    
+    public funct show() {
+        this.visible = true;
+    }
+    
+    public funct hide() {
+        this.visible = false;
+    }
+    
+    public funct enable() {
+        this.enabled = true;
+    }
+    
+    public funct disable() {
+        this.enabled = false;
+    }
+    
+    public funct addChild(child) {
+        this.children.add(child);
+        child.parent = this;
+    }
+    
+    public funct removeChild(child) {
+        for (i = 0; i < this.children.getSize(); i = i + 1) {
+            if (this.children.get(i) == child) {
+                this.children.remove(i);
+                child.parent = null;
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public funct getId() {
+        return this.id;
+    }
+    
+    public funct isVisible() {
+        return this.visible;
+    }
+    
+    public funct isEnabled() {
+        return this.enabled;
+    }
+}
+
+** Window class
+class Window extends Widget {
+    private title;
+    private resizable;
+    private maximized;
+    private minimized;
+    
+    funct Window(windowTitle) {
+        this.title = windowTitle;
+        this.width = 800;
+        this.height = 600;
+        this.resizable = true;
+        this.maximized = false;
+        this.minimized = false;
+        this.children = new ArrayList();
+    }
+    
+    funct Window(windowTitle, w, h) {
+        this.title = windowTitle;
+        this.width = w;
+        this.height = h;
+        this.resizable = true;
+        this.maximized = false;
+        this.minimized = false;
+        this.children = new ArrayList();
+    }
+    
+    public funct setTitle(newTitle) {
+        this.title = newTitle;
+        zengui.setTitle(this.title);
+    }
+    
+    public funct getTitle() {
+        return this.title;
+    }
+    
+    public funct setResizable(value) {
+        this.resizable = value;
+    }
+    
+    public funct maximize() {
+        this.maximized = true;
+        this.minimized = false;
+    }
+    
+    public funct minimize() {
+        this.minimized = true;
+        this.maximized = false;
+    }
+    
+    public funct restore() {
+        this.maximized = false;
+        this.minimized = false;
+    }
+    
+    public funct show() {
+        zengui.createWindow(this.title, this.width, this.height);
+        this.visible = true;
+    }
+    
+    public funct close() {
+        this.visible = false;
+    }
+}
+
+** Button class
+class Button extends Widget {
+    private text;
+    private onClick;
+    
+    funct Button(buttonText) {
+        this.text = buttonText;
+        this.width = 100;
+        this.height = 30;
+        this.onClick = null;
+        this.children = new ArrayList();
+    }
+    
+    funct Button(buttonText, w, h) {
+        this.text = buttonText;
+        this.width = w;
+        this.height = h;
+        this.onClick = null;
+        this.children = new ArrayList();
+    }
+    
+    public funct setText(newText) {
+        this.text = newText;
+    }
+    
+    public funct getText() {
+        return this.text;
+    }
+    
+    public funct setOnClick(handler) {
+        this.onClick = handler;
+    }
+    
+    public funct click() {
+        if (this.onClick != null && this.enabled) {
+            this.onClick();
+        }
+    }
+    
+    public funct render() {
+        return zengui.button(this.text, this.x, this.y, this.width, this.height);
+    }
+}
+
+** Label class
+class Label extends Widget {
+    private text;
+    private fontSize;
+    private fontColor;
+    private alignment;
+    
+    funct Label(labelText) {
+        this.text = labelText;
+        this.width = 200;
+        this.height = 25;
+        this.fontSize = 12;
+        this.fontColor = "black";
+        this.alignment = "left";
+        this.children = new ArrayList();
+    }
+    
+    public funct setText(newText) {
+        this.text = newText;
+    }
+    
+    public funct getText() {
+        return this.text;
+    }
+    
+    public funct setFontSize(size) {
+        this.fontSize = size;
+    }
+    
+    public funct setFontColor(color) {
+        this.fontColor = color;
+    }
+    
+    public funct setAlignment(align) {
+        this.alignment = align;
+    }
+    
+    public funct render() {
+        return zengui.label(this.text, this.x, this.y);
+    }
+}
+
+** TextBox class
+class TextBox extends Widget {
+    private text;
+    private placeholder;
+    private maxLength;
+    private readOnly;
+    private password;
+    
+    funct TextBox() {
+        this.text = "";
+        this.placeholder = "";
+        this.width = 200;
+        this.height = 30;
+        this.maxLength = -1;
+        this.readOnly = false;
+        this.password = false;
+        this.children = new ArrayList();
+    }
+    
+    funct TextBox(initialText) {
+        this.text = initialText;
+        this.placeholder = "";
+        this.width = 200;
+        this.height = 30;
+        this.maxLength = -1;
+        this.readOnly = false;
+        this.password = false;
+        this.children = new ArrayList();
+    }
+    
+    public funct setText(newText) {
+        this.text = newText;
+    }
+    
+    public funct getText() {
+        return this.text;
+    }
+    
+    public funct setPlaceholder(text) {
+        this.placeholder = text;
+    }
+    
+    public funct setMaxLength(length) {
+        this.maxLength = length;
+    }
+    
+    public funct setReadOnly(value) {
+        this.readOnly = value;
+    }
+    
+    public funct setPassword(value) {
+        this.password = value;
+    }
+    
+    public funct clear() {
+        this.text = "";
+    }
+    
+    public funct render() {
+        return zengui.input(this.placeholder, this.x, this.y, this.width, this.height);
+    }
+}
+
+** TextArea class
+class TextArea extends Widget {
+    private text;
+    private lines;
+    private readOnly;
+    
+    funct TextArea() {
+        this.text = "";
+        this.lines = new ArrayList();
+        this.width = 300;
+        this.height = 200;
+        this.readOnly = false;
+        this.children = new ArrayList();
+    }
+    
+    public funct setText(newText) {
+        this.text = newText;
+        this.lines = new ArrayList();
+        textLines = split(newText, "\n");
+        for (i = 0; i < length(textLines); i = i + 1) {
+            this.lines.add(textLines[i]);
+        }
+    }
+    
+    public funct getText() {
+        return this.text;
+    }
+    
+    public funct appendText(text) {
+        this.text = this.text + text;
+    }
+    
+    public funct appendLine(line) {
+        this.lines.add(line);
+        this.text = this.text + line + "\n";
+    }
+    
+    public funct clear() {
+        this.text = "";
+        this.lines.clear();
+    }
+    
+    public funct getLineCount() {
+        return this.lines.getSize();
+    }
+    
+    public funct setReadOnly(value) {
+        this.readOnly = value;
+    }
+}
+
+** CheckBox class
+class CheckBox extends Widget {
+    private text;
+    private checked;
+    private onChange;
+    
+    funct CheckBox(checkText) {
+        this.text = checkText;
+        this.checked = false;
+        this.width = 150;
+        this.height = 25;
+        this.onChange = null;
+        this.children = new ArrayList();
+    }
+    
+    public funct setText(newText) {
+        this.text = newText;
+    }
+    
+    public funct getText() {
+        return this.text;
+    }
+    
+    public funct setChecked(value) {
+        this.checked = value;
+        if (this.onChange != null) {
+            this.onChange(this.checked);
+        }
+    }
+    
+    public funct isChecked() {
+        return this.checked;
+    }
+    
+    public funct toggle() {
+        this.setChecked(!this.checked);
+    }
+    
+    public funct setOnChange(handler) {
+        this.onChange = handler;
+    }
+}
+
+** RadioButton class
+class RadioButton extends Widget {
+    private text;
+    private selected;
+    private group;
+    private onChange;
+    
+    funct RadioButton(radioText, radioGroup) {
+        this.text = radioText;
+        this.selected = false;
+        this.group = radioGroup;
+        this.width = 150;
+        this.height = 25;
+        this.onChange = null;
+        this.children = new ArrayList();
+    }
+    
+    public funct setText(newText) {
+        this.text = newText;
+    }
+    
+    public funct getText() {
+        return this.text;
+    }
+    
+    public funct setSelected(value) {
+        this.selected = value;
+        if (this.onChange != null) {
+            this.onChange(this.selected);
+        }
+    }
+    
+    public funct isSelected() {
+        return this.selected;
+    }
+    
+    public funct getGroup() {
+        return this.group;
+    }
+    
+    public funct setOnChange(handler) {
+        this.onChange = handler;
+    }
+}
+
+** Panel class - Container for other widgets
+class Panel extends Widget {
+    private backgroundColor;
+    private borderColor;
+    private borderWidth;
+    
+    funct Panel() {
+        this.width = 400;
+        this.height = 300;
+        this.backgroundColor = "white";
+        this.borderColor = "gray";
+        this.borderWidth = 1;
+        this.children = new ArrayList();
+    }
+    
+    funct Panel(w, h) {
+        this.width = w;
+        this.height = h;
+        this.backgroundColor = "white";
+        this.borderColor = "gray";
+        this.borderWidth = 1;
+        this.children = new ArrayList();
+    }
+    
+    public funct setBackgroundColor(color) {
+        this.backgroundColor = color;
+    }
+    
+    public funct setBorderColor(color) {
+        this.borderColor = color;
+    }
+    
+    public funct setBorderWidth(width) {
+        this.borderWidth = width;
+    }
+}
+
+** ListBox class
+class ListBox extends Widget {
+    private items;
+    private selectedIndex;
+    private onSelect;
+    
+    funct ListBox() {
+        this.items = new ArrayList();
+        this.selectedIndex = -1;
+        this.width = 200;
+        this.height = 150;
+        this.onSelect = null;
+        this.children = new ArrayList();
+    }
+    
+    public funct addItem(item) {
+        this.items.add(item);
+    }
+    
+    public funct removeItem(index) {
+        if (index >= 0 && index < this.items.getSize()) {
+            this.items.remove(index);
+            if (this.selectedIndex == index) {
+                this.selectedIndex = -1;
+            }
+        }
+    }
+    
+    public funct clear() {
+        this.items.clear();
+        this.selectedIndex = -1;
+    }
+    
+    public funct getItem(index) {
+        return this.items.get(index);
+    }
+    
+    public funct getItemCount() {
+        return this.items.getSize();
+    }
+    
+    public funct setSelectedIndex(index) {
+        if (index >= -1 && index < this.items.getSize()) {
+            this.selectedIndex = index;
+            if (this.onSelect != null && index >= 0) {
+                this.onSelect(this.items.get(index));
+            }
+        }
+    }
+    
+    public funct getSelectedIndex() {
+        return this.selectedIndex;
+    }
+    
+    public funct getSelectedItem() {
+        if (this.selectedIndex >= 0) {
+            return this.items.get(this.selectedIndex);
+        }
+        return null;
+    }
+    
+    public funct setOnSelect(handler) {
+        this.onSelect = handler;
+    }
+}
+
+** ComboBox (Dropdown) class
+class ComboBox extends Widget {
+    private items;
+    private selectedIndex;
+    private onChange;
+    
+    funct ComboBox() {
+        this.items = new ArrayList();
+        this.selectedIndex = -1;
+        this.width = 200;
+        this.height = 30;
+        this.onChange = null;
+        this.children = new ArrayList();
+    }
+    
+    public funct addItem(item) {
+        this.items.add(item);
+    }
+    
+    public funct removeItem(index) {
+        if (index >= 0 && index < this.items.getSize()) {
+            this.items.remove(index);
+            if (this.selectedIndex == index) {
+                this.selectedIndex = -1;
+            }
+        }
+    }
+    
+    public funct clear() {
+        this.items.clear();
+        this.selectedIndex = -1;
+    }
+    
+    public funct setSelectedIndex(index) {
+        if (index >= -1 && index < this.items.getSize()) {
+            this.selectedIndex = index;
+            if (this.onChange != null && index >= 0) {
+                this.onChange(this.items.get(index));
+            }
+        }
+    }
+    
+    public funct getSelectedIndex() {
+        return this.selectedIndex;
+    }
+    
+    public funct getSelectedItem() {
+        if (this.selectedIndex >= 0) {
+            return this.items.get(this.selectedIndex);
+        }
+        return null;
+    }
+    
+    public funct setOnChange(handler) {
+        this.onChange = handler;
+    }
+}
+
+** ProgressBar class
+class ProgressBar extends Widget {
+    private value;
+    private minimum;
+    private maximum;
+    
+    funct ProgressBar() {
+        this.value = 0;
+        this.minimum = 0;
+        this.maximum = 100;
+        this.width = 300;
+        this.height = 25;
+        this.children = new ArrayList();
+    }
+    
+    public funct setValue(val) {
+        if (val < this.minimum) {
+            this.value = this.minimum;
+        } else if (val > this.maximum) {
+            this.value = this.maximum;
+        } else {
+            this.value = val;
+        }
+    }
+    
+    public funct getValue() {
+        return this.value;
+    }
+    
+    public funct setRange(min, max) {
+        this.minimum = min;
+        this.maximum = max;
+        if (this.value < min) {
+            this.value = min;
+        } else if (this.value > max) {
+            this.value = max;
+        }
+    }
+    
+    public funct getPercentage() {
+        if (this.maximum == this.minimum) {
+            return 0;
+        }
+        return ((this.value - this.minimum) / (this.maximum - this.minimum)) * 100;
+    }
+    
+    public funct increment() {
+        this.setValue(this.value + 1);
+    }
+    
+    public funct decrement() {
+        this.setValue(this.value - 1);
+    }
+}
+
+** Slider class
+class Slider extends Widget {
+    private value;
+    private minimum;
+    private maximum;
+    private step;
+    private onChange;
+    
+    funct Slider() {
+        this.value = 0;
+        this.minimum = 0;
+        this.maximum = 100;
+        this.step = 1;
+        this.width = 200;
+        this.height = 30;
+        this.onChange = null;
+        this.children = new ArrayList();
+    }
+    
+    funct Slider(min, max) {
+        this.value = min;
+        this.minimum = min;
+        this.maximum = max;
+        this.step = 1;
+        this.width = 200;
+        this.height = 30;
+        this.onChange = null;
+        this.children = new ArrayList();
+    }
+    
+    public funct setValue(val) {
+        if (val < this.minimum) {
+            this.value = this.minimum;
+        } else if (val > this.maximum) {
+            this.value = this.maximum;
+        } else {
+            this.value = val;
+        }
+        if (this.onChange != null) {
+            this.onChange(this.value);
+        }
+    }
+    
+    public funct getValue() {
+        return this.value;
+    }
+    
+    public funct setRange(min, max) {
+        this.minimum = min;
+        this.maximum = max;
+    }
+    
+    public funct setStep(stepValue) {
+        this.step = stepValue;
+    }
+    
+    public funct setOnChange(handler) {
+        this.onChange = handler;
+    }
+}
+
+** MessageBox utility class
+class MessageBox {
+    public static funct show(title, message) {
+        zengui.alert(title, message);
+    }
+    
+    public static funct showInfo(message) {
+        zengui.alert("Information", message);
+    }
+    
+    public static funct showWarning(message) {
+        zengui.alert("Warning", message);
+    }
+    
+    public static funct showError(message) {
+        zengui.alert("Error", message);
+    }
+    
+    public static funct confirm(title, message) {
+        return zengui.confirm(title, message);
+    }
+}
+
+** Application class - Main GUI application
+class Application {
+    private mainWindow;
+    private running;
+    
+    funct Application(title) {
+        this.mainWindow = new Window(title);
+        this.running = false;
+    }
+    
+    funct Application(title, width, height) {
+        this.mainWindow = new Window(title, width, height);
+        this.running = false;
+    }
+    
+    public funct getMainWindow() {
+        return this.mainWindow;
+    }
+    
+    public funct run() {
+        this.mainWindow.show();
+        this.running = true;
+        zengui.run();
+    }
+    
+    public funct exit() {
+        this.running = false;
+        this.mainWindow.close();
+    }
+    
+    public funct isRunning() {
+        return this.running;
+    }
+}

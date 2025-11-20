@@ -1,0 +1,250 @@
+** ZenLang Database Library
+** In-memory database with query support
+** Import with: .include <zenlang/lib/database>
+
+.include <zenlang/lib/collections>
+
+** Database class
+class Database {
+    private tables;
+    
+    funct Database() {
+        this.tables = new HashMap();
+    }
+    
+    public funct createTable(tableName) {
+        table = new Table(tableName);
+        this.tables.put(tableName, table);
+        return table;
+    }
+    
+    public funct getTable(tableName) {
+        return this.tables.get(tableName);
+    }
+    
+    public funct dropTable(tableName) {
+        this.tables.remove(tableName);
+    }
+    
+    public funct listTables() {
+        return this.tables.getKeys();
+    }
+}
+
+** Table class
+class Table {
+    private name;
+    private rows;
+    private nextId;
+    
+    funct Table(tableName) {
+        this.name = tableName;
+        this.rows = new ArrayList();
+        this.nextId = 1;
+    }
+    
+    public funct insert(data) {
+        row = data;
+        row["_id"] = this.nextId;
+        this.nextId = this.nextId + 1;
+        this.rows.add(row);
+        return row["_id"];
+    }
+    
+    public funct findAll() {
+        return this.rows.toArray();
+    }
+    
+    public funct findById(id) {
+        for (i = 0; i < this.rows.getSize(); i = i + 1) {
+            row = this.rows.get(i);
+            if (row["_id"] == id) {
+                return row;
+            }
+        }
+        return null;
+    }
+    
+    public funct findWhere(condition) {
+        results = [];
+        for (i = 0; i < this.rows.getSize(); i = i + 1) {
+            row = this.rows.get(i);
+            if (condition(row)) {
+                push(results, row);
+            }
+        }
+        return results;
+    }
+    
+    public funct findOne(condition) {
+        for (i = 0; i < this.rows.getSize(); i = i + 1) {
+            row = this.rows.get(i);
+            if (condition(row)) {
+                return row;
+            }
+        }
+        return null;
+    }
+    
+    public funct update(id, data) {
+        for (i = 0; i < this.rows.getSize(); i = i + 1) {
+            row = this.rows.get(i);
+            if (row["_id"] == id) {
+                dataKeys = keys(data);
+                for (j = 0; j < length(dataKeys); j = j + 1) {
+                    key = dataKeys[j];
+                    row[key] = data[key];
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public funct delete(id) {
+        for (i = 0; i < this.rows.getSize(); i = i + 1) {
+            row = this.rows.get(i);
+            if (row["_id"] == id) {
+                this.rows.remove(i);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public funct deleteWhere(condition) {
+        deleted = 0;
+        i = 0;
+        while (i < this.rows.getSize()) {
+            row = this.rows.get(i);
+            if (condition(row)) {
+                this.rows.remove(i);
+                deleted = deleted + 1;
+            } else {
+                i = i + 1;
+            }
+        }
+        return deleted;
+    }
+    
+    public funct count() {
+        return this.rows.getSize();
+    }
+    
+    public funct countWhere(condition) {
+        count = 0;
+        for (i = 0; i < this.rows.getSize(); i = i + 1) {
+            row = this.rows.get(i);
+            if (condition(row)) {
+                count = count + 1;
+            }
+        }
+        return count;
+    }
+    
+    public funct clear() {
+        this.rows.clear();
+        this.nextId = 1;
+    }
+}
+
+** Query Builder class
+class QueryBuilder {
+    private table;
+    private conditions;
+    private sortField;
+    private sortAsc;
+    private limitCount;
+    
+    funct QueryBuilder(tableRef) {
+        this.table = tableRef;
+        this.conditions = [];
+        this.sortField = null;
+        this.sortAsc = true;
+        this.limitCount = -1;
+    }
+    
+    public funct where(condition) {
+        push(this.conditions, condition);
+        return this;
+    }
+    
+    public funct orderBy(field, ascending) {
+        this.sortField = field;
+        this.sortAsc = ascending;
+        return this;
+    }
+    
+    public funct orderBy(field) {
+        this.sortField = field;
+        this.sortAsc = true;
+        return this;
+    }
+    
+    public funct limit(count) {
+        this.limitCount = count;
+        return this;
+    }
+    
+    public funct execute() {
+        ** Get all rows
+        results = this.table.findAll();
+        
+        ** Apply conditions
+        for (i = 0; i < length(this.conditions); i = i + 1) {
+            condition = this.conditions[i];
+            filtered = [];
+            for (j = 0; j < length(results); j = j + 1) {
+                if (condition(results[j])) {
+                    push(filtered, results[j]);
+                }
+            }
+            results = filtered;
+        }
+        
+        ** Apply sorting
+        if (this.sortField != null) {
+            results = this.sortResults(results);
+        }
+        
+        ** Apply limit
+        if (this.limitCount > 0 && length(results) > this.limitCount) {
+            limited = [];
+            for (i = 0; i < this.limitCount; i = i + 1) {
+                push(limited, results[i]);
+            }
+            results = limited;
+        }
+        
+        return results;
+    }
+    
+    private funct sortResults(arr) {
+        ** Simple bubble sort
+        n = length(arr);
+        for (i = 0; i < n - 1; i = i + 1) {
+            for (j = 0; j < n - i - 1; j = j + 1) {
+                val1 = arr[j][this.sortField];
+                val2 = arr[j + 1][this.sortField];
+                
+                shouldSwap = false;
+                if (this.sortAsc) {
+                    if (val1 > val2) {
+                        shouldSwap = true;
+                    }
+                } else {
+                    if (val1 < val2) {
+                        shouldSwap = true;
+                    }
+                }
+                
+                if (shouldSwap) {
+                    temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                }
+            }
+        }
+        return arr;
+    }
+}
