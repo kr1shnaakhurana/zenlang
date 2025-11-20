@@ -1,0 +1,44 @@
+========================================
+   ZENLANG - GETTING STARTED
+========================================
+
+INSTALLATION
+------------
+1. Run: install.bat
+2. Restart your terminal
+3. Test: zen version
+
+QUICK START
+-----------
+1. Create a file: hello.zen
+2. Add code:
+   .include <zenout>
+   zenout.console("Hello, World!");
+3. Run: zen run hello.zen
+
+WEB SERVER
+----------
+Run the example:
+  zen run examples\simple_web_server.zen
+
+Then open: http://localhost:8080
+
+DOCUMENTATION
+-------------
+Read: GUIDE.md (complete documentation)
+
+EXAMPLES
+--------
+examples\simple_web_server.zen    - Basic web server
+examples\real_web_server.zen      - Full blog app
+examples\gui_calculator.zen       - Desktop calculator
+examples\database_demo.zen        - Database operations
+
+HELP
+----
+zen help                          - Show commands
+GUIDE.md                          - Full documentation
+
+========================================
+Happy coding with ZenLang!
+========================================

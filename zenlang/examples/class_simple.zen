@@ -1,0 +1,16 @@
+.include <zenout>
+
+class Test {
+    public x;
+    
+    funct Test(val) {
+        this.x = val;
+    }
+    
+    public funct show() {
+        zenout.console("x = " + this.x);
+    }
+}
+
+obj = new Test(42);
+obj.show();

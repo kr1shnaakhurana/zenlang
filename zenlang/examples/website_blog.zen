@@ -1,0 +1,62 @@
+.include <zenout>
+.include <zenweb>
+
+zenout.console("Starting ZenLang Blog...");
+
+** Blog posts data
+posts = [
+    {title="First Post", content="Welcome to my blog!", author="Alice"},
+    {title="ZenLang Tutorial", content="Learn ZenLang in 10 minutes", author="Bob"},
+    {title="Web Development", content="Building websites with ZenLang", author="Alice"}
+];
+
+** Homepage - List all posts
+funct homepage() {
+    nav = zenweb.navbar([["Home", "/"], ["About", "/about"]]);
+    
+    content = nav;
+    content = content + zenweb.h1("ZenLang Blog");
+    content = content + zenweb.p("A blog built with ZenLang!");
+    
+    ** List posts
+    for (i = 0; i < length(posts); i = i + 1) {
+        post = posts[i];
+        card = zenweb.h2(post["title"]);
+        card = card + zenweb.p(post["content"]);
+        card = card + zenweb.p("By: " + post["author"]);
+        card = card + zenweb.a("/post/" + i, "Read more");
+        
+        content = content + zenweb.div(card, {class="post-card"});
+    };
+    
+    styles = ".post-card { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }";
+    
+    return zenweb.page("Blog", content, styles);
+};
+
+** About page
+funct aboutpage() {
+    nav = zenweb.navbar([["Home", "/"], ["About", "/about"]]);
+    
+    content = nav;
+    content = content + zenweb.h1("About This Blog");
+    content = content + zenweb.p("This is a demo blog built with ZenLang's zenweb framework.");
+    content = content + zenweb.p("It demonstrates routing, HTML generation, and dynamic content.");
+    
+    return zenweb.page("About", content);
+};
+
+** Register routes
+zenweb.route("/", homepage);
+zenweb.route("/about", aboutpage);
+
+** Start server
+server = zenweb.start(8080);
+
+zenout.console("Blog running on http://localhost:8080");
+zenout.console("Press Ctrl+C to stop");
+
+** Keep running
+while (1) {
+    ** Server runs in background
+};

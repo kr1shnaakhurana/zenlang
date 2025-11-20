@@ -1,0 +1,11 @@
+{
+  "iconDefinitions": {
+    "zenlang-file": {
+      "iconPath": "../images/zenlang-icon.png"
+    }
+  },
+  "fileExtensions": {
+    "zen": "zenlang-file"
+  },
+  "file": "zenlang-file"
+}

@@ -1,0 +1,12 @@
+.include <zenout>
+.include <zenlang/lib/database>
+
+zenout.console("Testing database...\n");
+
+db = new Database();
+zenout.console("Created database\n");
+
+users = db.createTable("users");
+zenout.console("Created table\n");
+
+zenout.console("Done!\n");

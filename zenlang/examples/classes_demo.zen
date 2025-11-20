@@ -1,0 +1,262 @@
+** ZenLang Classes Demo
+** Demonstrates classes, method overloading, and encapsulation
+
+.include <zenout>
+
+zenout.console("=== ZenLang Classes & OOP ===\n");
+
+** 1. Basic Class with Constructor
+zenout.console("1. Basic Class:");
+
+class Person {
+    public name;
+    public age;
+    
+    ** Constructor with 2 parameters
+    funct Person(n, a) {
+        this.name = n;
+        this.age = a;
+    }
+    
+    ** Method to display info
+    public funct display() {
+        zenout.console("   Name: " + this.name + ", Age: " + this.age);
+    }
+}
+
+person1 = new Person("Alice", 25);
+person1.display();
+
+** 2. Method Overloading (same method name, different parameters)
+zenout.console("\n2. Method Overloading:");
+
+class Calculator {
+    ** Add two numbers
+    public funct add(a, b) {
+        return a + b;
+    }
+    
+    ** Add three numbers (overloaded)
+    public funct add(a, b, c) {
+        return a + b + c;
+    }
+    
+    ** Add four numbers (overloaded)
+    public funct add(a, b, c, d) {
+        return a + b + c + d;
+    }
+}
+
+calc = new Calculator();
+result1 = calc.add(5, 3);
+result2 = calc.add(5, 3, 2);
+result3 = calc.add(5, 3, 2, 1);
+
+zenout.console("   add(5, 3) = " + result1);
+zenout.console("   add(5, 3, 2) = " + result2);
+zenout.console("   add(5, 3, 2, 1) = " + result3);
+
+** 3. Encapsulation (public, private, protected)
+zenout.console("\n3. Encapsulation:");
+
+class BankAccount {
+    private balance;
+    public accountNumber;
+    
+    ** Constructor
+    funct BankAccount(accNum, initialBalance) {
+        this.accountNumber = accNum;
+        this.balance = initialBalance;
+    }
+    
+    ** Public method to deposit
+    public funct deposit(amount) {
+        this.balance = this.balance + amount;
+        zenout.console("   Deposited: $" + amount);
+    }
+    
+    ** Public method to withdraw
+    public funct withdraw(amount) {
+        if (amount <= this.balance) {
+            this.balance = this.balance - amount;
+            zenout.console("   Withdrawn: $" + amount);
+            return true;
+        } else {
+            zenout.console("   Insufficient funds!");
+            return false;
+        }
+    }
+    
+    ** Public method to check balance
+    public funct getBalance() {
+        return this.balance;
+    }
+    
+    ** Private method (internal use only)
+    private funct calculateInterest() {
+        return this.balance * 0.05;
+    }
+}
+
+account = new BankAccount("ACC001", 1000);
+zenout.console("   Account: " + account.accountNumber);
+zenout.console("   Initial Balance: $" + account.getBalance());
+
+account.deposit(500);
+account.withdraw(200);
+zenout.console("   Final Balance: $" + account.getBalance());
+
+** 4. Static Methods and Properties
+zenout.console("\n4. Static Members:");
+
+class MathUtils {
+    ** Static method
+    public static funct square(n) {
+        return n * n;
+    }
+    
+    ** Static method overload
+    public static funct square(n, m) {
+        return n * n + m * m;
+    }
+    
+    public static funct cube(n) {
+        return n * n * n;
+    }
+}
+
+** Call static methods without creating instance
+zenout.console("   square(5) = " + MathUtils.square(5));
+zenout.console("   square(3, 4) = " + MathUtils.square(3, 4));
+zenout.console("   cube(3) = " + MathUtils.cube(3));
+
+** 5. Class Inheritance
+zenout.console("\n5. Inheritance:");
+
+class Animal {
+    public name;
+    
+    funct Animal(n) {
+        this.name = n;
+    }
+    
+    public funct speak() {
+        zenout.console("   " + this.name + " makes a sound");
+    }
+}
+
+class Dog extends Animal {
+    public breed;
+    
+    funct Dog(n, b) {
+        this.name = n;
+        this.breed = b;
+    }
+    
+    ** Override speak method
+    public funct speak() {
+        zenout.console("   " + this.name + " barks! (Breed: " + this.breed + ")");
+    }
+    
+    ** Additional method
+    public funct wagTail() {
+        zenout.console("   " + this.name + " wags tail");
+    }
+}
+
+dog = new Dog("Buddy", "Golden Retriever");
+dog.speak();
+dog.wagTail();
+
+** 6. Complex Example - Shape Classes
+zenout.console("\n6. Shape Classes with Overloading:");
+
+class Rectangle {
+    private width;
+    private height;
+    
+    ** Constructor with width and height
+    funct Rectangle(w, h) {
+        this.width = w;
+        this.height = h;
+    }
+    
+    ** Constructor for square (one parameter)
+    funct Rectangle(size) {
+        this.width = size;
+        this.height = size;
+    }
+    
+    public funct area() {
+        return this.width * this.height;
+    }
+    
+    public funct perimeter() {
+        return 2 * (this.width + this.height);
+    }
+    
+    public funct display() {
+        zenout.console("   Rectangle: " + this.width + "x" + this.height);
+        zenout.console("   Area: " + this.area());
+        zenout.console("   Perimeter: " + this.perimeter());
+    }
+}
+
+rect1 = new Rectangle(5, 3);
+zenout.console("   Rectangle 1:");
+rect1.display();
+
+rect2 = new Rectangle(4);
+zenout.console("\n   Square (Rectangle with one param):");
+rect2.display();
+
+** 7. Multiple Constructors Example
+zenout.console("\n7. Multiple Constructors:");
+
+class Product {
+    public name;
+    public price;
+    public quantity;
+    
+    ** Constructor with all parameters
+    funct Product(n, p, q) {
+        this.name = n;
+        this.price = p;
+        this.quantity = q;
+    }
+    
+    ** Constructor with name and price only
+    funct Product(n, p) {
+        this.name = n;
+        this.price = p;
+        this.quantity = 1;
+    }
+    
+    ** Constructor with name only
+    funct Product(n) {
+        this.name = n;
+        this.price = 0;
+        this.quantity = 1;
+    }
+    
+    public funct display() {
+        zenout.console("   Product: " + this.name);
+        zenout.console("   Price: $" + this.price);
+        zenout.console("   Quantity: " + this.quantity);
+        zenout.console("   Total: $" + (this.price * this.quantity));
+    }
+}
+
+product1 = new Product("Laptop", 999, 2);
+zenout.console("   Product 1 (3 params):");
+product1.display();
+
+product2 = new Product("Mouse", 25);
+zenout.console("\n   Product 2 (2 params):");
+product2.display();
+
+product3 = new Product("Keyboard");
+zenout.console("\n   Product 3 (1 param):");
+product3.display();
+
+zenout.console("\n=== Classes Demo Complete! ===");

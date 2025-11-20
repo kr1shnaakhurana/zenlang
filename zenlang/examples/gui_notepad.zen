@@ -1,0 +1,95 @@
+.include <zenout>
+.include <zengui>
+
+zenout.console("Creating Notepad application...");
+
+** Create window
+window = zengui.createWindow("ZenLang Notepad", 800, 600);
+zengui.center();
+
+** Create menu bar
+menubar = zengui.createMenu();
+
+** File menu
+fileMenu = zengui.addMenu("File");
+
+** Text area
+textarea = zengui.textarea(0, 0, 800, 570);
+
+** Current file path
+currentFile = "";
+
+** New file
+funct newFile() {
+    zengui.setText(textarea, "");
+    currentFile = "";
+    zengui.setTitle("ZenLang Notepad - New File");
+};
+
+** Open file
+funct openFile() {
+    filepath = zengui.openFile("Open File", [["Text Files", "*.txt"], ["All Files", "*.*"]]);
+    if (filepath != null && filepath != "") {
+        ** Read file content (would need fs package)
+        currentFile = filepath;
+        zengui.setTitle("ZenLang Notepad - " + filepath);
+    };
+};
+
+** Save file
+funct saveFile() {
+    if (currentFile == "") {
+        saveFileAs();
+    } else {
+        content = zengui.getText(textarea);
+        ** Save content (would need fs package)
+        zengui.alert("Saved", "File saved successfully!");
+    };
+};
+
+** Save file as
+funct saveFileAs() {
+    filepath = zengui.saveFile("Save File", [["Text Files", "*.txt"], ["All Files", "*.*"]]);
+    if (filepath != null && filepath != "") {
+        currentFile = filepath;
+        content = zengui.getText(textarea);
+        ** Save content (would need fs package)
+        zengui.setTitle("ZenLang Notepad - " + filepath);
+        zengui.alert("Saved", "File saved successfully!");
+    };
+};
+
+** Exit
+funct exitApp() {
+    if (zengui.confirm("Exit", "Are you sure you want to exit?")) {
+        zengui.close();
+    };
+};
+
+** Add menu items
+zengui.addMenuItem(fileMenu, "New", newFile);
+zengui.addMenuItem(fileMenu, "Open", openFile);
+zengui.addMenuItem(fileMenu, "Save", saveFile);
+zengui.addMenuItem(fileMenu, "Save As", saveFileAs);
+zengui.addMenuItem(fileMenu, "Exit", exitApp);
+
+** Edit menu
+editMenu = zengui.addMenu("Edit");
+
+funct clearText() {
+    zengui.setText(textarea, "");
+};
+
+zengui.addMenuItem(editMenu, "Clear All", clearText);
+
+** Help menu
+helpMenu = zengui.addMenu("Help");
+
+funct showAbout() {
+    zengui.alert("About", "ZenLang Notepad v1.0\nBuilt with ZenLang GUI Framework");
+};
+
+zengui.addMenuItem(helpMenu, "About", showAbout);
+
+zenout.console("Notepad ready!");
+zengui.run();

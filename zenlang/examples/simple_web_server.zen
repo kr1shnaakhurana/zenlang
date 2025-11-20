@@ -1,0 +1,105 @@
+** Simple Web Server Example
+** Minimal example to get started with ZenLang web services
+
+.include <zenout>
+.include <zenlang/lib/http_server>
+.include <zenlang/lib/router>
+.include <zenlang/lib/html_builder>
+
+zenout.console("=== Simple ZenLang Web Server ===\n");
+
+** Create router
+router = new Router();
+
+** Home page
+router.get("/", funct(request) {
+    page = HtmlBuilder.div()
+        .addClass("container")
+        .child(
+            HtmlBuilder.h1().text("Welcome to ZenLang!")
+        )
+        .child(
+            HtmlBuilder.p().text("This is a real web server running ZenLang code.")
+        )
+        .child(
+            HtmlBuilder.ul()
+                .child(HtmlBuilder.li().child(HtmlBuilder.a().attr("href", "/about").text("About")))
+                .child(HtmlBuilder.li().child(HtmlBuilder.a().attr("href", "/api/hello").text("API")))
+        );
+    
+    html = "<!DOCTYPE html>
+<html>
+<head>
+    <title>ZenLang Web Server</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        h1 { color: #333; }
+        ul { list-style: none; padding: 0; }
+        li { margin: 10px 0; }
+        a { color: #0066cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>" + page.render() + "</body>
+</html>";
+    
+    response = new Response();
+    return response.html(html);
+});
+
+** About page
+router.get("/about", funct(request) {
+    html = "<!DOCTYPE html>
+<html>
+<head><title>About</title></head>
+<body>
+    <h1>About This Server</h1>
+    <p>This web server is powered by ZenLang!</p>
+    <p><a href='/'>Back to Home</a></p>
+</body>
+</html>";
+    
+    response = new Response();
+    return response.html(html);
+});
+
+** JSON API endpoint
+router.get("/api/hello", funct(request) {
+    data = {
+        message = "Hello from ZenLang!",
+        version = "1.0",
+        timestamp = 1234567890
+    };
+    
+    response = new Response();
+    return response.json(data);
+});
+
+** 404 handler
+router.notFound(funct(request) {
+    html = "<!DOCTYPE html>
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+    <h1>404 - Page Not Found</h1>
+    <p>The page you're looking for doesn't exist.</p>
+    <p><a href='/'>Go Home</a></p>
+</body>
+</html>";
+    
+    response = new Response();
+    return response.setStatus(404).html(html);
+});
+
+** Create and start server
+server = new HttpServer("localhost", 8080);
+server.setRouter(router);
+
+zenout.console("Server starting on http://localhost:8080");
+zenout.console("Visit the following URLs:");
+zenout.console("  - http://localhost:8080/");
+zenout.console("  - http://localhost:8080/about");
+zenout.console("  - http://localhost:8080/api/hello");
+zenout.console("\nPress Ctrl+C to stop the server\n");
+
+server.start();

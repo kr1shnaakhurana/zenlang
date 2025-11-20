@@ -1,0 +1,16 @@
+.include <zenout>
+.include <fs>
+
+zenout.console("File operations example");
+
+fs.write("test.txt", "Hello from ZenLang!");
+zenout.console("File written");
+
+content = fs.read("test.txt");
+zenout.console("File content: " + content);
+
+fs.append("test.txt", "\nAppended line");
+zenout.console("Content appended");
+
+content2 = fs.read("test.txt");
+zenout.console("Updated content: " + content2);

@@ -1,0 +1,182 @@
+** ZenLang Data Processing Demo
+** Demonstrates advanced data analysis features
+
+.include <zenout>
+.include <zenlang/lib/data_processing>
+
+zenout.console("=== Data Processing & Statistics ===\n");
+
+** Basic statistics
+zenout.console("1. Basic Statistics:");
+data = [10, 20, 15, 30, 25, 35, 40, 45, 50, 55];
+zenout.console("   Data: " + join(data, ", "));
+
+stats = statistics(data);
+zenout.console("   Count: " + stats["count"]);
+zenout.console("   Sum: " + stats["sum"]);
+zenout.console("   Mean: " + formatNumber(stats["mean"], 2));
+zenout.console("   Median: " + stats["median"]);
+zenout.console("   Min: " + stats["min"]);
+zenout.console("   Max: " + stats["max"]);
+zenout.console("   Range: " + stats["range"]);
+zenout.console("   Std Dev: " + formatNumber(stats["stdDev"], 2));
+
+** Normalization
+zenout.console("\n2. Data Normalization:");
+values = [10, 50, 100, 25, 75];
+zenout.console("   Original: " + join(values, ", "));
+normalized = normalize(values);
+zenout.console("   Normalized (0-1): " + join(normalized, ", "));
+
+** Standardization
+zenout.console("\n3. Data Standardization (Z-scores):");
+standardized = standardize(values);
+zenout.console("   Z-scores: " + join(standardized, ", "));
+
+** Moving averages
+zenout.console("\n4. Moving Averages:");
+prices = [100, 102, 98, 105, 110, 108, 112, 115, 113, 118];
+zenout.console("   Prices: " + join(prices, ", "));
+
+ma3 = movingAverage(prices, 3);
+zenout.console("   MA(3): " + join(ma3, ", "));
+
+ma5 = movingAverage(prices, 5);
+zenout.console("   MA(5): " + join(ma5, ", "));
+
+** Exponential moving average
+ema = exponentialMovingAverage(prices, 0.3);
+zenout.console("   EMA(0.3): " + join(ema, ", "));
+
+** Correlation
+zenout.console("\n5. Correlation Analysis:");
+x = [1, 2, 3, 4, 5];
+y = [2, 4, 6, 8, 10];
+corr = correlation(x, y);
+zenout.console("   X: " + join(x, ", "));
+zenout.console("   Y: " + join(y, ", "));
+zenout.console("   Correlation: " + formatNumber(corr, 4));
+
+** Linear regression
+zenout.console("\n6. Linear Regression:");
+regression = linearRegression(x, y);
+zenout.console("   Slope: " + formatNumber(regression["slope"], 2));
+zenout.console("   Intercept: " + formatNumber(regression["intercept"], 2));
+zenout.console("   Equation: y = " + formatNumber(regression["slope"], 2) + "x + " + formatNumber(regression["intercept"], 2));
+
+** Percentiles and quartiles
+zenout.console("\n7. Percentiles & Quartiles:");
+dataset = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+zenout.console("   Data: " + join(dataset, ", "));
+
+p25 = percentile(dataset, 25);
+p50 = percentile(dataset, 50);
+p75 = percentile(dataset, 75);
+p90 = percentile(dataset, 90);
+
+zenout.console("   25th percentile: " + p25);
+zenout.console("   50th percentile (median): " + p50);
+zenout.console("   75th percentile: " + p75);
+zenout.console("   90th percentile: " + p90);
+
+q = quartiles(dataset);
+zenout.console("   Q1: " + q["q1"]);
+zenout.console("   Q2: " + q["q2"]);
+zenout.console("   Q3: " + q["q3"]);
+zenout.console("   IQR: " + q["iqr"]);
+
+** Outlier detection
+zenout.console("\n8. Outlier Detection:");
+dataWithOutliers = [10, 12, 14, 13, 15, 11, 100, 9, 13, 14];
+zenout.console("   Data: " + join(dataWithOutliers, ", "));
+outliers = detectOutliers(dataWithOutliers);
+zenout.console("   Outliers: " + join(outliers, ", "));
+
+** Cumulative operations
+zenout.console("\n9. Cumulative Operations:");
+numbers = [5, 10, 15, 20, 25];
+zenout.console("   Numbers: " + join(numbers, ", "));
+
+cumSum = cumulativeSum(numbers);
+zenout.console("   Cumulative sum: " + join(cumSum, ", "));
+
+differences = diff(numbers);
+zenout.console("   Differences: " + join(differences, ", "));
+
+** Percentage change
+zenout.console("\n10. Percentage Change:");
+stockPrices = [100, 105, 102, 110, 108];
+zenout.console("   Stock prices: " + join(stockPrices, ", "));
+pctChange = percentageChange(stockPrices);
+zenout.console("   % Change: " + join(pctChange, ", "));
+
+** Mode
+zenout.console("\n11. Mode (Most Frequent):");
+scores = [85, 90, 85, 92, 85, 88, 90, 85];
+zenout.console("   Scores: " + join(scores, ", "));
+modeValue = mode(scores);
+zenout.console("   Mode: " + modeValue);
+
+** Weighted average
+zenout.console("\n12. Weighted Average:");
+grades = [85, 90, 78, 92];
+weights = [0.2, 0.3, 0.2, 0.3];
+zenout.console("   Grades: " + join(grades, ", "));
+zenout.console("   Weights: " + join(weights, ", "));
+weightedAvg = weightedAverage(grades, weights);
+zenout.console("   Weighted average: " + formatNumber(weightedAvg, 2));
+
+** Binning
+zenout.console("\n13. Data Binning:");
+ages = [22, 25, 47, 52, 46, 56, 55, 60, 62, 61];
+zenout.console("   Ages: " + join(ages, ", "));
+bins = bin(ages, 4);
+zenout.console("   Bins (4 groups): " + join(bins, ", "));
+
+** Data aggregation
+zenout.console("\n14. Data Aggregation:");
+sales = [
+    {product = "A", region = "East", amount = 100},
+    {product = "A", region = "West", amount = 150},
+    {product = "B", region = "East", amount = 200},
+    {product = "B", region = "West", amount = 120},
+    {product = "A", region = "East", amount = 80}
+];
+
+aggregated = aggregate(sales, "product", {
+    totalSales = funct(group) {
+        total = 0;
+        for (i = 0; i < length(group); i = i + 1) {
+            total = total + group[i]["amount"];
+        };
+        return total;
+    },
+    avgSales = funct(group) {
+        total = 0;
+        for (i = 0; i < length(group); i = i + 1) {
+            total = total + group[i]["amount"];
+        };
+        return total / length(group);
+    },
+    count = funct(group) { return length(group); }
+});
+
+zenout.console("   Aggregated by product:");
+for (i = 0; i < length(aggregated); i = i + 1) {
+    row = aggregated[i];
+    zenout.console("     " + row["product"] + ": Total=$" + row["totalSales"] + ", Avg=$" + formatNumber(row["avgSales"], 2) + ", Count=" + row["count"]);
+};
+
+** Transform operations
+zenout.console("\n15. Transform Operations:");
+obj = {name = "John", age = 30, city = "NYC"};
+zenout.console("   Original: " + toJSON(obj));
+
+transformed = transformValues(obj, funct(v) { return upper(v + ""); });
+zenout.console("   Uppercase values: " + toJSON(transformed));
+
+** Filter object
+filtered = filterObject(obj, funct(k, v) { return length(k) > 3; });
+zenout.console("   Filtered (key length > 3): " + toJSON(filtered));
+
+zenout.console("\n=== Data Processing Complete! ===");

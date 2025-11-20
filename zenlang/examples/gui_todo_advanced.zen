@@ -1,0 +1,278 @@
+** Advanced Todo Application with Custom GUI
+** Demonstrates practical GUI application with data management
+
+.include <zenout>
+.include <zenlang/lib/gui>
+.include <zenlang/lib/collections>
+
+zenout.console("=== Advanced Todo Application ===");
+
+** Todo Item Class
+class TodoItem {
+    public id;
+    public text;
+    public completed;
+    public priority;
+    
+    funct TodoItem(itemId, itemText) {
+        this.id = itemId;
+        this.text = itemText;
+        this.completed = false;
+        this.priority = "Normal";
+    }
+    
+    funct TodoItem(itemId, itemText, itemPriority) {
+        this.id = itemId;
+        this.text = itemText;
+        this.completed = false;
+        this.priority = itemPriority;
+    }
+    
+    public funct toggle() {
+        this.completed = !this.completed;
+    }
+    
+    public funct toString() {
+        status = "[ ]";
+        if (this.completed) {
+            status = "[X]";
+        }
+        return status + " " + this.text + " (" + this.priority + ")";
+    }
+}
+
+** Todo Manager Class
+class TodoManager {
+    private todos;
+    private nextId;
+    private listBox;
+    
+    funct TodoManager(list) {
+        this.todos = new ArrayList();
+        this.nextId = 1;
+        this.listBox = list;
+    }
+    
+    public funct addTodo(text, priority) {
+        todo = new TodoItem(this.nextId, text, priority);
+        this.todos.add(todo);
+        this.nextId = this.nextId + 1;
+        this.updateList();
+        return todo;
+    }
+    
+    public funct removeTodo(index) {
+        if (index >= 0 && index < this.todos.getSize()) {
+            this.todos.remove(index);
+            this.updateList();
+            return true;
+        }
+        return false;
+    }
+    
+    public funct toggleTodo(index) {
+        if (index >= 0 && index < this.todos.getSize()) {
+            todo = this.todos.get(index);
+            todo.toggle();
+            this.updateList();
+            return true;
+        }
+        return false;
+    }
+    
+    public funct getTodoCount() {
+        return this.todos.getSize();
+    }
+    
+    public funct getCompletedCount() {
+        count = 0;
+        for (i = 0; i < this.todos.getSize(); i = i + 1) {
+            todo = this.todos.get(i);
+            if (todo.completed) {
+                count = count + 1;
+            }
+        }
+        return count;
+    }
+    
+    public funct getPendingCount() {
+        return this.getTodoCount() - this.getCompletedCount();
+    }
+    
+    public funct clearCompleted() {
+        newTodos = new ArrayList();
+        for (i = 0; i < this.todos.getSize(); i = i + 1) {
+            todo = this.todos.get(i);
+            if (!todo.completed) {
+                newTodos.add(todo);
+            }
+        }
+        this.todos = newTodos;
+        this.updateList();
+    }
+    
+    private funct updateList() {
+        this.listBox.clear();
+        for (i = 0; i < this.todos.getSize(); i = i + 1) {
+            todo = this.todos.get(i);
+            this.listBox.addItem(todo.toString());
+        }
+    }
+}
+
+** Create application
+app = new Application("Todo Manager", 500, 550);
+window = app.getMainWindow();
+
+** Title
+titleLabel = new Label("Todo Manager");
+titleLabel.setPosition(180, 20);
+titleLabel.setFontSize(18);
+window.addChild(titleLabel);
+
+** Input panel
+inputLabel = new Label("New Task:");
+inputLabel.setPosition(20, 60);
+window.addChild(inputLabel);
+
+taskInput = new TextBox();
+taskInput.setPlaceholder("Enter task description");
+taskInput.setBounds(20, 85, 300, 30);
+window.addChild(taskInput);
+
+** Priority selector
+priorityLabel = new Label("Priority:");
+priorityLabel.setPosition(330, 60);
+window.addChild(priorityLabel);
+
+priorityCombo = new ComboBox();
+priorityCombo.setBounds(330, 85, 150, 30);
+priorityCombo.addItem("Low");
+priorityCombo.addItem("Normal");
+priorityCombo.addItem("High");
+priorityCombo.setSelectedIndex(1);
+window.addChild(priorityCombo);
+
+** Add button
+addBtn = new Button("Add Task");
+addBtn.setBounds(20, 125, 100, 30);
+window.addChild(addBtn);
+
+** Todo list
+listLabel = new Label("Tasks:");
+listLabel.setPosition(20, 170);
+window.addChild(listLabel);
+
+todoList = new ListBox();
+todoList.setBounds(20, 195, 460, 250);
+window.addChild(todoList);
+
+** Create todo manager
+manager = new TodoManager(todoList);
+
+** Action buttons
+toggleBtn = new Button("Toggle");
+toggleBtn.setBounds(20, 460, 100, 30);
+window.addChild(toggleBtn);
+
+removeBtn = new Button("Remove");
+removeBtn.setBounds(130, 460, 100, 30);
+window.addChild(removeBtn);
+
+clearBtn = new Button("Clear Done");
+clearBtn.setBounds(240, 460, 120, 30);
+window.addChild(clearBtn);
+
+** Statistics panel
+statsPanel = new Panel(460, 40);
+statsPanel.setPosition(20, 500);
+statsPanel.setBackgroundColor("lightblue");
+window.addChild(statsPanel);
+
+statsLabel = new Label("Total: 0 | Pending: 0 | Completed: 0");
+statsLabel.setPosition(10, 10);
+statsPanel.addChild(statsLabel);
+
+** Update statistics
+funct updateStats() {
+    total = manager.getTodoCount();
+    pending = manager.getPendingCount();
+    completed = manager.getCompletedCount();
+    statsLabel.setText("Total: " + total + " | Pending: " + pending + " | Completed: " + completed);
+};
+
+** Add button handler
+addBtn.setOnClick(funct() {
+    text = taskInput.getText();
+    if (length(text) > 0) {
+        priority = priorityCombo.getSelectedItem();
+        if (priority == null) {
+            priority = "Normal";
+        }
+        manager.addTodo(text, priority);
+        taskInput.clear();
+        updateStats();
+        zenout.console("Added task: " + text + " (" + priority + ")");
+    } else {
+        MessageBox.showWarning("Please enter a task description");
+    }
+});
+
+** Toggle button handler
+toggleBtn.setOnClick(funct() {
+    index = todoList.getSelectedIndex();
+    if (index >= 0) {
+        manager.toggleTodo(index);
+        updateStats();
+        zenout.console("Toggled task at index " + index);
+    } else {
+        MessageBox.showWarning("Please select a task to toggle");
+    }
+});
+
+** Remove button handler
+removeBtn.setOnClick(funct() {
+    index = todoList.getSelectedIndex();
+    if (index >= 0) {
+        result = MessageBox.confirm("Confirm", "Remove this task?");
+        if (result) {
+            manager.removeTodo(index);
+            updateStats();
+            zenout.console("Removed task at index " + index);
+        }
+    } else {
+        MessageBox.showWarning("Please select a task to remove");
+    }
+});
+
+** Clear completed button handler
+clearBtn.setOnClick(funct() {
+    completed = manager.getCompletedCount();
+    if (completed > 0) {
+        result = MessageBox.confirm("Confirm", "Clear " + completed + " completed tasks?");
+        if (result) {
+            manager.clearCompleted();
+            updateStats();
+            zenout.console("Cleared " + completed + " completed tasks");
+        }
+    } else {
+        MessageBox.showInfo("No completed tasks to clear");
+    }
+});
+
+** Add some sample tasks
+zenout.console("\nAdding sample tasks...");
+manager.addTodo("Write documentation", "High");
+manager.addTodo("Fix bugs", "Normal");
+manager.addTodo("Add tests", "Low");
+updateStats();
+
+zenout.console("\nTodo application created successfully!");
+zenout.console("Features:");
+zenout.console("  - Add tasks with priority levels");
+zenout.console("  - Toggle task completion");
+zenout.console("  - Remove individual tasks");
+zenout.console("  - Clear all completed tasks");
+zenout.console("  - Real-time statistics");
+zenout.console("\nTotal tasks: " + manager.getTodoCount());
+zenout.console("\nNote: Call app.run() to show the GUI");

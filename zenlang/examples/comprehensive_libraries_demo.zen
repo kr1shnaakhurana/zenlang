@@ -1,0 +1,159 @@
+** Comprehensive Libraries Demo
+** Showcases all advanced ZenLang libraries
+
+.include <zenout>
+.include <zenlang/lib/database>
+.include <zenlang/lib/testing>
+.include <zenlang/lib/logger>
+.include <zenlang/lib/event_emitter>
+
+zenout.console("=== ZenLang Comprehensive Libraries Demo ===\n");
+
+** 1. Database Library
+zenout.console("1. Database Library:");
+
+db = new Database();
+users = db.createTable("users");
+
+** Insert data
+id1 = users.insert({name = "Alice", age = 25, city = "NYC"});
+id2 = users.insert({name = "Bob", age = 30, city = "LA"});
+id3 = users.insert({name = "Charlie", age = 25, city = "NYC"});
+
+zenout.console("   Inserted 3 users");
+
+** Find all
+allUsers = users.findAll();
+zenout.console("   Total users: " + users.count());
+
+** Find by condition
+nycUsers = users.findWhere(funct(user) {
+    return user["city"] == "NYC";
+});
+zenout.console("   NYC users: " + length(nycUsers));
+
+** Update
+users.update(id1, {age = 26});
+zenout.console("   Updated user " + id1);
+
+** Find by ID
+user = users.findById(id1);
+zenout.console("   User " + id1 + ": " + user["name"] + ", age " + user["age"]);
+
+** 2. Testing Framework
+zenout.console("\n2. Testing Framework:");
+
+suite = new TestSuite("Math Tests");
+
+suite.test("Addition works", funct() {
+    result = 2 + 2;
+    Assert.equals(result, 4);
+});
+
+suite.test("Array length", funct() {
+    arr = [1, 2, 3];
+    Assert.lengthEquals(arr, 3);
+});
+
+suite.test("Contains check", funct() {
+    arr = [1, 2, 3, 4, 5];
+    Assert.contains(arr, 3);
+});
+
+suite.run();
+
+** 3. Logger
+zenout.console("3. Logger:");
+
+logger = new Logger("MyApp");
+logger.setLevel(LOG_LEVEL_DEBUG);
+
+logger.debug("This is a debug message");
+logger.info("Application started");
+logger.warn("This is a warning");
+logger.error("This is an error");
+
+** 4. Event Emitter
+zenout.console("\n4. Event Emitter:");
+
+emitter = new EventEmitter();
+
+** Register event handlers
+emitter.on("userLogin", funct() {
+    zenout.console("   Event: User logged in");
+});
+
+emitter.on("userLogin", funct() {
+    zenout.console("   Event: Sending welcome email");
+});
+
+emitter.on("dataUpdate", funct() {
+    zenout.console("   Event: Data was updated");
+});
+
+** Emit events
+zenout.console("   Emitting 'userLogin' event:");
+emitter.emit("userLogin");
+
+zenout.console("   Emitting 'dataUpdate' event:");
+emitter.emit("dataUpdate");
+
+** 5. Observable (Reactive Programming)
+zenout.console("\n5. Observable (Reactive):");
+
+counter = new Observable(0);
+
+** Subscribe to changes
+counter.subscribe(funct(newVal, oldVal) {
+    zenout.console("   Counter changed: " + oldVal + " -> " + newVal);
+});
+
+zenout.console("   Setting counter values:");
+counter.set(1);
+counter.set(5);
+counter.set(10);
+
+zenout.console("   Current value: " + counter.get());
+
+** 6. Benchmark
+zenout.console("\n6. Benchmarking:");
+
+bench1 = new Benchmark("Array creation");
+bench1.start();
+arr = [];
+for (i = 0; i < 1000; i = i + 1) {
+    push(arr, i);
+}
+bench1.stop();
+
+bench2 = new Benchmark("Array sorting");
+bench2.start();
+sorted = sort(arr);
+bench2.stop();
+
+** 7. Complex Database Query
+zenout.console("\n7. Complex Database Queries:");
+
+products = db.createTable("products");
+
+products.insert({name = "Laptop", price = 999, category = "Electronics"});
+products.insert({name = "Mouse", price = 25, category = "Electronics"});
+products.insert({name = "Desk", price = 299, category = "Furniture"});
+products.insert({name = "Chair", price = 199, category = "Furniture"});
+products.insert({name = "Monitor", price = 399, category = "Electronics"});
+
+** Query builder
+query = new QueryBuilder(products);
+results = query.where(funct(p) { return p["category"] == "Electronics"; })
+               .where(funct(p) { return p["price"] < 500; })
+               .orderBy("price", true)
+               .limit(2)
+               .execute();
+
+zenout.console("   Electronics under $500 (limit 2):");
+for (i = 0; i < length(results); i = i + 1) {
+    p = results[i];
+    zenout.console("     " + p["name"] + ": $" + p["price"]);
+}
+
+zenout.console("\n=== Demo Complete! ===");

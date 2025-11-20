@@ -1,0 +1,12 @@
+.include <zenout>
+.include <web>
+.include <time>
+
+zenout.console("Starting web server on port 8080...");
+
+web.server(8080);
+
+zenout.console("Server running! Press Ctrl+C to stop");
+zenout.console("Visit http://localhost:8080 in your browser");
+
+time.sleep(60);

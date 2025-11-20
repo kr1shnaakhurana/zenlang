@@ -1,0 +1,94 @@
+.include <zenout>
+.include <zengui>
+
+zenout.console("Creating Calculator GUI...");
+
+** Create window
+window = zengui.createWindow("ZenLang Calculator", 300, 400);
+zengui.center();
+zengui.setResizable(false);
+
+** Display
+display = zengui.textbox(20, 20, 260, 40, "0");
+
+** Current calculation
+currentValue = 0;
+operation = "";
+newNumber = true;
+
+** Button click handler
+funct numberClick(num) {
+    current = zengui.getText(display);
+    if (newNumber) {
+        zengui.setText(display, num + "");
+        newNumber = false;
+    } else {
+        zengui.setText(display, current + num);
+    };
+};
+
+** Operation handler
+funct operationClick(op) {
+    current = zengui.getText(display);
+    currentValue = int(current);
+    operation = op;
+    newNumber = true;
+};
+
+** Equals handler
+funct calculate() {
+    current = zengui.getText(display);
+    num = int(current);
+    result = 0;
+    
+    if (operation == "+") {
+        result = currentValue + num;
+    } else if (operation == "-") {
+        result = currentValue - num;
+    } else if (operation == "*") {
+        result = currentValue * num;
+    } else if (operation == "/") {
+        if (num != 0) {
+            result = currentValue / num;
+        };
+    };
+    
+    zengui.setText(display, result + "");
+    newNumber = true;
+};
+
+** Clear handler
+funct clear() {
+    zengui.setText(display, "0");
+    currentValue = 0;
+    operation = "";
+    newNumber = true;
+};
+
+** Number buttons
+zengui.button("7", 20, 80, 60, 60, funct() { numberClick(7); });
+zengui.button("8", 90, 80, 60, 60, funct() { numberClick(8); });
+zengui.button("9", 160, 80, 60, 60, funct() { numberClick(9); });
+
+zengui.button("4", 20, 150, 60, 60, funct() { numberClick(4); });
+zengui.button("5", 90, 150, 60, 60, funct() { numberClick(5); });
+zengui.button("6", 160, 150, 60, 60, funct() { numberClick(6); });
+
+zengui.button("1", 20, 220, 60, 60, funct() { numberClick(1); });
+zengui.button("2", 90, 220, 60, 60, funct() { numberClick(2); });
+zengui.button("3", 160, 220, 60, 60, funct() { numberClick(3); });
+
+zengui.button("0", 20, 290, 130, 60, funct() { numberClick(0); });
+
+** Operation buttons
+zengui.button("+", 230, 80, 50, 60, funct() { operationClick("+"); });
+zengui.button("-", 230, 150, 50, 60, funct() { operationClick("-"); });
+zengui.button("*", 230, 220, 50, 60, funct() { operationClick("*"); });
+zengui.button("/", 230, 290, 50, 60, funct() { operationClick("/"); });
+
+** Equals and Clear
+zengui.button("=", 160, 290, 60, 60, calculate);
+zengui.button("C", 20, 360, 260, 30, clear);
+
+zenout.console("Calculator ready!");
+zengui.run();

@@ -1,0 +1,24 @@
+** Simple GUI Hello World
+** Creates a real window with a button
+
+.include <zengui>
+
+** Create window
+window = zengui.createWindow("Hello ZenLang GUI", 400, 200);
+
+** Add a label
+label = zengui.addLabel("Welcome to ZenLang GUI!", 50, 30, 300, 30);
+zengui.setFont(label, "Arial", 14);
+
+** Add a button
+button = zengui.addButton("Click Me!", 150, 80, 100, 40);
+
+** Button click handler
+funct onButtonClick() {
+    zengui.showMessage("Hello", "Hello from ZenLang GUI!");
+};
+
+zengui.onClick(button, onButtonClick);
+
+** Show the window
+zengui.show(window);

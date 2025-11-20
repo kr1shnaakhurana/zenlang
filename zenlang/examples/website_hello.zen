@@ -1,0 +1,47 @@
+.include <zenout>
+.include <zenweb>
+
+zenout.console("Starting ZenWeb Hello World...");
+
+** Define homepage route
+funct homepage() {
+    content = zenweb.h1("Welcome to ZenLang Web!");
+    content = content + zenweb.p("This website is built with ZenLang!");
+    content = content + zenweb.p("Visit /about to learn more.");
+    
+    return zenweb.page("Home", content);
+};
+
+** Define about page route
+funct aboutpage() {
+    content = zenweb.h1("About ZenLang");
+    content = content + zenweb.p("ZenLang is a simple, elegant programming language.");
+    
+    features = ["Easy to learn", "Built-in web framework", "Powerful standard library"];
+    content = content + zenweb.h2("Features:");
+    content = content + zenweb.ul(features);
+    
+    content = content + zenweb.p("");
+    content = content + zenweb.a("/", "Back to Home");
+    
+    return zenweb.page("About", content);
+};
+
+** Register routes
+zenweb.route("/", homepage);
+zenweb.route("/about", aboutpage);
+
+** Start server
+server = zenweb.start(8080);
+
+zenout.console("Server running on http://localhost:8080");
+zenout.console("Visit:");
+zenout.console("  http://localhost:8080/");
+zenout.console("  http://localhost:8080/about");
+zenout.console("");
+zenout.console("Press Ctrl+C to stop");
+
+** Keep running
+while (1) {
+    ** Server runs in background thread
+};

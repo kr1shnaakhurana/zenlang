@@ -1,0 +1,63 @@
+.include <zenout>
+.include <math>
+
+// Fibonacci function
+funct fibonacci(n) {
+    if (n <= 1) {
+        return n;
+    } else {
+        return fibonacci(n - 1) + fibonacci(n - 2);
+    };
+};
+
+// Calculate first 10 Fibonacci numbers
+zenout.console("Fibonacci sequence:");
+i = 0;
+while (i < 10) {
+    result = fibonacci(i);
+    zenout.console("fib(" + i + ") = " + result);
+    i = i + 1;
+};
+
+// Factorial function
+funct factorial(n) {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    };
+};
+
+zenout.console("\nFactorials:");
+j = 1;
+while (j <= 5) {
+    fact = factorial(j);
+    zenout.console(j + "! = " + fact);
+    j = j + 1;
+};
+
+// Prime number checker
+funct isPrime(n) {
+    if (n <= 1) {
+        return 0;
+    };
+    
+    i = 2;
+    while (i * i <= n) {
+        if (n % i == 0) {
+            return 0;
+        };
+        i = i + 1;
+    };
+    
+    return 1;
+};
+
+zenout.console("\nPrime numbers up to 20:");
+num = 2;
+while (num <= 20) {
+    if (isPrime(num)) {
+        zenout.console(num + " is prime");
+    };
+    num = num + 1;
+};

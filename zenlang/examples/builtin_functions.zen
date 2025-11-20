@@ -1,0 +1,85 @@
+.include <zenout>
+
+zenout.console("=== ZenLang Built-in Functions ===");
+zenout.console("");
+
+** Type Conversion
+zenout.console("Type Conversion:");
+num = int("42");
+zenout.console("  int('42') = " + num);
+
+text = str(123);
+zenout.console("  str(123) = " + text);
+
+decimal = float("3.14");
+zenout.console("  float('3.14') = " + decimal);
+
+zenout.console("");
+
+** Type Checking
+zenout.console("Type Checking:");
+zenout.console("  type(42) = " + type(42));
+zenout.console("  type('hello') = " + type("hello"));
+zenout.console("  type([1,2,3]) = " + type([1,2,3]));
+zenout.console("  isNumber(42) = " + isNumber(42));
+zenout.console("  isString('hi') = " + isString("hi"));
+zenout.console("  isArray([1,2]) = " + isArray([1,2]));
+
+zenout.console("");
+
+** Array Functions
+zenout.console("Array Functions:");
+arr = [1, 2, 3, 4, 5];
+zenout.console("  Original: [1, 2, 3, 4, 5]");
+zenout.console("  length(arr) = " + length(arr));
+zenout.console("  indexOf(arr, 3) = " + indexOf(arr, 3));
+zenout.console("  includes(arr, 4) = " + includes(arr, 4));
+
+reversed = reverse(arr);
+zenout.console("  reverse(arr) = " + join(reversed, ", "));
+
+zenout.console("");
+
+** String Functions
+zenout.console("String Functions:");
+text = "Hello World";
+zenout.console("  Original: 'Hello World'");
+zenout.console("  upper(text) = " + upper(text));
+zenout.console("  lower(text) = " + lower(text));
+zenout.console("  length(text) = " + length(text));
+
+words = split(text, " ");
+zenout.console("  split(text, ' ') = [" + words[0] + ", " + words[1] + "]");
+
+zenout.console("");
+
+** Math Functions
+zenout.console("Math Functions:");
+numbers = [10, 20, 30, 40, 50];
+zenout.console("  Numbers: [10, 20, 30, 40, 50]");
+zenout.console("  sum(numbers) = " + sum(numbers));
+zenout.console("  avg(numbers) = " + avg(numbers));
+zenout.console("  min(numbers) = " + min(numbers));
+zenout.console("  max(numbers) = " + max(numbers));
+
+zenout.console("");
+
+** Range Function
+zenout.console("Range Function:");
+nums = range(5);
+zenout.console("  range(5) = [" + join(nums, ", ") + "]");
+
+nums2 = range(1, 6);
+zenout.console("  range(1, 6) = [" + join(nums2, ", ") + "]");
+
+zenout.console("");
+
+** Object Functions
+zenout.console("Object Functions:");
+person = {name="Alice", age=25, city="NYC"};
+zenout.console("  Object: {name='Alice', age=25, city='NYC'}");
+zenout.console("  keys(person) = [" + join(keys(person), ", ") + "]");
+zenout.console("  hasKey(person, 'name') = " + hasKey(person, "name"));
+
+zenout.console("");
+zenout.console("ZenLang has powerful built-in functions!");

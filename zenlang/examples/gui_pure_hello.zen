@@ -1,0 +1,35 @@
+** Pure ZenLang GUI Example
+** Using only ZenLang classes - no direct runtime calls!
+
+.include <zenlang/lib/gui_framework>
+
+** Create window using ZenLang class
+window = new Window("Pure ZenLang GUI", 500, 300);
+
+** Create label using ZenLang class
+titleLabel = new Label("Welcome to Pure ZenLang GUI!", 50, 30, 400, 40);
+titleLabel.setFont("Arial", 16);
+
+** Create text box
+nameInput = new TextBox(150, 100, 200, 30);
+
+** Create label for input
+nameLabel = new Label("Your Name:", 50, 100, 90, 30);
+
+** Create button
+greetButton = new Button("Greet Me!", 200, 150, 100, 40);
+
+** Button click handler - pure ZenLang function
+funct onGreetClick() {
+    name = nameInput.getText();
+    if (length(name) > 0) {
+        MessageBox.show("Hello", "Hello, " + name + "!");
+    } else {
+        MessageBox.showWarning("Warning", "Please enter your name!");
+    }
+};
+
+greetButton.setClickHandler(onGreetClick);
+
+** Show window
+window.show();

@@ -1,0 +1,329 @@
+** Advanced Web Application Demo
+** Demonstrates HTML Builder, Templates, Forms, and Web Utils
+
+.include <zenout>
+.include <zenlang/lib/html_builder>
+.include <zenlang/lib/template_engine>
+.include <zenlang/lib/form_handler>
+.include <zenlang/lib/web_utils>
+.include <zenlang/lib/router>
+
+zenout.console("=== Advanced Web Application Demo ===\n");
+
+** 1. HTML Builder Demo
+zenout.console("1. HTML Builder - Creating HTML programmatically:");
+
+** Build a card component
+card = HtmlBuilder.div()
+    .addClass("card")
+    .child(
+        HtmlBuilder.h2()
+            .addClass("card-title")
+            .text("Welcome to ZenLang")
+    )
+    .child(
+        HtmlBuilder.p()
+            .addClass("card-text")
+            .text("Build modern web applications with ease")
+    )
+    .child(
+        HtmlBuilder.button()
+            .addClass("btn btn-primary")
+            .text("Get Started")
+    );
+
+zenout.console("   Generated HTML:");
+zenout.console(card.render());
+
+** 2. Complete HTML Document
+zenout.console("\n2. HTML Document Builder:");
+
+doc = new HtmlDocument("My Web App");
+
+doc.addMeta("viewport", "width=device-width, initial-scale=1");
+doc.addMeta("description", "A ZenLang web application");
+
+doc.addStyle("
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .card { border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
+");
+
+header = HtmlBuilder.header()
+    .child(HtmlBuilder.h1().text("My Application"));
+
+main = HtmlBuilder.main()
+    .addClass("container")
+    .child(card);
+
+doc.addToBody(header);
+doc.addToBody(main);
+
+zenout.console("   Full HTML document created");
+
+** 3. Template Engine Demo
+zenout.console("\n3. Template Engine:");
+
+engine = new TemplateEngine();
+
+** Register templates
+engine.register("greeting", "Hello, {{name}}! Welcome to {{site}}.");
+engine.register("user-card", "
+    <div class='user-card'>
+        <h3>{{username}}</h3>
+        <p>Email: {{email}}</p>
+        <p>Role: {{role}}</p>
+    </div>
+");
+
+** Render templates
+greeting = engine.render("greeting", {
+    name = "Alice",
+    site = "ZenLang Web"
+});
+
+zenout.console("   " + greeting);
+
+userCard = engine.render("user-card", {
+    username = "Bob",
+    email = "bob@example.com",
+    role = "Developer"
+});
+
+zenout.console("   User card rendered");
+
+** 4. Layout System
+zenout.console("\n4. Layout System:");
+
+layout = new Layout("
+    <!DOCTYPE html>
+    <html>
+    <head><title>My Site</title></head>
+    <body>
+        <header><h1>My Website</h1></header>
+        <main>{{@content}}</main>
+        <footer>{{@footer}}</footer>
+    </body>
+    </html>
+");
+
+layout.setSection("content", "<p>This is the main content</p>");
+layout.setSection("footer", "<p>Copyright 2024</p>");
+
+zenout.console("   Layout with sections rendered");
+
+** 5. Form Builder Demo
+zenout.console("\n5. Form Builder:");
+
+form = new FormBuilder("/submit", "POST");
+
+form.text("username", "Username", "")
+    .email("email", "Email Address", "")
+    .password("password", "Password")
+    .select("country", "Country", ["USA", "UK", "Canada"])
+    .checkbox("subscribe", "Subscribe to newsletter", false)
+    .textarea("bio", "Biography", "")
+    .submit("Register");
+
+formHtml = form.render();
+zenout.console("   Registration form created with 7 fields");
+
+** 6. Form Validation Demo
+zenout.console("\n6. Form Validation:");
+
+validator = new FormValidator();
+
+validator.required("username")
+         .minLength("username", 3)
+         .required("email")
+         .email("email")
+         .required("password")
+         .minLength("password", 8);
+
+** Test validation with invalid data
+invalidData = {
+    username = "ab",
+    email = "invalid-email",
+    password = "short"
+};
+
+isValid = validator.validate(invalidData);
+zenout.console("   Validation result: " + isValid);
+
+if (!isValid) {
+    errors = validator.getErrors();
+    errorKeys = keys(errors);
+    zenout.console("   Errors found:");
+    for (i = 0; i < length(errorKeys); i = i + 1) {
+        field = errorKeys[i];
+        error = errors[field];
+        zenout.console("     " + field + ": " + error);
+    }
+}
+
+** Test with valid data
+validData = {
+    username = "alice123",
+    email = "alice@example.com",
+    password = "securepass123"
+};
+
+isValid = validator.validate(validData);
+zenout.console("   Valid data result: " + isValid);
+
+** 7. URL Parser Demo
+zenout.console("\n7. URL Parser:");
+
+url = new UrlParser("https://example.com:8080/path/to/page?id=123&name=test#section");
+
+zenout.console("   Protocol: " + url.getProtocol());
+zenout.console("   Host: " + url.getHost());
+zenout.console("   Port: " + url.getPort());
+zenout.console("   Path: " + url.getPath());
+zenout.console("   Query: " + url.getQuery());
+zenout.console("   Hash: " + url.getHash());
+
+params = url.getQueryParams();
+zenout.console("   Query params: id=" + params["id"] + ", name=" + params["name"]);
+
+** 8. Cookie Manager Demo
+zenout.console("\n8. Cookie Manager:");
+
+cookies = new CookieManager();
+cookies.set("session_id", "abc123", 3600);
+cookies.set("user_pref", "dark_mode", 86400);
+
+zenout.console("   Session ID: " + cookies.get("session_id"));
+zenout.console("   User Pref: " + cookies.get("user_pref"));
+zenout.console("   Cookie header: " + cookies.toHeader());
+
+** 9. Session Manager Demo
+zenout.console("\n9. Session Manager:");
+
+sessions = new SessionManager();
+
+sessionId = sessions.create();
+zenout.console("   Created session: " + sessionId);
+
+sessions.set(sessionId, "user_id", 42);
+sessions.set(sessionId, "username", "alice");
+
+userId = sessions.getData(sessionId, "user_id");
+username = sessions.getData(sessionId, "username");
+
+zenout.console("   Session data - User ID: " + userId + ", Username: " + username);
+
+** 10. Response Builder Demo
+zenout.console("\n10. HTTP Response Builder:");
+
+** JSON response
+jsonResponse = new ResponseBuilder();
+jsonResponse.status(200)
+            .json({message = "Success", data = {id = 1, name = "Test"}});
+
+zenout.console("   JSON response created with status 200");
+
+** HTML response
+htmlResponse = new ResponseBuilder();
+htmlResponse.status(200)
+            .html("<h1>Welcome</h1><p>Hello World</p>");
+
+zenout.console("   HTML response created");
+
+** Redirect response
+redirectResponse = new ResponseBuilder();
+redirectResponse.redirect("/dashboard");
+
+zenout.console("   Redirect response to /dashboard");
+
+** 11. Complete Web Application Example
+zenout.console("\n11. Complete Web App - Blog System:");
+
+** Router setup
+router = new Router();
+
+** Home page
+router.get("/", funct(request) {
+    page = new HtmlDocument("Blog Home");
+    
+    page.addStyle("
+        body { font-family: Arial; margin: 0; padding: 20px; }
+        .post { border: 1px solid #ddd; padding: 15px; margin: 10px 0; }
+    ");
+    
+    header = HtmlBuilder.header()
+        .child(HtmlBuilder.h1().text("My Blog"));
+    
+    post1 = HtmlBuilder.div()
+        .addClass("post")
+        .child(HtmlBuilder.h2().text("First Post"))
+        .child(HtmlBuilder.p().text("This is my first blog post!"));
+    
+    post2 = HtmlBuilder.div()
+        .addClass("post")
+        .child(HtmlBuilder.h2().text("Second Post"))
+        .child(HtmlBuilder.p().text("Another interesting article."));
+    
+    page.addToBody(header);
+    page.addToBody(post1);
+    page.addToBody(post2);
+    
+    response = new Response();
+    return response.html(page.render());
+});
+
+** Contact form page
+router.get("/contact", funct(request) {
+    contactForm = new FormBuilder("/contact/submit", "POST");
+    contactForm.text("name", "Your Name", "")
+               .email("email", "Email", "")
+               .textarea("message", "Message", "")
+               .submit("Send Message");
+    
+    page = new HtmlDocument("Contact Us");
+    page.addToBody("<h1>Contact Us</h1>");
+    page.addToBody(contactForm.render());
+    
+    response = new Response();
+    return response.html(page.render());
+});
+
+** API endpoint
+router.get("/api/posts", funct(request) {
+    posts = [
+        {id = 1, title = "First Post", author = "Alice"},
+        {id = 2, title = "Second Post", author = "Bob"}
+    ];
+    
+    response = new Response();
+    return response.json(posts);
+});
+
+zenout.console("   Blog routes configured:");
+zenout.console("     GET / - Home page");
+zenout.console("     GET /contact - Contact form");
+zenout.console("     GET /api/posts - API endpoint");
+
+** Simulate requests
+zenout.console("\n   Simulating requests:");
+
+req1 = new Request("GET", "/");
+resp1 = router.handle("GET", "/", req1);
+zenout.console("     GET / - Status: " + resp1.status);
+
+req2 = new Request("GET", "/contact");
+resp2 = router.handle("GET", "/contact", req2);
+zenout.console("     GET /contact - Status: " + resp2.status);
+
+req3 = new Request("GET", "/api/posts");
+resp3 = router.handle("GET", "/api/posts", req3);
+zenout.console("     GET /api/posts - Status: " + resp3.status);
+
+zenout.console("\n=== Demo Complete! ===");
+zenout.console("\nZenLang now has comprehensive web development capabilities:");
+zenout.console("  - HTML Builder for programmatic HTML generation");
+zenout.console("  - Template Engine with layouts and partials");
+zenout.console("  - Form Builder with validation");
+zenout.console("  - URL parsing and routing");
+zenout.console("  - Cookie and session management");
+zenout.console("  - HTTP response building");

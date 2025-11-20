@@ -1,0 +1,9 @@
+.include <zenout>
+.include <zenlang/lib/collections>
+
+zenout.console("Testing collections...\n");
+
+list = new ArrayList();
+list.add("test");
+zenout.console("Added item\n");
+zenout.console("Done!\n");

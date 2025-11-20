@@ -1,0 +1,7 @@
+.include <zenout>
+.include <net>
+
+zenout.console("Making HTTP GET request...");
+
+response = net.get("https://api.github.com/zen");
+zenout.console("Response: " + response);

@@ -1,0 +1,2 @@
+.include <zenout>
+zenout.console("hello world");

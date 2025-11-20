@@ -1,0 +1,32 @@
+.include <zenout>
+
+zenout.console("=== ZenLang Arrays Demo ===");
+zenout.console("");
+
+** Create an array
+numbers = [1, 2, 3, 4, 5];
+zenout.console("Array: [1, 2, 3, 4, 5]");
+
+** Access elements
+zenout.console("First element: " + numbers[0]);
+zenout.console("Third element: " + numbers[2]);
+zenout.console("Last element: " + numbers[4]);
+
+zenout.console("");
+
+** Array of strings
+fruits = ["apple", "banana", "orange"];
+zenout.console("Fruits: " + fruits[0] + ", " + fruits[1] + ", " + fruits[2]);
+
+zenout.console("");
+
+** Mixed array
+mixed = [1, "hello", 3, "world"];
+zenout.console("Mixed array:");
+zenout.console("  [0] = " + mixed[0]);
+zenout.console("  [1] = " + mixed[1]);
+zenout.console("  [2] = " + mixed[2]);
+zenout.console("  [3] = " + mixed[3]);
+
+zenout.console("");
+zenout.console("Arrays work great in ZenLang!");

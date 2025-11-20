@@ -1,0 +1,10 @@
+.include <zenout>
+
+zenout.console("Hello, ZenLang!");
+
+funct greet(name) {
+    zenout.console("Hello " + name);
+};
+
+greet("World");
+greet("Krishna");

@@ -1,0 +1,126 @@
+** ZenLang Object-Oriented Programming Demo
+** Classes, Method Overloading, and Encapsulation
+
+.include <zenout>
+
+zenout.console("=== ZenLang OOP Features ===\n");
+
+** 1. Basic Class
+zenout.console("1. Basic Class with Constructor:");
+
+class Person {
+    public name;
+    public age;
+    
+    funct Person(n, a) {
+        this.name = n;
+        this.age = a;
+    }
+    
+    public funct greet() {
+        zenout.console("   Hello, I'm " + this.name + ", age " + this.age);
+    }
+}
+
+alice = new Person("Alice", 25);
+alice.greet();
+
+bob = new Person("Bob", 30);
+bob.greet();
+
+** 2. Method Overloading
+zenout.console("\n2. Method Overloading:");
+
+class Calculator {
+    public funct add(a, b) {
+        return a + b;
+    }
+    
+    public funct add(a, b, c) {
+        return a + b + c;
+    }
+}
+
+calc = new Calculator();
+result1 = calc.add(5, 3);
+result2 = calc.add(5, 3, 2);
+
+zenout.console("   add(5, 3) = " + result1);
+zenout.console("   add(5, 3, 2) = " + result2);
+
+** 3. Encapsulation
+zenout.console("\n3. Encapsulation (Public/Private):");
+
+class BankAccount {
+    private balance;
+    public accountNumber;
+    
+    funct BankAccount(accNum, initial) {
+        this.accountNumber = accNum;
+        this.balance = initial;
+    }
+    
+    public funct deposit(amount) {
+        this.balance = this.balance + amount;
+        zenout.console("   Deposited $" + amount);
+    }
+    
+    public funct withdraw(amount) {
+        if (amount <= this.balance) {
+            this.balance = this.balance - amount;
+            zenout.console("   Withdrew $" + amount);
+            return true;
+        } else {
+            zenout.console("   Insufficient funds!");
+            return false;
+        }
+    }
+    
+    public funct getBalance() {
+        return this.balance;
+    }
+}
+
+account = new BankAccount("ACC001", 1000);
+zenout.console("   Account: " + account.accountNumber);
+zenout.console("   Balance: $" + account.getBalance());
+
+account.deposit(500);
+account.withdraw(200);
+zenout.console("   Final Balance: $" + account.getBalance());
+
+** 4. Multiple Constructors (Overloading)
+zenout.console("\n4. Constructor Overloading:");
+
+class Rectangle {
+    private width;
+    private height;
+    
+    funct Rectangle(w, h) {
+        this.width = w;
+        this.height = h;
+    }
+    
+    funct Rectangle(size) {
+        this.width = size;
+        this.height = size;
+    }
+    
+    public funct area() {
+        return this.width * this.height;
+    }
+    
+    public funct display() {
+        zenout.console("   " + this.width + " x " + this.height + " = " + this.area());
+    }
+}
+
+rect1 = new Rectangle(5, 3);
+zenout.console("   Rectangle:");
+rect1.display();
+
+square = new Rectangle(4);
+zenout.console("   Square:");
+square.display();
+
+zenout.console("\n=== OOP Demo Complete! ===");

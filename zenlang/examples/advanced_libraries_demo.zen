@@ -1,0 +1,97 @@
+.include <zenout>
+.include <zenlang/lib/functional>
+.include <zenlang/lib/algorithms>
+.include <zenlang/lib/data_structures>
+.include <zenlang/lib/crypto>
+
+zenout.console("=== Advanced ZenLang Libraries Demo ===");
+zenout.console("");
+
+** Functional Programming
+zenout.console("Functional Programming:");
+numbers = [1, 2, 3, 4, 5];
+
+** Reduce to sum
+total = reduce(numbers, funct(acc, val) { return acc + val; }, 0);
+zenout.console("  Sum using reduce: " + total);
+
+** Every/Some
+allPositive = every(numbers, funct(x) { return x > 0; });
+zenout.console("  All positive? " + allPositive);
+
+zenout.console("");
+
+** Algorithms
+zenout.console("Sorting Algorithms:");
+unsorted = [64, 34, 25, 12, 22, 11, 90];
+zenout.console("  Original: [" + join(unsorted, ", ") + "]");
+
+bubbled = bubbleSort(unsorted);
+zenout.console("  Bubble Sort: [" + join(bubbled, ", ") + "]");
+
+selected = selectionSort(unsorted);
+zenout.console("  Selection Sort: [" + join(selected, ", ") + "]");
+
+inserted = insertionSort(unsorted);
+zenout.console("  Insertion Sort: [" + join(inserted, ", ") + "]");
+
+zenout.console("");
+
+** Binary Search
+zenout.console("Binary Search:");
+sorted = [1, 3, 5, 7, 9, 11, 13, 15];
+target = 7;
+index = binarySearch(sorted, target);
+zenout.console("  Found " + target + " at index: " + index);
+
+zenout.console("");
+
+** Data Structures
+zenout.console("Data Structures:");
+
+** Stack
+stack = createStack();
+stackPush(stack, 10);
+stackPush(stack, 20);
+stackPush(stack, 30);
+zenout.console("  Stack size: " + stack["size"]);
+popped = stackPop(stack);
+zenout.console("  Popped: " + popped);
+
+** Queue
+queue = createQueue();
+enqueue(queue, "First");
+enqueue(queue, "Second");
+enqueue(queue, "Third");
+zenout.console("  Queue size: " + queue["size"]);
+dequeued = dequeue(queue);
+zenout.console("  Dequeued: " + dequeued);
+
+** Set
+set = createSet();
+setAdd(set, 1);
+setAdd(set, 2);
+setAdd(set, 2);
+setAdd(set, 3);
+zenout.console("  Set size (unique): " + set["size"]);
+
+zenout.console("");
+
+** Cryptography
+zenout.console("Cryptography:");
+plaintext = "hello";
+encrypted = caesarEncrypt(plaintext, 3);
+zenout.console("  Caesar cipher: '" + plaintext + "' -> '" + encrypted + "'");
+
+decrypted = caesarDecrypt(encrypted, 3);
+zenout.console("  Decrypted: '" + decrypted + "'");
+
+rot13Text = rot13("Hello World");
+zenout.console("  ROT13: 'Hello World' -> '" + rot13Text + "'");
+
+password = "MyPass123!";
+strength = passwordStrength(password);
+zenout.console("  Password strength score: " + strength + "/6");
+
+zenout.console("");
+zenout.console("Advanced libraries showcase complete!");

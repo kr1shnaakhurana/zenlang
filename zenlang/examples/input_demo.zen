@@ -1,0 +1,29 @@
+.include <zenout>
+.include <zenin>
+
+zenout.console("=== ZenLang Input Demo ===");
+zenout.console("");
+
+** Get user's name
+name = zenin.console("Enter your name: ");
+zenout.console("Hello, " + name + "!");
+
+** Get user's age
+age = zenin.number("Enter your age: ");
+zenout.console("You are " + age + " years old.");
+
+** Calculate birth year
+currentYear = 2025;
+birthYear = currentYear - age;
+zenout.console("You were born around " + birthYear);
+
+** Yes/No question
+likesZen = zenin.yesno("Do you like ZenLang?");
+if (likesZen) {
+    zenout.console("Awesome! Keep coding!");
+} else {
+    zenout.console("Give it a try, you might like it!");
+};
+
+zenout.console("");
+zenout.console("Thanks for trying the input demo!");

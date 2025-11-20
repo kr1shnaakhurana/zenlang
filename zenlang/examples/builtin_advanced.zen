@@ -1,0 +1,210 @@
+** ZenLang Advanced Built-in Functions Demo
+
+.include <zenout>
+.include <fs>
+
+zenout.console("=== Advanced Built-in Functions ===\n");
+
+** Functional programming
+zenout.console("1. Functional Programming:");
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+zenout.console("   Original: " + join(numbers, ", "));
+
+evens = filter(numbers, funct(n) { return n % 2 == 0; });
+zenout.console("   Evens: " + join(evens, ", "));
+
+squared = map(numbers, funct(n) { return n * n; });
+zenout.console("   Squared: " + join(squared, ", "));
+
+total = reduce(numbers, funct(acc, n) { return acc + n; }, 0);
+zenout.console("   Sum: " + total);
+
+** Every and some
+allPositive = every(numbers, funct(n) { return n > 0; });
+zenout.console("   All positive? " + allPositive);
+
+hasLarge = some(numbers, funct(n) { return n > 8; });
+zenout.console("   Has number > 8? " + hasLarge);
+
+** Find operations
+zenout.console("\n2. Find Operations:");
+found = find(numbers, funct(n) { return n > 5; });
+zenout.console("   First > 5: " + found);
+
+foundIdx = findIndex(numbers, funct(n) { return n > 5; });
+zenout.console("   Index of first > 5: " + foundIdx);
+
+** Partition
+zenout.console("\n3. Partition:");
+parts = partition(numbers, funct(n) { return n > 5; });
+zenout.console("   Greater than 5: " + join(parts[0], ", "));
+zenout.console("   Less or equal 5: " + join(parts[1], ", "));
+
+** Take and drop
+zenout.console("\n4. Take and Drop:");
+first3 = take(numbers, 3);
+zenout.console("   Take 3: " + join(first3, ", "));
+
+without3 = drop(numbers, 3);
+zenout.console("   Drop 3: " + join(without3, ", "));
+
+takeWhileSmall = takeWhile(numbers, funct(n) { return n < 6; });
+zenout.console("   Take while < 6: " + join(takeWhileSmall, ", "));
+
+** Group by
+zenout.console("\n5. Group By:");
+people = [
+    {name = "Alice", age = 25},
+    {name = "Bob", age = 30},
+    {name = "Charlie", age = 25},
+    {name = "David", age = 30}
+];
+
+grouped = groupBy(people, funct(p) { return p["age"]; });
+zenout.console("   Grouped by age:");
+ageKeys = keys(grouped);
+for (i = 0; i < length(ageKeys); i = i + 1) {
+    age = ageKeys[i];
+    group = grouped[age];
+    zenout.console("     Age " + age + ": " + length(group) + " people");
+};
+
+** Sort by
+zenout.console("\n6. Sort By:");
+sorted = sortBy(people, funct(p) { return p["age"]; });
+zenout.console("   Sorted by age:");
+for (i = 0; i < length(sorted); i = i + 1) {
+    p = sorted[i];
+    zenout.console("     " + p["name"] + " (age " + p["age"] + ")");
+};
+
+** Pluck
+zenout.console("\n7. Pluck:");
+names = pluck(people, "name");
+zenout.console("   Names: " + join(names, ", "));
+
+ages = pluck(people, "age");
+zenout.console("   Ages: " + join(ages, ", "));
+
+** Count by
+zenout.console("\n8. Count By:");
+items = [1, 2, 2, 3, 3, 3, 4, 4, 4, 4];
+counts = countBy(items, funct(x) { return x; });
+zenout.console("   Frequency: " + toJSON(counts));
+
+** Sample and shuffle
+zenout.console("\n9. Sample and Shuffle:");
+arr = [1, 2, 3, 4, 5];
+sampled = sample(arr, 3);
+zenout.console("   Random sample (3): " + join(sampled, ", "));
+
+shuffled = shuffle(arr);
+zenout.console("   Shuffled: " + join(shuffled, ", "));
+
+** Times
+zenout.console("\n10. Times:");
+result = times(5, funct(i) { return i * 2; });
+zenout.console("   Times 5 (i*2): " + join(result, ", "));
+
+** Compose and pipe
+zenout.console("\n11. Function Composition:");
+addOne = funct(x) { return x + 1; };
+double = funct(x) { return x * 2; };
+square = funct(x) { return x * x; };
+
+piped = pipe(addOne, double, square);
+result = piped(5);
+zenout.console("   Pipe (5+1)*2^2 = " + result);
+
+composed = compose(square, double, addOne);
+result = composed(5);
+zenout.console("   Compose ((5+1)*2)^2 = " + result);
+
+** Memoize
+zenout.console("\n12. Memoization:");
+expensiveFunc = funct(n) {
+    zenout.console("   Computing for " + n + "...");
+    return n * n;
+};
+
+memoized = memoize(expensiveFunc);
+zenout.console("   First call:");
+r1 = memoized(5);
+zenout.console("   Result: " + r1);
+zenout.console("   Second call (cached):");
+r2 = memoized(5);
+zenout.console("   Result: " + r2);
+
+** Once
+zenout.console("\n13. Once:");
+counter = 0;
+incrementOnce = once(funct() {
+    counter = counter + 1;
+    return counter;
+});
+
+zenout.console("   Call 1: " + incrementOnce());
+zenout.console("   Call 2: " + incrementOnce());
+zenout.console("   Call 3: " + incrementOnce());
+zenout.console("   Counter value: " + counter);
+
+** Negate
+zenout.console("\n14. Negate:");
+isEven = funct(n) { return n % 2 == 0; };
+isOdd = negate(isEven);
+zenout.console("   isEven(4): " + isEven(4));
+zenout.console("   isOdd(4): " + isOdd(4));
+
+** Advanced array functions
+zenout.console("\n15. Advanced Array Functions:");
+nested = [[1, 2], [3, [4, 5]], 6];
+flat = flatten(nested);
+zenout.console("   Flatten: " + join(flat, ", "));
+
+arr1 = [1, 2, 3];
+arr2 = [2, 3, 4];
+diff = difference(arr1, arr2);
+zenout.console("   Difference [1,2,3] - [2,3,4]: " + join(diff, ", "));
+
+inter = intersection(arr1, arr2);
+zenout.console("   Intersection: " + join(inter, ", "));
+
+uni = union(arr1, arr2);
+zenout.console("   Union: " + join(uni, ", "));
+
+** File system operations
+zenout.console("\n16. File System Operations:");
+testFile = "test_builtin.txt";
+fs.write(testFile, "Hello ZenLang!\n");
+fs.append(testFile, "Advanced features!\n");
+
+content = fs.read(testFile);
+zenout.console("   File content:");
+lines = split(content, "\n");
+for (i = 0; i < length(lines); i = i + 1) {
+    if (length(trim(lines[i])) > 0) {
+        zenout.console("     " + lines[i]);
+    };
+};
+
+stats = fs.stat(testFile);
+zenout.console("   File size: " + stats["size"] + " bytes");
+
+** JSON operations
+jsonFile = "test_data.json";
+data = {
+    name = "ZenLang",
+    version = "1.0",
+    features = ["fast", "simple", "powerful"]
+};
+
+fs.writeJSON(jsonFile, data);
+loaded = fs.readJSON(jsonFile);
+zenout.console("\n17. JSON Operations:");
+zenout.console("   Saved and loaded: " + toJSON(loaded));
+
+** Cleanup
+fs.delete(testFile);
+fs.delete(jsonFile);
+
+zenout.console("\n=== All Advanced Features Demonstrated! ===");

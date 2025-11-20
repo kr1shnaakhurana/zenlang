@@ -1,0 +1,273 @@
+** Real HTTP Web Server Example
+** A complete web application with actual HTTP server
+
+.include <zenout>
+.include <zenlang/lib/http_server>
+.include <zenlang/lib/router>
+.include <zenlang/lib/html_builder>
+.include <zenlang/lib/template_engine>
+.include <zenlang/lib/form_handler>
+.include <zenlang/lib/database>
+
+zenout.console("=== ZenLang Real Web Server ===\n");
+
+** Setup database
+db = new Database();
+users = db.createTable("users");
+posts = db.createTable("posts");
+
+** Add sample data
+users.insert({name = "Alice", email = "alice@example.com", role = "admin"});
+users.insert({name = "Bob", email = "bob@example.com", role = "user"});
+users.insert({name = "Charlie", email = "charlie@example.com", role = "user"});
+
+posts.insert({title = "Welcome to ZenLang", content = "This is the first post!", authorId = 1});
+posts.insert({title = "Building Web Apps", content = "Learn how to build web applications with ZenLang.", authorId = 1});
+posts.insert({title = "Hello World", content = "My first blog post.", authorId = 2});
+
+zenout.console("Database initialized with sample data\n");
+
+** Setup template engine
+engine = new TemplateEngine();
+
+** Register page layout
+engine.registerPartial("header", "
+    <header style='background: #333; color: white; padding: 20px;'>
+        <h1>ZenLang Blog</h1>
+        <nav>
+            <a href='/' style='color: white; margin-right: 15px;'>Home</a>
+            <a href='/users' style='color: white; margin-right: 15px;'>Users</a>
+            <a href='/posts' style='color: white; margin-right: 15px;'>Posts</a>
+            <a href='/contact' style='color: white;'>Contact</a>
+        </nav>
+    </header>
+");
+
+engine.registerPartial("footer", "
+    <footer style='background: #333; color: white; padding: 20px; margin-top: 40px; text-align: center;'>
+        <p>Powered by ZenLang Web Framework</p>
+    </footer>
+");
+
+** Setup router
+router = new Router();
+
+** Home page
+router.get("/", funct(request) {
+    page = new HtmlDocument("Home - ZenLang Blog");
+    
+    page.addStyle("
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .post { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .post h2 { margin-top: 0; color: #333; }
+        .post-meta { color: #666; font-size: 14px; }
+        a { text-decoration: none; }
+    ");
+    
+    page.addToBody("{{>header}}");
+    
+    page.addToBody("<div class='container'>");
+    page.addToBody("<h2>Recent Posts</h2>");
+    
+    ** Get all posts
+    allPosts = posts.findAll();
+    
+    for (i = 0; i < length(allPosts); i = i + 1) {
+        post = allPosts[i];
+        author = users.findById(post["authorId"]);
+        
+        postCard = HtmlBuilder.div()
+            .addClass("post")
+            .child(HtmlBuilder.h2().text(post["title"]))
+            .child(HtmlBuilder.p().addClass("post-meta").text("By " + author["name"]))
+            .child(HtmlBuilder.p().text(post["content"]));
+        
+        page.addToBody(postCard.render());
+    }
+    
+    page.addToBody("</div>");
+    page.addToBody("{{>footer}}");
+    
+    html = engine.renderString(page.render(), {});
+    
+    response = new Response();
+    return response.html(html);
+});
+
+** Users page
+router.get("/users", funct(request) {
+    page = new HtmlDocument("Users - ZenLang Blog");
+    
+    page.addStyle("
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f5f5f5; font-weight: bold; }
+        tr:hover { background: #f9f9f9; }
+    ");
+    
+    page.addToBody("{{>header}}");
+    page.addToBody("<div class='container'>");
+    page.addToBody("<h2>All Users</h2>");
+    
+    ** Build users table
+    table = HtmlBuilder.table();
+    
+    ** Header row
+    headerRow = HtmlBuilder.tr()
+        .child(HtmlBuilder.th().text("ID"))
+        .child(HtmlBuilder.th().text("Name"))
+        .child(HtmlBuilder.th().text("Email"))
+        .child(HtmlBuilder.th().text("Role"));
+    
+    table.child(headerRow);
+    
+    ** Data rows
+    allUsers = users.findAll();
+    for (i = 0; i < length(allUsers); i = i + 1) {
+        user = allUsers[i];
+        
+        row = HtmlBuilder.tr()
+            .child(HtmlBuilder.td().text("" + user["id"]))
+            .child(HtmlBuilder.td().text(user["name"]))
+            .child(HtmlBuilder.td().text(user["email"]))
+            .child(HtmlBuilder.td().text(user["role"]));
+        
+        table.child(row);
+    }
+    
+    page.addToBody(table.render());
+    page.addToBody("</div>");
+    page.addToBody("{{>footer}}");
+    
+    html = engine.renderString(page.render(), {});
+    
+    response = new Response();
+    return response.html(html);
+});
+
+** Posts API endpoint
+router.get("/api/posts", funct(request) {
+    allPosts = posts.findAll();
+    
+    response = new Response();
+    return response.json(allPosts);
+});
+
+** Users API endpoint
+router.get("/api/users", funct(request) {
+    allUsers = users.findAll();
+    
+    response = new Response();
+    return response.json(allUsers);
+});
+
+** Contact form page
+router.get("/contact", funct(request) {
+    page = new HtmlDocument("Contact - ZenLang Blog");
+    
+    page.addStyle("
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .form-group { margin: 20px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { background: #333; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #555; }
+    ");
+    
+    page.addToBody("{{>header}}");
+    page.addToBody("<div class='container'>");
+    page.addToBody("<h2>Contact Us</h2>");
+    
+    ** Build contact form
+    form = new FormBuilder("/contact/submit", "POST");
+    form.text("name", "Your Name", "")
+        .email("email", "Email Address", "")
+        .select("subject", "Subject", ["General Inquiry", "Support", "Feedback"])
+        .textarea("message", "Message", "")
+        .submit("Send Message");
+    
+    page.addToBody(form.render());
+    page.addToBody("</div>");
+    page.addToBody("{{>footer}}");
+    
+    html = engine.renderString(page.render(), {});
+    
+    response = new Response();
+    return response.html(html);
+});
+
+** Handle contact form submission
+router.post("/contact/submit", funct(request) {
+    page = new HtmlDocument("Thank You - ZenLang Blog");
+    
+    page.addStyle("
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 20px; border-radius: 4px; }
+    ");
+    
+    page.addToBody("{{>header}}");
+    page.addToBody("<div class='container'>");
+    page.addToBody("<div class='success'>");
+    page.addToBody("<h2>Thank You!</h2>");
+    page.addToBody("<p>Your message has been received. We'll get back to you soon.</p>");
+    page.addToBody("<p><a href='/'>Return to Home</a></p>");
+    page.addToBody("</div>");
+    page.addToBody("</div>");
+    page.addToBody("{{>footer}}");
+    
+    html = engine.renderString(page.render(), {});
+    
+    response = new Response();
+    return response.html(html);
+});
+
+** 404 handler
+router.notFound(funct(request) {
+    page = new HtmlDocument("404 Not Found");
+    
+    page.addStyle("
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; text-align: center; }
+        .error { color: #721c24; background: #f8d7da; border: 1px solid #f5c6cb; padding: 40px; border-radius: 8px; margin: 40px 0; }
+    ");
+    
+    page.addToBody("{{>header}}");
+    page.addToBody("<div class='container'>");
+    page.addToBody("<div class='error'>");
+    page.addToBody("<h1>404 - Page Not Found</h1>");
+    page.addToBody("<p>The page you're looking for doesn't exist.</p>");
+    page.addToBody("<p><a href='/'>Go to Home</a></p>");
+    page.addToBody("</div>");
+    page.addToBody("</div>");
+    page.addToBody("{{>footer}}");
+    
+    html = engine.renderString(page.render(), {});
+    
+    response = new Response();
+    return response.setStatus(404).html(html);
+});
+
+zenout.console("Routes configured:");
+zenout.console("  GET  /           - Home page with blog posts");
+zenout.console("  GET  /users      - Users list");
+zenout.console("  GET  /posts      - Posts page");
+zenout.console("  GET  /contact    - Contact form");
+zenout.console("  POST /contact/submit - Form submission");
+zenout.console("  GET  /api/posts  - Posts API (JSON)");
+zenout.console("  GET  /api/users  - Users API (JSON)");
+zenout.console("");
+
+** Create and start HTTP server
+server = new HttpServer("localhost", 8080);
+server.setRouter(router);
+
+zenout.console("Starting web server...");
+zenout.console("Open your browser and visit: http://localhost:8080");
+zenout.console("");
+
+server.start();

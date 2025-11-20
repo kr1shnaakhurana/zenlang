@@ -1,0 +1,266 @@
+** New Libraries Demonstration
+** Showcases State Machine, Cache, Query Builder, Pipeline, Scheduler, and Observer
+
+.include <zenout>
+.include <zenlang/lib/state_machine>
+.include <zenlang/lib/cache>
+.include <zenlang/lib/query_builder>
+.include <zenlang/lib/pipeline>
+.include <zenlang/lib/scheduler>
+.include <zenlang/lib/observer>
+
+zenout.console("=== ZenLang New Libraries Demo ===\n");
+
+** 1. State Machine Demo
+zenout.console("1. State Machine - Order Processing:");
+
+orderMachine = new StateMachine("pending");
+orderMachine.addState("processing");
+orderMachine.addState("shipped");
+orderMachine.addState("delivered");
+orderMachine.addState("cancelled");
+
+orderMachine.addTransition("pending", "processing", "process");
+orderMachine.addTransition("processing", "shipped", "ship");
+orderMachine.addTransition("shipped", "delivered", "deliver");
+orderMachine.addTransition("pending", "cancelled", "cancel");
+
+orderMachine.onEnter("processing", funct() {
+    zenout.console("   Order is being processed...");
+});
+
+orderMachine.onEnter("shipped", funct() {
+    zenout.console("   Order has been shipped!");
+});
+
+zenout.console("   Initial state: " + orderMachine.getState());
+orderMachine.trigger("process");
+zenout.console("   After process: " + orderMachine.getState());
+orderMachine.trigger("ship");
+zenout.console("   After ship: " + orderMachine.getState());
+
+** 2. Cache Demo
+zenout.console("\n2. Cache - Memoization:");
+
+** Expensive function to memoize
+fibonacci = funct(n) {
+    if (n <= 1) {
+        return n;
+    }
+    return n * 2;
+};
+
+memoizer = new Memoizer(fibonacci);
+
+zenout.console("   Computing fib(10)...");
+result1 = memoizer.call(10);
+zenout.console("   Result: " + result1);
+
+zenout.console("   Computing fib(10) again (cached)...");
+result2 = memoizer.call(10);
+zenout.console("   Result: " + result2);
+
+stats = memoizer.getStats();
+zenout.console("   Cache hits: " + stats["hits"]);
+zenout.console("   Cache misses: " + stats["misses"]);
+
+** 3. LRU Cache Demo
+zenout.console("\n3. LRU Cache:");
+
+lru = new LRUCache(3);
+lru.set("a", 1);
+lru.set("b", 2);
+lru.set("c", 3);
+zenout.console("   Added 3 items (a, b, c)");
+zenout.console("   Cache size: " + lru.getSize());
+
+lru.set("d", 4);
+zenout.console("   Added item d (should evict a)");
+zenout.console("   Cache size: " + lru.getSize());
+
+** 4. Query Builder Demo
+zenout.console("\n4. Query Builder:");
+
+products = [
+    {name = "Laptop", price = 999, category = "Electronics"},
+    {name = "Mouse", price = 25, category = "Electronics"},
+    {name = "Desk", price = 299, category = "Furniture"},
+    {name = "Chair", price = 199, category = "Furniture"},
+    {name = "Monitor", price = 399, category = "Electronics"}
+];
+
+query = new Query(products);
+results = query.whereEquals("category", "Electronics")
+               .whereGreaterThan("price", 100)
+               .orderBy("price")
+               .get();
+
+zenout.console("   Electronics over $100:");
+for (i = 0; i < length(results); i = i + 1) {
+    product = results[i];
+    zenout.console("     " + product["name"] + ": $" + product["price"]);
+}
+
+** Aggregation
+avgPrice = Aggregator.avg(products, "price");
+zenout.console("   Average price: $" + avgPrice);
+
+maxPrice = Aggregator.max(products, "price");
+zenout.console("   Max price: $" + maxPrice);
+
+** 5. Pipeline Demo
+zenout.console("\n5. Pipeline - Data Transformation:");
+
+pipeline = new Pipeline();
+
+pipeline.pipe(funct(x) {
+    return x * 2;
+});
+
+pipeline.pipe(funct(x) {
+    return x + 10;
+});
+
+pipeline.pipe(funct(x) {
+    return x / 2;
+});
+
+result = pipeline.process(5);
+zenout.console("   Input: 5");
+zenout.console("   Pipeline: (x * 2) -> (x + 10) -> (x / 2)");
+zenout.console("   Output: " + result);
+
+** 6. Stream Demo
+zenout.console("\n6. Stream Processing:");
+
+stream = new Stream();
+
+stream.filter(funct(x) {
+    return x > 5;
+});
+
+stream.map(funct(x) {
+    return x * x;
+});
+
+stream.subscribe(funct(x) {
+    zenout.console("   Processed: " + x);
+});
+
+zenout.console("   Pushing values: 3, 7, 10");
+stream.push(3);
+stream.push(7);
+stream.push(10);
+
+** 7. Scheduler Demo
+zenout.console("\n7. Task Scheduler:");
+
+scheduler = new Scheduler();
+
+scheduler.schedule("Task 1", funct() {
+    return "Task 1 completed";
+});
+
+scheduler.schedulePriority("High Priority Task", funct() {
+    return "High priority done";
+}, 10);
+
+scheduler.schedule("Task 2", funct() {
+    return "Task 2 completed";
+});
+
+zenout.console("   Scheduled 3 tasks");
+zenout.console("   Running all tasks...");
+
+results = scheduler.runAll();
+for (i = 0; i < length(results); i = i + 1) {
+    zenout.console("     " + results[i]);
+}
+
+stats = scheduler.getStats();
+zenout.console("   Completed: " + stats["completed"]);
+
+** 8. Observer Pattern Demo
+zenout.console("\n8. Observer Pattern:");
+
+subject = new Subject();
+
+observer1 = new Observer("Observer1", funct(state) {
+    zenout.console("   Observer1 received: " + state);
+});
+
+observer2 = new Observer("Observer2", funct(state) {
+    zenout.console("   Observer2 received: " + state);
+});
+
+subject.attach(observer1);
+subject.attach(observer2);
+
+zenout.console("   Setting state to 'Active':");
+subject.setState("Active");
+
+zenout.console("   Setting state to 'Inactive':");
+subject.setState("Inactive");
+
+** 9. Reactive Values Demo
+zenout.console("\n9. Reactive Programming:");
+
+counter = new Reactive(0);
+
+counter.subscribe(funct(newVal, oldVal) {
+    zenout.console("   Counter: " + oldVal + " -> " + newVal);
+});
+
+zenout.console("   Updating counter:");
+counter.set(5);
+counter.set(10);
+counter.set(15);
+
+** 10. Store Pattern Demo
+zenout.console("\n10. Store Pattern (State Management):");
+
+store = new Store({count = 0, name = "App"});
+
+store.registerMutation("increment", funct(state, payload) {
+    newState = state;
+    newState["count"] = state["count"] + payload;
+    return newState;
+});
+
+store.registerMutation("setName", funct(state, payload) {
+    newState = state;
+    newState["name"] = payload;
+    return newState;
+});
+
+store.subscribe(funct(newState, oldState) {
+    zenout.console("   State updated - count: " + newState["count"]);
+});
+
+zenout.console("   Committing mutations:");
+store.commit("increment", 5);
+store.commit("increment", 3);
+store.commit("setName", "MyApp");
+
+finalState = store.getState();
+zenout.console("   Final count: " + finalState["count"]);
+zenout.console("   Final name: " + finalState["name"]);
+
+** 11. Batch Processor Demo
+zenout.console("\n11. Batch Processor:");
+
+batchProcessor = new BatchProcessor(3, funct(batch) {
+    zenout.console("   Processing batch of " + length(batch) + " items");
+});
+
+zenout.console("   Adding items:");
+batchProcessor.add("item1");
+batchProcessor.add("item2");
+batchProcessor.add("item3");
+batchProcessor.add("item4");
+batchProcessor.add("item5");
+
+zenout.console("   Flushing remaining:");
+batchProcessor.flush();
+
+zenout.console("\n=== Demo Complete! ===");

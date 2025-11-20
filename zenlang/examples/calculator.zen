@@ -1,0 +1,48 @@
+.include <zenout>
+
+zenout.console("=== ZenLang Calculator ===");
+
+funct add(a, b) {
+    return a + b;
+};
+
+funct subtract(a, b) {
+    return a - b;
+};
+
+funct multiply(a, b) {
+    return a * b;
+};
+
+funct divide(a, b) {
+    if (b == 0) {
+        zenout.error("Cannot divide by zero!");
+        return 0;
+    } else {
+        return a / b;
+    };
+};
+
+funct power(base, exp) {
+    result = 1;
+    i = 0;
+    while (i < exp) {
+        result = result * base;
+        i = i + 1;
+    };
+    return result;
+};
+
+// Test calculations
+x = 10;
+y = 5;
+
+zenout.console("x = " + x);
+zenout.console("y = " + y);
+zenout.console("");
+
+zenout.console("Addition: " + x + " + " + y + " = " + add(x, y));
+zenout.console("Subtraction: " + x + " - " + y + " = " + subtract(x, y));
+zenout.console("Multiplication: " + x + " * " + y + " = " + multiply(x, y));
+zenout.console("Division: " + x + " / " + y + " = " + divide(x, y));
+zenout.console("Power: " + x + " ^ " + y + " = " + power(x, y));

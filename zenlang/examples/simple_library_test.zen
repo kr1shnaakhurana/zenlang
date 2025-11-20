@@ -1,0 +1,58 @@
+.include <zenout>
+.include <zenlang/lib/algorithms>
+.include <zenlang/lib/crypto>
+.include <zenlang/lib/data_structures>
+
+zenout.console("=== Simple Library Test ===");
+zenout.console("");
+
+** Test sorting
+zenout.console("Sorting:");
+unsorted = [5, 2, 8, 1, 9];
+zenout.console("  Original: [" + join(unsorted, ", ") + "]");
+
+sorted = bubbleSort(unsorted);
+zenout.console("  Sorted: [" + join(sorted, ", ") + "]");
+
+zenout.console("");
+
+** Test binary search
+zenout.console("Binary Search:");
+target = 8;
+index = binarySearch(sorted, target);
+zenout.console("  Found " + target + " at index: " + index);
+
+zenout.console("");
+
+** Test stack
+zenout.console("Stack:");
+stack = createStack();
+stackPush(stack, 10);
+stackPush(stack, 20);
+stackPush(stack, 30);
+zenout.console("  Stack size: " + stack["size"]);
+
+popped = stackPop(stack);
+zenout.console("  Popped: " + popped);
+zenout.console("  New size: " + stack["size"]);
+
+zenout.console("");
+
+** Test encryption
+zenout.console("Encryption:");
+text = "hello";
+encrypted = caesarEncrypt(text, 3);
+zenout.console("  Original: " + text);
+zenout.console("  Encrypted: " + encrypted);
+
+decrypted = caesarDecrypt(encrypted, 3);
+zenout.console("  Decrypted: " + decrypted);
+
+zenout.console("");
+
+** Test ROT13
+rot13text = rot13("Hello World");
+zenout.console("ROT13 of 'Hello World': " + rot13text);
+
+zenout.console("");
+zenout.console("All tests passed!");

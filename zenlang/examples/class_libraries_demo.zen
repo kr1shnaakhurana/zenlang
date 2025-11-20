@@ -1,0 +1,249 @@
+** ZenLang Class Libraries Demo
+** Demonstrates built-in class libraries
+
+.include <zenout>
+.include <zenlang/lib/collections>
+
+zenout.console("=== ZenLang Class Libraries Demo ===\n");
+
+** 1. ArrayList
+zenout.console("1. ArrayList:");
+list = new ArrayList();
+list.add("Apple");
+list.add("Banana");
+list.add("Cherry");
+list.add("Date");
+
+zenout.console("   Size: " + list.getSize());
+zenout.console("   Item at index 1: " + list.get(1));
+zenout.console("   Contains 'Cherry': " + list.contains("Cherry"));
+
+list.remove(2);
+zenout.console("   After removing index 2:");
+zenout.console("   Size: " + list.getSize());
+zenout.console("   Items: " + join(list.toArray(), ", "));
+
+** 2. Stack
+zenout.console("\n2. Stack (LIFO):");
+stack = new Stack();
+stack.push(10);
+stack.push(20);
+stack.push(30);
+
+zenout.console("   Pushed: 10, 20, 30");
+zenout.console("   Peek: " + stack.peek());
+zenout.console("   Pop: " + stack.pop());
+zenout.console("   Pop: " + stack.pop());
+zenout.console("   Size: " + stack.size());
+
+** 3. Queue
+zenout.console("\n3. Queue (FIFO):");
+queue = new Queue();
+queue.enqueue("First");
+queue.enqueue("Second");
+queue.enqueue("Third");
+
+zenout.console("   Enqueued: First, Second, Third");
+zenout.console("   Peek: " + queue.peek());
+zenout.console("   Dequeue: " + queue.dequeue());
+zenout.console("   Dequeue: " + queue.dequeue());
+zenout.console("   Size: " + queue.size());
+
+** 4. HashMap
+zenout.console("\n4. HashMap:");
+map = new HashMap();
+map.put("name", "John");
+map.put("age", 30);
+map.put("city", "New York");
+
+zenout.console("   Put: name=John, age=30, city=New York");
+zenout.console("   Get 'name': " + map.get("name"));
+zenout.console("   Get 'age': " + map.get("age"));
+zenout.console("   Contains 'city': " + map.containsKey("city"));
+zenout.console("   Size: " + map.size());
+
+map.remove("age");
+zenout.console("   After removing 'age':");
+zenout.console("   Size: " + map.size());
+zenout.console("   Keys: " + join(map.getKeys(), ", "));
+
+** 5. LinkedList
+zenout.console("\n5. LinkedList:");
+linkedList = new LinkedList();
+linkedList.addLast(100);
+linkedList.addLast(200);
+linkedList.addLast(300);
+linkedList.addFirst(50);
+
+zenout.console("   Added: 50 (first), 100, 200, 300 (last)");
+zenout.console("   Size: " + linkedList.size());
+zenout.console("   As array: " + join(linkedList.toArray(), ", "));
+
+removed = linkedList.removeFirst();
+zenout.console("   Removed first: " + removed);
+zenout.console("   New list: " + join(linkedList.toArray(), ", "));
+
+** 6. Practical Example - Task Manager
+zenout.console("\n6. Practical Example - Task Manager:");
+
+class Task {
+    public id;
+    public title;
+    public completed;
+    
+    funct Task(taskId, taskTitle) {
+        this.id = taskId;
+        this.title = taskTitle;
+        this.completed = false;
+    }
+    
+    public funct complete() {
+        this.completed = true;
+    }
+    
+    public funct display() {
+        status = "[ ]";
+        if (this.completed) {
+            status = "[X]";
+        }
+        zenout.console("   " + status + " " + this.id + ": " + this.title);
+    }
+}
+
+class TaskManager {
+    private tasks;
+    private nextId;
+    
+    funct TaskManager() {
+        this.tasks = new ArrayList();
+        this.nextId = 1;
+    }
+    
+    public funct addTask(title) {
+        task = new Task(this.nextId, title);
+        this.tasks.add(task);
+        this.nextId = this.nextId + 1;
+        zenout.console("   Added task: " + title);
+    }
+    
+    public funct completeTask(id) {
+        for (i = 0; i < this.tasks.getSize(); i = i + 1) {
+            task = this.tasks.get(i);
+            if (task.id == id) {
+                task.complete();
+                zenout.console("   Completed task " + id);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public funct listTasks() {
+        zenout.console("   Tasks:");
+        for (i = 0; i < this.tasks.getSize(); i = i + 1) {
+            task = this.tasks.get(i);
+            task.display();
+        }
+    }
+    
+    public funct getTaskCount() {
+        return this.tasks.getSize();
+    }
+}
+
+taskMgr = new TaskManager();
+taskMgr.addTask("Write documentation");
+taskMgr.addTask("Fix bugs");
+taskMgr.addTask("Add tests");
+
+zenout.console("\n   Initial task list:");
+taskMgr.listTasks();
+
+taskMgr.completeTask(1);
+taskMgr.completeTask(3);
+
+zenout.console("\n   Updated task list:");
+taskMgr.listTasks();
+
+zenout.console("\n   Total tasks: " + taskMgr.getTaskCount());
+
+** 7. Shopping Cart Example
+zenout.console("\n7. Shopping Cart Example:");
+
+class CartItem {
+    public product;
+    public quantity;
+    public price;
+    
+    funct CartItem(prod, qty, prc) {
+        this.product = prod;
+        this.quantity = qty;
+        this.price = prc;
+    }
+    
+    public funct getTotal() {
+        return this.quantity * this.price;
+    }
+}
+
+class ShoppingCart {
+    private items;
+    
+    funct ShoppingCart() {
+        this.items = new HashMap();
+    }
+    
+    public funct addItem(product, quantity, price) {
+        if (this.items.containsKey(product)) {
+            item = this.items.get(product);
+            item.quantity = item.quantity + quantity;
+        } else {
+            item = new CartItem(product, quantity, price);
+            this.items.put(product, item);
+        }
+        zenout.console("   Added: " + quantity + "x " + product);
+    }
+    
+    public funct removeItem(product) {
+        if (this.items.containsKey(product)) {
+            this.items.remove(product);
+            zenout.console("   Removed: " + product);
+            return true;
+        }
+        return false;
+    }
+    
+    public funct getTotal() {
+        total = 0;
+        products = this.items.getKeys();
+        for (i = 0; i < length(products); i = i + 1) {
+            item = this.items.get(products[i]);
+            total = total + item.getTotal();
+        }
+        return total;
+    }
+    
+    public funct display() {
+        zenout.console("   Shopping Cart:");
+        products = this.items.getKeys();
+        for (i = 0; i < length(products); i = i + 1) {
+            item = this.items.get(products[i]);
+            zenout.console("     " + item.quantity + "x " + item.product + " @ $" + item.price + " = $" + item.getTotal());
+        }
+        zenout.console("   Total: $" + this.getTotal());
+    }
+}
+
+cart = new ShoppingCart();
+cart.addItem("Laptop", 1, 999);
+cart.addItem("Mouse", 2, 25);
+cart.addItem("Keyboard", 1, 75);
+
+zenout.console("");
+cart.display();
+
+cart.removeItem("Mouse");
+zenout.console("");
+cart.display();
+
+zenout.console("\n=== Class Libraries Demo Complete! ===");

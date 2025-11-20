@@ -1,0 +1,134 @@
+** Pure ZenLang Calculator
+** Complete calculator using only ZenLang classes
+
+.include <zenlang/lib/gui_framework>
+
+** Create window
+window = new Window("ZenLang Calculator", 350, 450);
+window.setResizable(false);
+
+** Display
+display = new TextBox(20, 20, 310, 50);
+display.setText("0");
+
+** Current calculation state
+currentValue = 0;
+operator = "";
+newNumber = true;
+
+** Helper function to update display
+funct updateDisplay(value) {
+    display.setText(value + "");
+}
+
+** Number button handler
+funct onNumberClick(num) {
+    current = display.getText();
+    if (newNumber || current == "0") {
+        updateDisplay(num);
+        newNumber = false;
+    } else {
+        updateDisplay(current + num);
+    }
+}
+
+** Operator button handler
+funct onOperatorClick(op) {
+    currentValue = float(display.getText());
+    operator = op;
+    newNumber = true;
+}
+
+** Equals button handler
+funct onEqualsClick() {
+    if (operator != "") {
+        secondValue = float(display.getText());
+        result = 0;
+        
+        if (operator == "+") {
+            result = currentValue + secondValue;
+        } else if (operator == "-") {
+            result = currentValue - secondValue;
+        } else if (operator == "*") {
+            result = currentValue * secondValue;
+        } else if (operator == "/") {
+            if (secondValue != 0) {
+                result = currentValue / secondValue;
+            } else {
+                MessageBox.showError("Error", "Cannot divide by zero!");
+                updateDisplay("0");
+                currentValue = 0;
+                operator = "";
+                newNumber = true;
+                return null;
+            }
+        }
+        
+        updateDisplay(result);
+        currentValue = result;
+        operator = "";
+        newNumber = true;
+    }
+}
+
+** Clear button handler
+funct onClearClick() {
+    updateDisplay("0");
+    currentValue = 0;
+    operator = "";
+    newNumber = true;
+}
+
+** Create number buttons
+btn7 = new Button("7", 20, 90, 70, 50);
+btn7.setClickHandler(funct() { onNumberClick(7); });
+
+btn8 = new Button("8", 100, 90, 70, 50);
+btn8.setClickHandler(funct() { onNumberClick(8); });
+
+btn9 = new Button("9", 180, 90, 70, 50);
+btn9.setClickHandler(funct() { onNumberClick(9); });
+
+btn4 = new Button("4", 20, 150, 70, 50);
+btn4.setClickHandler(funct() { onNumberClick(4); });
+
+btn5 = new Button("5", 100, 150, 70, 50);
+btn5.setClickHandler(funct() { onNumberClick(5); });
+
+btn6 = new Button("6", 180, 150, 70, 50);
+btn6.setClickHandler(funct() { onNumberClick(6); });
+
+btn1 = new Button("1", 20, 210, 70, 50);
+btn1.setClickHandler(funct() { onNumberClick(1); });
+
+btn2 = new Button("2", 100, 210, 70, 50);
+btn2.setClickHandler(funct() { onNumberClick(2); });
+
+btn3 = new Button("3", 180, 210, 70, 50);
+btn3.setClickHandler(funct() { onNumberClick(3); });
+
+btn0 = new Button("0", 20, 270, 150, 50);
+btn0.setClickHandler(funct() { onNumberClick(0); });
+
+** Operator buttons
+btnAdd = new Button("+", 260, 90, 70, 50);
+btnAdd.setClickHandler(funct() { onOperatorClick("+"); });
+
+btnSub = new Button("-", 260, 150, 70, 50);
+btnSub.setClickHandler(funct() { onOperatorClick("-"); });
+
+btnMul = new Button("*", 260, 210, 70, 50);
+btnMul.setClickHandler(funct() { onOperatorClick("*"); });
+
+btnDiv = new Button("/", 260, 270, 70, 50);
+btnDiv.setClickHandler(funct() { onOperatorClick("/"); });
+
+** Equals and Clear buttons
+btnEquals = new Button("=", 180, 270, 70, 50);
+btnEquals.setClickHandler(onEqualsClick);
+
+btnClear = new Button("C", 20, 330, 310, 50);
+btnClear.setClickHandler(onClearClick);
+
+** Show window
+window.show();

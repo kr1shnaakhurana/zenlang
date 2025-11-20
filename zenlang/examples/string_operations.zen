@@ -1,0 +1,74 @@
+.include <zenout>
+
+zenout.console("=== String Operations Demo ===");
+zenout.console("");
+
+** Basic string
+text = "Hello World";
+zenout.console("Original: '" + text + "'");
+
+zenout.console("");
+
+** Case conversion
+zenout.console("Case Conversion:");
+zenout.console("  upper() = " + upper(text));
+zenout.console("  lower() = " + lower(text));
+
+zenout.console("");
+
+** String properties
+zenout.console("String Properties:");
+zenout.console("  length() = " + length(text));
+zenout.console("  charAt(0) = " + charAt(text, 0));
+zenout.console("  charAt(6) = " + charAt(text, 6));
+
+zenout.console("");
+
+** String search
+zenout.console("String Search:");
+zenout.console("  startsWith('Hello') = " + startsWith(text, "Hello"));
+zenout.console("  endsWith('World') = " + endsWith(text, "World"));
+zenout.console("  indexOf('o') = " + indexOf(text, "o"));
+
+zenout.console("");
+
+** String manipulation
+zenout.console("String Manipulation:");
+replaced = replace(text, "World", "ZenLang");
+zenout.console("  replace('World', 'ZenLang') = " + replaced);
+
+sub = substring(text, 0, 5);
+zenout.console("  substring(0, 5) = " + sub);
+
+repeated = repeat("Zen", 3);
+zenout.console("  repeat('Zen', 3) = " + repeated);
+
+zenout.console("");
+
+** String splitting
+zenout.console("String Splitting:");
+words = split(text, " ");
+zenout.console("  split(' ') = [" + words[0] + ", " + words[1] + "]");
+
+csv = "apple,banana,orange";
+fruits = split(csv, ",");
+zenout.console("  split('apple,banana,orange', ',') = [" + join(fruits, ", ") + "]");
+
+zenout.console("");
+
+** Whitespace handling
+zenout.console("Whitespace Handling:");
+padded = "  hello  ";
+trimmed = trim(padded);
+zenout.console("  trim('  hello  ') = '" + trimmed + "'");
+
+zenout.console("");
+
+** String building
+zenout.console("String Building:");
+parts = ["Zen", "Lang", "Rocks"];
+combined = join(parts, " ");
+zenout.console("  join(['Zen', 'Lang', 'Rocks'], ' ') = " + combined);
+
+zenout.console("");
+zenout.console("String operations are easy in ZenLang!");

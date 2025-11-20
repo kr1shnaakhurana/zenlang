@@ -1,0 +1,104 @@
+.include <zenout>
+.include <zenweb>
+.include <zendb>
+
+zenout.console("Starting Blog with Database...");
+
+** Connect to database
+db = zendb.connect("blog");
+
+** Create posts table if not exists
+zendb.createTable("posts");
+
+** Add some sample posts if empty
+if (zendb.count("posts") == 0) {
+    zendb.insert("posts", {title="Welcome", content="Welcome to my blog!", author="Admin"});
+    zendb.insert("posts", {title="ZenLang Tutorial", content="Learn ZenLang basics", author="Admin"});
+    zendb.insert("posts", {title="Web Development", content="Build websites with ZenLang", author="Admin"});
+    zendb.save();
+};
+
+** Homepage - List all posts
+funct homepage() {
+    nav = zenweb.navbar([
+        ["Home", "/"],
+        ["New Post", "/new"]
+    ]);
+    
+    content = nav;
+    content = content + zenweb.h1("Blog with Database");
+    
+    ** Get all posts from database
+    posts = zendb.select("posts");
+    
+    ** Display posts
+    for (i = 0; i < length(posts); i = i + 1) {
+        post = posts[i];
+        
+        card = zenweb.h2(post["title"]);
+        card = card + zenweb.p(post["content"]);
+        card = card + zenweb.p("By: " + post["author"] + " | ID: " + post["id"]);
+        
+        content = content + zenweb.div(card, {class="post"});
+    };
+    
+    styles = ".post { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }";
+    
+    return zenweb.page("Blog", content, styles);
+};
+
+** New post form
+funct newpostform() {
+    nav = zenweb.navbar([
+        ["Home", "/"],
+        ["New Post", "/new"]
+    ]);
+    
+    content = nav;
+    content = content + zenweb.h1("Create New Post");
+    
+    formContent = zenweb.p("Title:");
+    formContent = formContent + zenweb.input("text", "title", {placeholder="Post title"});
+    formContent = formContent + zenweb.p("Content:");
+    formContent = formContent + zenweb.tag("textarea", "", {name="content", rows="5", cols="50"});
+    formContent = formContent + zenweb.p("Author:");
+    formContent = formContent + zenweb.input("text", "author", {placeholder="Your name"});
+    formContent = formContent + zenweb.p("");
+    formContent = formContent + zenweb.button("Create Post");
+    
+    content = content + zenweb.form("/create", "POST", formContent);
+    
+    return zenweb.page("New Post", content);
+};
+
+** Create post handler
+funct createpost() {
+    ** Get form data
+    title = zenweb.getData("title", "");
+    contentText = zenweb.getData("content", "");
+    author = zenweb.getData("author", "");
+    
+    ** Insert into database
+    zendb.insert("posts", {title=title, content=contentText, author=author});
+    zendb.save();
+    
+    zenout.console("New post created: " + title);
+    
+    ** Redirect to homepage
+    return zenweb.redirect("/");
+};
+
+** Register routes
+zenweb.route("/", homepage);
+zenweb.route("/new", newpostform);
+zenweb.route("/create", createpost);
+
+** Start server
+server = zenweb.start(8080);
+
+zenout.console("Blog running on http://localhost:8080");
+zenout.console("Database: blog.zendb");
+zenout.console("Press Ctrl+C to stop");
+
+** Keep running
+while (1) { };

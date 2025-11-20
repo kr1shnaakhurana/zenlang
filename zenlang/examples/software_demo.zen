@@ -1,0 +1,64 @@
+.include <zenout>
+.include <zenin>
+.include <zenwares>
+
+** ZenWares Software Development Demo
+
+zenwares.clear();
+zenwares.title("ZenWares Demo Application");
+
+zenout.console("");
+zenwares.header("Welcome to ZenWares!");
+
+zenout.console("This demo shows various software development utilities.");
+zenout.console("");
+
+** Display a box
+zenwares.box("ZenLang makes software development easy!");
+
+zenout.console("");
+zenwares.pause();
+
+** Progress bar demo
+zenwares.header("Progress Bar Demo");
+i = 0;
+while (i <= 10) {
+    zenwares.progress(i, 10, "Loading:");
+    i = i + 1;
+};
+
+zenout.console("");
+zenwares.pause();
+
+** Menu demo
+zenwares.header("Menu System Demo");
+options = {};
+menuChoice = zenwares.menu("Select your favorite language:", options);
+
+zenout.console("");
+zenwares.success("Great choice!");
+
+zenout.console("");
+zenwares.pause();
+
+** Logging demo
+zenwares.header("Logging Demo");
+zenwares.log("Application started", "INFO");
+zenwares.log("Processing data", "INFO");
+zenwares.log("Warning: Low memory", "WARN");
+zenwares.log("Operation completed", "INFO");
+
+zenout.console("");
+zenwares.pause();
+
+** Messages demo
+zenwares.header("Message Types Demo");
+zenwares.info("This is an info message");
+zenwares.success("This is a success message");
+zenwares.warning("This is a warning message");
+zenwares.error("This is an error message");
+
+zenout.console("");
+zenwares.separator("=", 60);
+zenout.console("");
+zenwares.success("Demo completed! Thanks for trying ZenWares!");

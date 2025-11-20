@@ -1,0 +1,16 @@
+.include <zenout>
+.include <fs>
+
+zenout.console("JSON File Example");
+
+// Create a data object
+person = {name="John Doe", age=30, city="New York"};
+
+zenout.console("Writing JSON to file...");
+fs.writeJSON("person.json", person);
+
+zenout.console("Reading JSON from file...");
+loaded = fs.readJSON("person.json");
+
+zenout.console("Data loaded successfully!");
+zenout.console("File operations completed.");

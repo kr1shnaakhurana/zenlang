@@ -1,0 +1,8 @@
+.include <zenout>
+.include <zenlang/lib/string_utils>
+
+zenout.console("Testing string utils...");
+text = "hello world";
+zenout.console("Original: " + text);
+zenout.console("Reversed: " + reverseString(text));
+zenout.console("Done!");

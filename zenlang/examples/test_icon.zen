@@ -1,0 +1,28 @@
+** Test ZenLang Icon Display
+** This window should show the ZenLang icon (purple Z)
+
+.include <zenlang/lib/gui_framework>
+
+** Create window with ZenLang branding
+window = new Window("ZenLang Icon Test", 500, 300);
+
+** Title
+title = new Label("ZenLang Icon Test", 100, 30, 300, 40);
+title.setFont("Arial", 18);
+
+** Instructions
+info1 = new Label("Check the window title bar", 50, 100, 400, 30);
+info2 = new Label("Check the taskbar", 50, 140, 400, 30);
+info3 = new Label("You should see the ZenLang icon (purple Z)", 50, 180, 400, 30);
+
+** Close button
+closeBtn = new Button("Close", 200, 230, 100, 40);
+
+funct onClose() {
+    MessageBox.show("Icon Test", "ZenLang icon should be visible in:\n- Window title bar\n- Taskbar\n- This message box");
+};
+
+closeBtn.setClickHandler(onClose);
+
+** Show window
+window.show();

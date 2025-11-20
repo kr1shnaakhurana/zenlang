@@ -1,0 +1,166 @@
+** ZenLang Advanced Features Showcase
+** Demonstrates new built-in functions and library features
+
+.include <zenlang/lib/string_utils>
+.include <zenlang/lib/array_utils>
+
+.include <zenout>
+.include <fs>
+.include <net>
+
+zenout.console("=== Advanced Built-in Functions ===\n");
+
+** Functional programming
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+zenout.console("Original array: " + join(numbers, ", "));
+
+** Filter, map, reduce
+evens = filter(numbers, funct(n) { return n % 2 == 0; });
+zenout.console("Even numbers: " + join(evens, ", "));
+
+squared = map(numbers, funct(n) { return n * n; });
+zenout.console("Squared: " + join(squared, ", "));
+
+total = reduce(numbers, funct(acc, n) { return acc + n; }, 0);
+zenout.console("Sum: " + total);
+
+** Advanced array operations
+zenout.console("\n=== Advanced Array Operations ===");
+
+partitioned = partition(numbers, funct(n) { return n > 5; });
+zenout.console("Partitioned (>5): " + join(partitioned[0], ", ") + " | " + join(partitioned[1], ", "));
+
+first3 = take(numbers, 3);
+zenout.console("First 3: " + join(first3, ", "));
+
+without3 = drop(numbers, 3);
+zenout.console("Drop 3: " + join(without3, ", "));
+
+** Group by
+people = [
+    {name = "Alice", age = 25, city = "NYC"},
+    {name = "Bob", age = 30, city = "LA"},
+    {name = "Charlie", age = 25, city = "NYC"}
+];
+
+grouped = groupBy(people, funct(p) { return p["age"]; });
+zenout.console("\nGrouped by age: " + toJSON(grouped));
+
+** String utilities
+zenout.console("\n=== String Utilities ===");
+
+text = "hello world";
+zenout.console("Original: " + text);
+zenout.console("Reversed: " + reverseString(text));
+zenout.console("Title case: " + titleCase(text));
+zenout.console("Is palindrome: " + isPalindrome("racecar"));
+
+** Word wrapping
+longText = "This is a very long text that needs to be wrapped at a certain width";
+wrapped = wordWrap(longText, 20);
+zenout.console("\nWord wrapped (width 20):\n" + wrapped);
+
+** Case conversion
+camelCase = "myVariableName";
+snake = camelToSnake(camelCase);
+zenout.console("\nCamel to snake: " + camelCase + " -> " + snake);
+zenout.console("Snake to camel: " + snake + " -> " + snakeToCamel(snake));
+
+** Random string
+randomStr = randomString(10);
+zenout.console("Random string: " + randomStr);
+
+** Masking
+creditCard = "1234567890123456";
+masked = mask(creditCard, 4, "*");
+zenout.console("Masked credit card: " + masked);
+
+** Array utilities
+zenout.console("\n=== Array Utilities ===");
+
+sorted = [1, 3, 5, 7, 9, 11, 13, 15];
+target = 7;
+index = binarySearch(sorted, target);
+zenout.console("Binary search for " + target + ": index " + index);
+
+** Rotation
+arr = [1, 2, 3, 4, 5];
+rotated = rotateLeft(arr, 2);
+zenout.console("Rotate left by 2: " + join(rotated, ", "));
+
+** Sliding window
+windows = slidingWindow([1, 2, 3, 4, 5], 3);
+zenout.console("Sliding windows (size 3): " + toJSON(windows));
+
+** Combinations
+combos = combinations([1, 2, 3, 4], 2);
+zenout.console("Combinations (choose 2): " + toJSON(combos));
+
+** Frequency analysis
+items = [1, 2, 2, 3, 3, 3, 4, 4, 4, 4];
+freq = frequencyMap(items);
+zenout.console("\nFrequency map: " + toJSON(freq));
+zenout.console("Most frequent: " + mostFrequent(items));
+
+** Running calculations
+runSum = runningSum([1, 2, 3, 4, 5]);
+zenout.console("Running sum: " + join(runSum, ", "));
+
+** Built-in data functions
+zenout.console("\n=== Built-in Data Functions ===");
+
+data = [10, 20, 30, 40, 50];
+zenout.console("Data: " + join(data, ", "));
+zenout.console("Sum: " + sum(data));
+zenout.console("Average: " + avg(data));
+zenout.console("Min: " + min(data));
+zenout.console("Max: " + max(data));
+
+** File system operations
+zenout.console("\n=== File System Operations ===");
+
+testFile = "test_advanced.txt";
+fs.write(testFile, "Hello from ZenLang!\n");
+fs.append(testFile, "Advanced features are awesome!\n");
+
+content = fs.read(testFile);
+zenout.console("File content:\n" + content);
+
+fileStats = fs.stat(testFile);
+zenout.console("File size: " + fileStats["size"] + " bytes");
+
+** JSON operations
+jsonFile = "test_data.json";
+testData = {
+    name = "ZenLang",
+    version = "1.0",
+    features = ["fast", "simple", "powerful"]
+};
+
+fs.writeJSON(jsonFile, testData);
+loaded = fs.readJSON(jsonFile);
+zenout.console("\nLoaded JSON: " + toJSON(loaded));
+
+** Cleanup
+fs.delete(testFile);
+fs.delete(jsonFile);
+
+** Composition and piping
+zenout.console("\n=== Function Composition ===");
+
+addOne = funct(x) { return x + 1; };
+double = funct(x) { return x * 2; };
+square = funct(x) { return x * x; };
+
+** Pipe: left to right
+piped = pipe(addOne, double, square);
+result = piped(5);
+zenout.console("Pipe (5 + 1) * 2 ^ 2 = " + result);
+
+** Compose: right to left
+composed = compose(square, double, addOne);
+result = composed(5);
+zenout.console("Compose ((5 + 1) * 2) ^ 2 = " + result);
+
+zenout.console("\n=== Showcase Complete! ===");

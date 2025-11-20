@@ -1,0 +1,187 @@
+** ZenLang Custom GUI Library Demo
+** Demonstrates the custom GUI framework
+
+.include <zenout>
+.include <zenlang/lib/gui>
+
+zenout.console("=== ZenLang Custom GUI Demo ===");
+zenout.console("Creating GUI application...\n");
+
+** 1. Simple Window with Button
+zenout.console("1. Creating simple window with button");
+
+app = new Application("My First GUI App", 400, 300);
+window = app.getMainWindow();
+
+** Create a button
+btn = new Button("Click Me!");
+btn.setBounds(150, 120, 100, 30);
+btn.setOnClick(funct() {
+    MessageBox.showInfo("Button clicked!");
+});
+
+window.addChild(btn);
+
+** Create a label
+label = new Label("Welcome to ZenLang GUI!");
+label.setPosition(100, 50);
+label.setFontSize(16);
+
+window.addChild(label);
+
+zenout.console("   Window created with button and label");
+zenout.console("   Button: " + btn.getText());
+zenout.console("   Label: " + label.getText());
+
+** 2. TextBox Example
+zenout.console("\n2. TextBox example");
+
+textBox = new TextBox();
+textBox.setPlaceholder("Enter your name");
+textBox.setBounds(100, 180, 200, 30);
+
+window.addChild(textBox);
+
+submitBtn = new Button("Submit");
+submitBtn.setBounds(150, 220, 100, 30);
+submitBtn.setOnClick(funct() {
+    name = textBox.getText();
+    if (length(name) > 0) {
+        MessageBox.showInfo("Hello, " + name + "!");
+    } else {
+        MessageBox.showWarning("Please enter your name");
+    }
+});
+
+window.addChild(submitBtn);
+
+zenout.console("   TextBox and Submit button added");
+
+** 3. CheckBox Example
+zenout.console("\n3. CheckBox example");
+
+checkbox = new CheckBox("Accept Terms and Conditions");
+checkbox.setPosition(100, 100);
+checkbox.setOnChange(funct(checked) {
+    if (checked) {
+        zenout.console("   Terms accepted");
+    } else {
+        zenout.console("   Terms not accepted");
+    }
+});
+
+zenout.console("   CheckBox created: " + checkbox.getText());
+
+** 4. ListBox Example
+zenout.console("\n4. ListBox example");
+
+listBox = new ListBox();
+listBox.setBounds(50, 50, 150, 200);
+listBox.addItem("Apple");
+listBox.addItem("Banana");
+listBox.addItem("Cherry");
+listBox.addItem("Date");
+listBox.addItem("Elderberry");
+
+listBox.setOnSelect(funct(item) {
+    zenout.console("   Selected: " + item);
+});
+
+zenout.console("   ListBox created with " + listBox.getItemCount() + " items");
+
+** 5. ComboBox Example
+zenout.console("\n5. ComboBox (Dropdown) example");
+
+combo = new ComboBox();
+combo.setBounds(50, 50, 200, 30);
+combo.addItem("Option 1");
+combo.addItem("Option 2");
+combo.addItem("Option 3");
+
+combo.setOnChange(funct(item) {
+    zenout.console("   Selected option: " + item);
+});
+
+zenout.console("   ComboBox created with options");
+
+** 6. ProgressBar Example
+zenout.console("\n6. ProgressBar example");
+
+progress = new ProgressBar();
+progress.setBounds(50, 100, 300, 25);
+progress.setRange(0, 100);
+
+for (i = 0; i <= 100; i = i + 10) {
+    progress.setValue(i);
+    zenout.console("   Progress: " + progress.getPercentage() + "%");
+}
+
+** 7. Slider Example
+zenout.console("\n7. Slider example");
+
+slider = new Slider(0, 100);
+slider.setBounds(50, 150, 200, 30);
+slider.setStep(5);
+slider.setValue(50);
+
+slider.setOnChange(funct(value) {
+    zenout.console("   Slider value: " + value);
+});
+
+zenout.console("   Slider created, current value: " + slider.getValue());
+
+** 8. Panel with Multiple Widgets
+zenout.console("\n8. Panel with multiple widgets");
+
+panel = new Panel(350, 250);
+panel.setPosition(25, 25);
+panel.setBackgroundColor("lightgray");
+
+panelLabel = new Label("User Information");
+panelLabel.setPosition(10, 10);
+panel.addChild(panelLabel);
+
+nameLabel = new Label("Name:");
+nameLabel.setPosition(10, 50);
+panel.addChild(nameLabel);
+
+nameInput = new TextBox();
+nameInput.setBounds(80, 45, 200, 30);
+panel.addChild(nameInput);
+
+emailLabel = new Label("Email:");
+emailLabel.setPosition(10, 90);
+panel.addChild(emailLabel);
+
+emailInput = new TextBox();
+emailInput.setBounds(80, 85, 200, 30);
+panel.addChild(emailInput);
+
+saveBtn = new Button("Save");
+saveBtn.setBounds(125, 180, 100, 30);
+panel.addChild(saveBtn);
+
+zenout.console("   Panel created with " + panel.children.getSize() + " child widgets");
+
+** 9. TextArea Example
+zenout.console("\n9. TextArea example");
+
+textArea = new TextArea();
+textArea.setBounds(50, 50, 300, 200);
+textArea.appendLine("Line 1: Hello");
+textArea.appendLine("Line 2: World");
+textArea.appendLine("Line 3: ZenLang GUI");
+
+zenout.console("   TextArea created with " + textArea.getLineCount() + " lines");
+
+** 10. MessageBox Examples
+zenout.console("\n10. MessageBox examples");
+
+zenout.console("   MessageBox.showInfo() - Shows information");
+zenout.console("   MessageBox.showWarning() - Shows warning");
+zenout.console("   MessageBox.showError() - Shows error");
+zenout.console("   MessageBox.confirm() - Shows confirmation dialog");
+
+zenout.console("\n=== GUI Demo Complete ===");
+zenout.console("All GUI components created successfully!");
+zenout.console("\nNote: To see the actual GUI, call app.run()");

@@ -1,0 +1,25 @@
+.include <zenout>
+
+funct add(a, b) {
+    return a + b;
+};
+
+funct multiply(a, b) {
+    return a * b;
+};
+
+result1 = add(5, 3);
+zenout.console("5 + 3 = " + result1);
+
+result2 = multiply(4, 7);
+zenout.console("4 * 7 = " + result2);
+
+funct factorial(n) {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    };
+};
+
+zenout.console("Factorial of 5 = " + factorial(5));

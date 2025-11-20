@@ -1,0 +1,19 @@
+.include <zenout>
+
+zenout.console("While loop example:");
+
+x = 0;
+while (x < 5) {
+    zenout.console("x = " + x);
+    x = x + 1;
+};
+
+zenout.console("Do-while loop example:");
+
+y = 0;
+do {
+    zenout.console("y = " + y);
+    y = y + 1;
+} while (y < 3);
+
+zenout.console("Done!");

@@ -1,0 +1,93 @@
+.include <zenout>
+
+zenout.console("=== Array Operations Demo ===");
+zenout.console("");
+
+** Create array
+numbers = [5, 2, 8, 1, 9];
+zenout.console("Original array: [" + join(numbers, ", ") + "]");
+
+zenout.console("");
+
+** Array properties
+zenout.console("Array Properties:");
+zenout.console("  Length: " + length(numbers));
+zenout.console("  First: " + numbers[0]);
+zenout.console("  Last: " + numbers[length(numbers) - 1]);
+
+zenout.console("");
+
+** Add elements
+zenout.console("Adding elements:");
+push(numbers, 3);
+zenout.console("  After push(3): [" + join(numbers, ", ") + "]");
+
+unshift(numbers, 7);
+zenout.console("  After unshift(7): [" + join(numbers, ", ") + "]");
+
+zenout.console("");
+
+** Remove elements
+zenout.console("Removing elements:");
+last = pop(numbers);
+zenout.console("  Popped: " + last);
+zenout.console("  Array: [" + join(numbers, ", ") + "]");
+
+first = shift(numbers);
+zenout.console("  Shifted: " + first);
+zenout.console("  Array: [" + join(numbers, ", ") + "]");
+
+zenout.console("");
+
+** Search operations
+zenout.console("Search Operations:");
+zenout.console("  indexOf(8) = " + indexOf(numbers, 8));
+zenout.console("  includes(9) = " + includes(numbers, 9));
+zenout.console("  includes(100) = " + includes(numbers, 100));
+
+zenout.console("");
+
+** Transform operations
+zenout.console("Transform Operations:");
+sorted = sort(numbers);
+zenout.console("  Sorted: [" + join(sorted, ", ") + "]");
+
+reversed = reverse(numbers);
+zenout.console("  Reversed: [" + join(reversed, ", ") + "]");
+
+zenout.console("");
+
+** Slice operations
+zenout.console("Slice Operations:");
+part = slice(numbers, 1, 4);
+zenout.console("  slice(1, 4): [" + join(part, ", ") + "]");
+
+zenout.console("");
+
+** Math operations
+zenout.console("Math Operations:");
+zenout.console("  Sum: " + sum(numbers));
+zenout.console("  Average: " + avg(numbers));
+zenout.console("  Min: " + min(numbers));
+zenout.console("  Max: " + max(numbers));
+
+zenout.console("");
+
+** String array
+zenout.console("String Array:");
+fruits = ["apple", "banana", "orange"];
+zenout.console("  Fruits: " + join(fruits, ", "));
+zenout.console("  Uppercase: " + upper(fruits[0]) + ", " + upper(fruits[1]) + ", " + upper(fruits[2]));
+
+zenout.console("");
+
+** Range function
+zenout.console("Range Function:");
+nums = range(10);
+zenout.console("  range(10): [" + join(nums, ", ") + "]");
+
+evens = range(0, 11, 2);
+zenout.console("  range(0, 11, 2): [" + join(evens, ", ") + "]");
+
+zenout.console("");
+zenout.console("Arrays are powerful in ZenLang!");

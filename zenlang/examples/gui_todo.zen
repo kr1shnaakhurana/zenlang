@@ -1,0 +1,67 @@
+.include <zenout>
+.include <zengui>
+
+zenout.console("Creating Todo List application...");
+
+** Create window
+window = zengui.createWindow("ZenLang Todo List", 500, 600);
+zengui.center();
+zengui.setResizable(false);
+
+** Title
+zengui.label("My Todo List", 150, 20, 200, 30);
+
+** Input for new todo
+zengui.label("New Task:", 20, 70, 80, 25);
+taskInput = zengui.textbox(100, 70, 300, 30);
+
+** Listbox for todos
+todoList = zengui.listbox([], 20, 120, 460, 350);
+
+** Todo items array
+todos = [];
+
+** Add todo
+funct addTodo() {
+    task = zengui.getText(taskInput);
+    
+    if (task != "" && task != null) {
+        push(todos, task);
+        
+        ** Clear and rebuild list
+        ** Note: In real implementation, we'd update the listbox directly
+        zengui.setText(taskInput, "");
+        
+        zenout.console("Added todo: " + task);
+        zengui.alert("Success", "Task added!");
+    } else {
+        zengui.alert("Error", "Please enter a task!");
+    };
+};
+
+** Clear completed
+funct clearCompleted() {
+    if (zengui.confirm("Clear", "Clear all completed tasks?")) {
+        todos = [];
+        zenout.console("Cleared all todos");
+        zengui.alert("Success", "All tasks cleared!");
+    };
+};
+
+** Show stats
+funct showStats() {
+    count = length(todos);
+    zengui.alert("Statistics", "Total tasks: " + count);
+};
+
+** Buttons
+zengui.button("Add Task", 410, 70, 70, 30, addTodo);
+zengui.button("Clear All", 20, 490, 140, 40, clearCompleted);
+zengui.button("Statistics", 180, 490, 140, 40, showStats);
+zengui.button("Exit", 340, 490, 140, 40, funct() { zengui.close(); });
+
+** Status bar
+statusLabel = zengui.label("Ready", 20, 550, 460, 25);
+
+zenout.console("Todo List ready!");
+zengui.run();

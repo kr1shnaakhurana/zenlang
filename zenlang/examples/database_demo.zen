@@ -1,0 +1,82 @@
+.include <zenout>
+.include <zendb>
+
+zenout.console("=== ZenDB Database Demo ===");
+zenout.console("");
+
+** Connect to database
+db = zendb.connect("myapp");
+zenout.console("Connected to database: myapp");
+
+** Create users table
+zendb.createTable("users");
+zenout.console("Created 'users' table");
+
+zenout.console("");
+
+** Insert users
+zenout.console("Inserting users...");
+id1 = zendb.insert("users", {name="Alice", email="alice@example.com", age=25});
+id2 = zendb.insert("users", {name="Bob", email="bob@example.com", age=30});
+id3 = zendb.insert("users", {name="Charlie", email="charlie@example.com", age=28});
+
+zenout.console("  Inserted user ID: " + id1);
+zenout.console("  Inserted user ID: " + id2);
+zenout.console("  Inserted user ID: " + id3);
+
+zenout.console("");
+
+** Select all users
+zenout.console("All users:");
+users = zendb.select("users");
+for (i = 0; i < length(users); i = i + 1) {
+    user = users[i];
+    zenout.console("  ID: " + user["id"] + ", Name: " + user["name"] + ", Age: " + user["age"]);
+};
+
+zenout.console("");
+
+** Select with where clause
+zenout.console("Users named 'Alice':");
+alices = zendb.select("users", {name="Alice"});
+for (j = 0; j < length(alices); j = j + 1) {
+    user = alices[j];
+    zenout.console("  " + user["name"] + " - " + user["email"]);
+};
+
+zenout.console("");
+
+** Update user
+zenout.console("Updating Bob's age...");
+updated = zendb.update("users", {name="Bob"}, {age=31});
+zenout.console("  Updated " + updated + " record(s)");
+
+** Verify update
+bob = zendb.select("users", {name="Bob"});
+zenout.console("  Bob's new age: " + bob[0]["age"]);
+
+zenout.console("");
+
+** Count records
+total = zendb.count("users");
+zenout.console("Total users: " + total);
+
+zenout.console("");
+
+** Delete user
+zenout.console("Deleting Charlie...");
+deleted = zendb.delete("users", {name="Charlie"});
+zenout.console("  Deleted " + deleted + " record(s)");
+
+** Count after delete
+total2 = zendb.count("users");
+zenout.console("  Remaining users: " + total2);
+
+zenout.console("");
+
+** Save database to file
+zendb.save();
+zenout.console("Database saved to myapp.zendb");
+
+zenout.console("");
+zenout.console("Database demo complete!");

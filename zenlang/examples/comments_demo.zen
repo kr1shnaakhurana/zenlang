@@ -1,0 +1,29 @@
+.include <zenout>
+
+** This is a single-line comment using ** style
+// This is a single-line comment using // style
+
+/* This is a multi-line comment
+   that spans multiple lines
+   and can contain any text */
+
+zenout.console("ZenLang supports three comment styles!");
+
+** Calculate factorial
+funct factorial(n) {
+    // Base case
+    if (n <= 1) {
+        return 1;
+    } else {
+        ** Recursive case
+        return n * factorial(n - 1);
+    };
+};
+
+/* Test the factorial function
+   with different values */
+zenout.console("5! = " + factorial(5));
+zenout.console("10! = " + factorial(10));
+
+** All three comment styles work perfectly!
+zenout.console("Comments demo complete!");

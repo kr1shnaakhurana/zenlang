@@ -1,0 +1,46 @@
+{
+  "name": "zenlang",
+  "displayName": "ZenLang",
+  "description": "ZenLang language support for Visual Studio Code",
+  "version": "1.0.0",
+  "publisher": "zenlang",
+  "icon": "images/zenlang-icon.png",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "zenlang",
+        "aliases": ["ZenLang", "zen"],
+        "extensions": [".zen"],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./images/zenlang-icon.png",
+          "dark": "./images/zenlang-icon.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "zenlang",
+        "scopeName": "source.zen",
+        "path": "./syntaxes/zenlang.tmLanguage.json"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "zenlang-icons",
+        "label": "ZenLang File Icons",
+        "path": "./fileicons/zenlang-icon-theme.json"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/zenlang"
+  }
+}

@@ -1,0 +1,56 @@
+.include <zenout>
+.include <zenlang/lib/string_utils>
+.include <zenlang/lib/array_utils>
+.include <zenlang/lib/math_utils>
+.include <zenlang/lib/validation>
+
+zenout.console("=== Using ZenLang Libraries ===");
+zenout.console("");
+
+** String utilities
+zenout.console("String Utilities:");
+text = "hello world";
+zenout.console("  Original: " + text);
+zenout.console("  Title Case: " + titleCase(text));
+zenout.console("  Reversed: " + reverseString(text));
+zenout.console("  Slug: " + slug(text));
+
+zenout.console("");
+
+** Array utilities
+zenout.console("Array Utilities:");
+numbers = [1, 2, 3, 2, 4, 3, 5];
+zenout.console("  Original: [" + join(numbers, ", ") + "]");
+zenout.console("  Unique: [" + join(unique(numbers), ", ") + "]");
+
+chunked = chunk(numbers, 3);
+zenout.console("  Chunked (size 3): " + length(chunked) + " chunks");
+
+zenout.console("");
+
+** Math utilities
+zenout.console("Math Utilities:");
+zenout.console("  Factorial(5) = " + factorial(5));
+zenout.console("  Fibonacci(10) = " + fibonacci(10));
+zenout.console("  isPrime(17) = " + isPrime(17));
+zenout.console("  GCD(48, 18) = " + gcd(48, 18));
+
+nums = [10, 20, 30, 40, 50];
+zenout.console("  Average of [10,20,30,40,50] = " + average(nums));
+zenout.console("  Median of [10,20,30,40,50] = " + median(nums));
+
+zenout.console("");
+
+** Validation
+zenout.console("Validation:");
+email = "test@example.com";
+zenout.console("  Email '" + email + "' valid? " + isValidEmail(email));
+
+password = "MyPass123";
+zenout.console("  Password '" + password + "' strong? " + isStrongPassword(password));
+
+username = "john_doe";
+zenout.console("  Username '" + username + "' valid? " + isValidUsername(username));
+
+zenout.console("");
+zenout.console("Libraries make ZenLang powerful!");

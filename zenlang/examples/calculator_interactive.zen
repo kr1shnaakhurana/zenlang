@@ -1,0 +1,78 @@
+.include <zenout>
+.include <zenin>
+.include <zenwares>
+
+** Interactive Calculator
+
+zenwares.clear();
+zenwares.title("ZenLang Interactive Calculator");
+
+funct add(a, b) {
+    return a + b;
+};
+
+funct subtract(a, b) {
+    return a - b;
+};
+
+funct multiply(a, b) {
+    return a * b;
+};
+
+funct divide(a, b) {
+    if (b == 0) {
+        zenwares.error("Cannot divide by zero!");
+        return 0;
+    } else {
+        return a / b;
+    };
+};
+
+** Main loop
+running = 1;
+
+while (running) {
+    zenout.console("");
+    zenwares.header("Calculator Menu");
+    zenout.console("1. Addition");
+    zenout.console("2. Subtraction");
+    zenout.console("3. Multiplication");
+    zenout.console("4. Division");
+    zenout.console("5. Exit");
+    zenwares.separator();
+    
+    choice = zenin.number("Select operation: ");
+    
+    if (choice >= 1 && choice <= 4) {
+        zenout.console("");
+        num1 = zenin.number("Enter first number: ");
+        num2 = zenin.number("Enter second number: ");
+        
+        result = 0;
+        operation = "";
+        
+        if (choice == 1) {
+            result = add(num1, num2);
+            operation = "+";
+        } else if (choice == 2) {
+            result = subtract(num1, num2);
+            operation = "-";
+        } else if (choice == 3) {
+            result = multiply(num1, num2);
+            operation = "*";
+        } else if (choice == 4) {
+            result = divide(num1, num2);
+            operation = "/";
+        };
+        
+        zenout.console("");
+        zenwares.success("Result: " + num1 + " " + operation + " " + num2 + " = " + result);
+        
+    } else if (choice == 5) {
+        running = 0;
+        zenout.console("");
+        zenwares.success("Thank you for using the calculator!");
+    } else {
+        zenwares.error("Invalid choice! Please select 1-5.");
+    };
+};

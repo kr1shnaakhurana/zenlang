@@ -1,0 +1,63 @@
+.include <zenout>
+.include <zenin>
+.include <zenwares>
+
+** Simple Todo List Application
+
+zenwares.clear();
+zenwares.title("ZenLang Todo List");
+
+** Initialize todo list
+todos = {};
+todoCount = 0;
+
+** Main application loop
+running = 1;
+
+while (running) {
+    zenout.console("");
+    zenwares.separator();
+    zenout.console("1. Add Todo");
+    zenout.console("2. View Todos");
+    zenout.console("3. Mark Complete");
+    zenout.console("4. Exit");
+    zenwares.separator();
+    
+    choice = zenin.number("Select option: ");
+    
+    if (choice == 1) {
+        ** Add new todo
+        zenwares.header("Add New Todo");
+        task = zenin.console("Enter task: ");
+        todoCount = todoCount + 1;
+        zenout.console("");
+        zenwares.success("Todo added successfully!");
+        
+    } else if (choice == 2) {
+        ** View all todos
+        zenwares.header("Your Todos");
+        if (todoCount == 0) {
+            zenwares.info("No todos yet. Add some!");
+        } else {
+            zenout.console("You have " + todoCount + " todo(s)");
+        };
+        
+    } else if (choice == 3) {
+        ** Mark complete
+        zenwares.header("Mark Complete");
+        if (todoCount > 0) {
+            zenwares.success("Todo marked as complete!");
+            todoCount = todoCount - 1;
+        } else {
+            zenwares.warning("No todos to complete!");
+        };
+        
+    } else if (choice == 4) {
+        ** Exit
+        running = 0;
+        zenout.console("");
+        zenwares.success("Goodbye!");
+    } else {
+        zenwares.error("Invalid choice!");
+    };
+};

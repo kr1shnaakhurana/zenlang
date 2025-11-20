@@ -1,0 +1,78 @@
+.include <zenout>
+.include <zenweb>
+
+zenout.console("Starting ZenWeb Form Example...");
+
+** Store submissions
+submissions = [];
+
+** Homepage with form
+funct homepage() {
+    content = zenweb.h1("Contact Form");
+    content = content + zenweb.p("Fill out the form below:");
+    
+    ** Create form
+    formContent = zenweb.p("Name:");
+    formContent = formContent + zenweb.input("text", "name", {placeholder="Your name"});
+    formContent = formContent + zenweb.p("Email:");
+    formContent = formContent + zenweb.input("email", "email", {placeholder="your@email.com"});
+    formContent = formContent + zenweb.p("Message:");
+    formContent = formContent + zenweb.tag("textarea", "", {name="message", rows="5", cols="40"});
+    formContent = formContent + zenweb.p("");
+    formContent = formContent + zenweb.button("Submit", {type="submit"});
+    
+    content = content + zenweb.form("/submit", "POST", formContent);
+    
+    ** Show submissions
+    if (length(submissions) > 0) {
+        content = content + zenweb.h2("Recent Submissions:");
+        for (i = 0; i < length(submissions); i = i + 1) {
+            sub = submissions[i];
+            content = content + zenweb.div(
+                zenweb.p("Name: " + sub["name"]) +
+                zenweb.p("Email: " + sub["email"]),
+                {class="submission"}
+            );
+        };
+    };
+    
+    styles = "
+        input, textarea { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #4CAF50; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #45a049; }
+        .submission { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 4px; }
+    ";
+    
+    return zenweb.page("Contact Form", content, styles);
+};
+
+** Handle form submission
+funct submitform() {
+    ** Get form data
+    name = zenweb.getData("name", "");
+    email = zenweb.getData("email", "");
+    
+    ** Store submission
+    submission = {name=name, email=email};
+    push(submissions, submission);
+    
+    zenout.console("New submission from: " + name);
+    
+    ** Redirect back to homepage
+    return zenweb.redirect("/");
+};
+
+** Register routes
+zenweb.route("/", homepage);
+zenweb.route("/submit", submitform);
+
+** Start server
+server = zenweb.start(8080);
+
+zenout.console("Form example running on http://localhost:8080");
+zenout.console("Press Ctrl+C to stop");
+
+** Keep running
+while (1) {
+    ** Server runs in background
+};

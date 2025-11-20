@@ -1,0 +1,79 @@
+.include <zenout>
+.include <zenin>
+
+zenout.console("=== Complete User Input Demo ===");
+zenout.console("");
+
+** Text input
+name = zenin.console("Enter your name: ");
+zenout.console("Hello, " + name + "!");
+
+zenout.console("");
+
+** Number input
+age = zenin.number("Enter your age: ");
+zenout.console("You are " + age + " years old.");
+
+** Calculate birth year
+birthYear = 2025 - age;
+zenout.console("You were born around " + birthYear);
+
+zenout.console("");
+
+** Array input
+zenout.console("Enter 3 favorite numbers:");
+favorites = [];
+for (i = 0; i < 3; i = i + 1) {
+    num = zenin.number("  Number " + (i + 1) + ": ");
+    push(favorites, num);
+};
+
+zenout.console("");
+zenout.console("Your favorites: [" + join(favorites, ", ") + "]");
+zenout.console("Sum: " + sum(favorites));
+zenout.console("Average: " + avg(favorites));
+zenout.console("Max: " + max(favorites));
+
+zenout.console("");
+
+** List input
+zenout.console("Enter 3 favorite colors:");
+colors = [];
+for (j = 0; j < 3; j = j + 1) {
+    color = zenin.console("  Color " + (j + 1) + ": ");
+    push(colors, color);
+};
+
+zenout.console("");
+zenout.console("Your colors: " + join(colors, ", "));
+zenout.console("First color: " + colors[0]);
+zenout.console("Last color: " + colors[length(colors) - 1]);
+
+zenout.console("");
+
+** Yes/No questions
+likesZen = zenin.yesno("Do you like ZenLang?");
+if (likesZen) {
+    zenout.console("Awesome! Keep coding!");
+} else {
+    zenout.console("Give it more time!");
+};
+
+zenout.console("");
+
+** Object from input
+zenout.console("Create your profile:");
+username = zenin.console("  Username: ");
+email = zenin.console("  Email: ");
+userAge = zenin.number("  Age: ");
+
+profile = {username=username, email=email, age=userAge};
+
+zenout.console("");
+zenout.console("Profile created!");
+zenout.console("  Username: " + profile["username"]);
+zenout.console("  Email: " + profile["email"]);
+zenout.console("  Age: " + profile["age"]);
+
+zenout.console("");
+zenout.console("User input works with all data types!");

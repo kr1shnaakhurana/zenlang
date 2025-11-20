@@ -1,0 +1,71 @@
+** Pure ZenLang Notepad
+** Simple text editor using only ZenLang classes
+
+.include <zenlang/lib/gui_framework>
+.include <fs>
+
+** Create window
+window = new Window("ZenLang Notepad", 700, 500);
+
+** Create text area
+textArea = new TextArea(10, 50, 680, 400);
+
+** Create buttons
+btnNew = new Button("New", 10, 10, 80, 30);
+btnOpen = new Button("Open", 100, 10, 80, 30);
+btnSave = new Button("Save", 190, 10, 80, 30);
+btnClear = new Button("Clear", 280, 10, 80, 30);
+btnAbout = new Button("About", 370, 10, 80, 30);
+
+** New file handler
+funct onNewClick() {
+    if (length(textArea.getText()) > 0) {
+        confirm = MessageBox.askYesNo("New File", "Clear current content?");
+        if (confirm) {
+            textArea.clear();
+        }
+    }
+}
+
+** Open file handler
+funct onOpenClick() {
+    filepath = FileDialog.openFile("Open Text File");
+    if (filepath != null && filepath != "") {
+        content = fs.read(filepath);
+        textArea.setText(content);
+        MessageBox.show("Success", "File opened successfully!");
+    }
+}
+
+** Save file handler
+funct onSaveClick() {
+    filepath = FileDialog.saveFile("Save Text File");
+    if (filepath != null && filepath != "") {
+        content = textArea.getText();
+        fs.write(filepath, content);
+        MessageBox.show("Success", "File saved successfully!");
+    }
+}
+
+** Clear handler
+funct onClearClick() {
+    confirm = MessageBox.askYesNo("Clear", "Clear all text?");
+    if (confirm) {
+        textArea.clear();
+    }
+}
+
+** About handler
+funct onAboutClick() {
+    MessageBox.show("About", "ZenLang Notepad\nVersion 1.0\n\nA simple text editor built with pure ZenLang!");
+}
+
+** Set button handlers
+btnNew.setClickHandler(onNewClick);
+btnOpen.setClickHandler(onOpenClick);
+btnSave.setClickHandler(onSaveClick);
+btnClear.setClickHandler(onClearClick);
+btnAbout.setClickHandler(onAboutClick);
+
+** Show window
+window.show();

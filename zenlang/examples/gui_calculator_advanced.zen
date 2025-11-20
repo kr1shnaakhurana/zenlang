@@ -1,0 +1,243 @@
+** Advanced Calculator with Custom GUI
+** Demonstrates practical GUI application
+
+.include <zenout>
+.include <zenlang/lib/gui>
+
+zenout.console("=== Advanced Calculator ===");
+
+** Calculator Application Class
+class Calculator {
+    private display;
+    private currentValue;
+    private previousValue;
+    private operation;
+    private newNumber;
+    
+    funct Calculator() {
+        this.display = new TextBox("0");
+        this.display.setReadOnly(true);
+        this.currentValue = 0;
+        this.previousValue = 0;
+        this.operation = "";
+        this.newNumber = true;
+    }
+    
+    public funct getDisplay() {
+        return this.display;
+    }
+    
+    public funct inputDigit(digit) {
+        currentText = this.display.getText();
+        
+        if (this.newNumber) {
+            this.display.setText(digit + "");
+            this.newNumber = false;
+        } else {
+            if (currentText == "0") {
+                this.display.setText(digit + "");
+            } else {
+                this.display.setText(currentText + digit);
+            }
+        }
+    }
+    
+    public funct inputDecimal() {
+        currentText = this.display.getText();
+        if (!contains(currentText, ".")) {
+            this.display.setText(currentText + ".");
+        }
+    }
+    
+    public funct setOperation(op) {
+        this.previousValue = float(this.display.getText());
+        this.operation = op;
+        this.newNumber = true;
+    }
+    
+    public funct calculate() {
+        this.currentValue = float(this.display.getText());
+        result = 0;
+        
+        if (this.operation == "+") {
+            result = this.previousValue + this.currentValue;
+        } else if (this.operation == "-") {
+            result = this.previousValue - this.currentValue;
+        } else if (this.operation == "*") {
+            result = this.previousValue * this.currentValue;
+        } else if (this.operation == "/") {
+            if (this.currentValue != 0) {
+                result = this.previousValue / this.currentValue;
+            } else {
+                this.display.setText("Error");
+                return;
+            }
+        }
+        
+        this.display.setText(result + "");
+        this.currentValue = result;
+        this.newNumber = true;
+    }
+    
+    public funct clear() {
+        this.display.setText("0");
+        this.currentValue = 0;
+        this.previousValue = 0;
+        this.operation = "";
+        this.newNumber = true;
+    }
+    
+    public funct backspace() {
+        currentText = this.display.getText();
+        if (length(currentText) > 1) {
+            this.display.setText(substring(currentText, 0, length(currentText) - 1));
+        } else {
+            this.display.setText("0");
+        }
+    }
+}
+
+** Create application
+app = new Application("Advanced Calculator", 320, 420);
+window = app.getMainWindow();
+
+** Create calculator instance
+calc = new Calculator();
+
+** Setup display
+display = calc.getDisplay();
+display.setBounds(20, 20, 280, 40);
+window.addChild(display);
+
+** Button creation helper
+class CalcButton extends Button {
+    private calculator;
+    private value;
+    
+    funct CalcButton(text, calcRef) {
+        this.text = text;
+        this.calculator = calcRef;
+        this.value = text;
+        this.width = 60;
+        this.height = 50;
+        this.children = new ArrayList();
+    }
+    
+    public funct setCalculator(calcRef) {
+        this.calculator = calcRef;
+    }
+    
+    public funct setValue(val) {
+        this.value = val;
+    }
+}
+
+** Create number buttons (0-9)
+zenout.console("Creating number buttons...");
+
+buttons = new ArrayList();
+
+** Row 1: 7, 8, 9
+btn7 = new Button("7");
+btn7.setBounds(20, 80, 60, 50);
+btn7.setOnClick(funct() { calc.inputDigit(7); });
+window.addChild(btn7);
+
+btn8 = new Button("8");
+btn8.setBounds(90, 80, 60, 50);
+btn8.setOnClick(funct() { calc.inputDigit(8); });
+window.addChild(btn8);
+
+btn9 = new Button("9");
+btn9.setBounds(160, 80, 60, 50);
+btn9.setOnClick(funct() { calc.inputDigit(9); });
+window.addChild(btn9);
+
+** Row 2: 4, 5, 6
+btn4 = new Button("4");
+btn4.setBounds(20, 140, 60, 50);
+btn4.setOnClick(funct() { calc.inputDigit(4); });
+window.addChild(btn4);
+
+btn5 = new Button("5");
+btn5.setBounds(90, 140, 60, 50);
+btn5.setOnClick(funct() { calc.inputDigit(5); });
+window.addChild(btn5);
+
+btn6 = new Button("6");
+btn6.setBounds(160, 140, 60, 50);
+btn6.setOnClick(funct() { calc.inputDigit(6); });
+window.addChild(btn6);
+
+** Row 3: 1, 2, 3
+btn1 = new Button("1");
+btn1.setBounds(20, 200, 60, 50);
+btn1.setOnClick(funct() { calc.inputDigit(1); });
+window.addChild(btn1);
+
+btn2 = new Button("2");
+btn2.setBounds(90, 200, 60, 50);
+btn2.setOnClick(funct() { calc.inputDigit(2); });
+window.addChild(btn2);
+
+btn3 = new Button("3");
+btn3.setBounds(160, 200, 60, 50);
+btn3.setOnClick(funct() { calc.inputDigit(3); });
+window.addChild(btn3);
+
+** Row 4: 0, ., =
+btn0 = new Button("0");
+btn0.setBounds(20, 260, 60, 50);
+btn0.setOnClick(funct() { calc.inputDigit(0); });
+window.addChild(btn0);
+
+btnDot = new Button(".");
+btnDot.setBounds(90, 260, 60, 50);
+btnDot.setOnClick(funct() { calc.inputDecimal(); });
+window.addChild(btnDot);
+
+btnEquals = new Button("=");
+btnEquals.setBounds(160, 260, 60, 50);
+btnEquals.setOnClick(funct() { calc.calculate(); });
+window.addChild(btnEquals);
+
+** Operation buttons
+btnAdd = new Button("+");
+btnAdd.setBounds(240, 80, 60, 50);
+btnAdd.setOnClick(funct() { calc.setOperation("+"); });
+window.addChild(btnAdd);
+
+btnSub = new Button("-");
+btnSub.setBounds(240, 140, 60, 50);
+btnSub.setOnClick(funct() { calc.setOperation("-"); });
+window.addChild(btnSub);
+
+btnMul = new Button("*");
+btnMul.setBounds(240, 200, 60, 50);
+btnMul.setOnClick(funct() { calc.setOperation("*"); });
+window.addChild(btnMul);
+
+btnDiv = new Button("/");
+btnDiv.setBounds(240, 260, 60, 50);
+btnDiv.setOnClick(funct() { calc.setOperation("/"); });
+window.addChild(btnDiv);
+
+** Clear and Backspace
+btnClear = new Button("C");
+btnClear.setBounds(20, 320, 130, 50);
+btnClear.setOnClick(funct() { calc.clear(); });
+window.addChild(btnClear);
+
+btnBack = new Button("<-");
+btnBack.setBounds(170, 320, 130, 50);
+btnBack.setOnClick(funct() { calc.backspace(); });
+window.addChild(btnBack);
+
+zenout.console("Calculator UI created successfully!");
+zenout.console("Total buttons: 20");
+zenout.console("\nCalculator ready to use!");
+zenout.console("Features:");
+zenout.console("  - Basic operations: +, -, *, /");
+zenout.console("  - Decimal support");
+zenout.console("  - Clear and Backspace");
+zenout.console("\nNote: Call app.run() to show the GUI");

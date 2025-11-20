@@ -1,0 +1,8 @@
+.include <zenout>
+.include <zenlang/lib/data_processing>
+
+zenout.console("Testing data processing...");
+data = [10, 20, 30, 40, 50];
+stats = statistics(data);
+zenout.console("Mean: " + stats["mean"]);
+zenout.console("Done!");
